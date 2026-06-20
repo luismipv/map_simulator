@@ -147,7 +147,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
                 contagionTimer -= Time.deltaTime;
                 if (contagionTimer <= 0f)
                 {
-                    if (logicManager != null) logicManager.TryInfectStudent(this);
+                    if (DistractionManager.Instance != null) DistractionManager.Instance.TryInfectStudent(this);
                     contagionTimer = contagionInterval; 
                 }
                 break;

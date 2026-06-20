@@ -180,10 +180,21 @@ public class Logic : MonoBehaviour
 
         // 2. NUEVA CONDICIÓN DE FIN DE CLASE ANTICIPADO:
         // Si ya todos se graduaron o se dieron de baja, la clase se acabó.
+                // 2. CONDICIÓN DE FIN DE CLASE O AVANCE DE RONDA:
         if (dropoutCount + graduatedCount >= allStudents.Count)
         {
-            Debug.Log("Ya no quedan alumnos activos en el salón. Calculando resultado final...");
-            EndGame(); // Esto detiene el juego y da la victoria por terminar el semestre
+            // Si el salón actual se vació pero aún no llegamos a 12 alumnos... ¡Siguiente ronda!
+            if (allStudents.Count < 12)
+            {
+                int nextAmount = allStudents.Count + 2;
+                StartCoroutine(NextRoundRoutine(nextAmount));
+            }
+            else
+            {
+                // Si ya sobrevivieron la ronda de 12, entonces sí ganaron el juego completo
+                Debug.Log("¡Felicidades Profesor Leyenda! Completaste todo el semestre.");
+                EndGame(); 
+            }
         }
     }
 
@@ -259,7 +270,7 @@ public class Logic : MonoBehaviour
             bool likedIt = false;
 
             // Reacciones basadas en la personalidad!
-            switch (s.personality)
+            switch (s.personalityData.personalityType)
             {
                 case StudentPersonality.Slacker:
                     // Al flojo SIEMPRE le gustan los chistes
@@ -281,7 +292,7 @@ public class Logic : MonoBehaviour
             }
 
             // Mostramos la carita correspondiente
-            s.ShowJokeFeedback(likedIt); 
+            s.RequestJokeFeedback(likedIt);
         }
     }
 
@@ -329,7 +340,7 @@ public class Logic : MonoBehaviour
             s.ChangeState(StudentState.Working); // Forzamos a trabajar
 
             // Reacciones al Examen Sorpresa
-            switch (s.personality)
+            switch (s.personalityData.personalityType)
             {
                 case StudentPersonality.Nerd:
                     s.learningMultiplier = 3.5f; // Súper concentración (Aprende muchísimo)
@@ -377,14 +388,13 @@ public class Logic : MonoBehaviour
     private IEnumerator PrivateTutoringRoutine(Student student)
     {
         isTeacherBusy = true;
-        HideStudentButtons();
         if (busyIndicatorUI != null) busyIndicatorUI.SetActive(true);
 
         Debug.Log($"Iniciando asesoría privada con {student.studentName}. El maestro estará ocupado por 5s.");
 
         // CONFIGURACIÓN DEL RECOMPENSA:
         // Si es Ansioso, ¡aprende 10 veces más rápido! Si es otro, aprende 4 veces más rápido.
-        float learningBoost = (student.personality == StudentPersonality.Anxious) ? 10f : 4f;
+        float learningBoost = (student.personalityData.personalityType == StudentPersonality.Anxious) ? 10f : 4f;
         student.learningMultiplier = learningBoost;
         
         // Mientras el maestro le explica pacientemente, ¡su estrés BAJA en lugar de subir! (-2x)
@@ -442,16 +452,16 @@ public class Logic : MonoBehaviour
                 target.ChangeState(StudentState.Distracted);
                 
                 // Ambos muestran feedback de éxito
-                source.ShowDistractionFeedback(true, target.studentName);
-                target.ShowDistractionFeedback(true, source.studentName);
+                source.RequestDistractionFeedback(true, target.studentName);
+                target.RequestDistractionFeedback(true, source.studentName);
                 
                 Debug.Log($"¡El chisme pegó! {source.studentName} distrajo a su vecino {target.studentName}");
             }
             else
             {
                 // El que inició el chisme se queda con las ganas, el otro lo rechaza
-                //source.ShowDistractionFeedback(false);
-                target.ShowDistractionFeedback(false);
+                //source.RequestDistractionFeedback(false);
+                target.RequestDistractionFeedback(false, source.studentName);
                 
                 Debug.Log($"{source.studentName} intentó distraer a {target.studentName}, pero lo ignoró.");
             }
@@ -461,19 +471,7 @@ public class Logic : MonoBehaviour
     // --- INTERACCIÓN INDIVIDUAL (BISTURÍ) ---
     // ==========================================
     
-    public void ShowButtons() 
-    { 
-        if (selectedStudent != null && selectedStudent.buttonsPanel != null) 
-        {
-            if (isTeacherBusy) return; 
-            if (selectedStudent != null && selectedStudent.buttonsPanel != null) 
-            {
-                selectedStudent.buttonsPanel.SetActive(true); 
-            }
-        }
-    }
-    private void HideStudentButtons() { if (selectedStudent != null && selectedStudent.buttonsPanel != null) selectedStudent.buttonsPanel.SetActive(false); }
-
+   
 
         // Conecta estas funciones a tus botones de la UI Global
     public void SelectToolHomework() { currentTool = PlayerTool.Homework; UpdateButtonVisuals(); Debug.Log("Herramienta: Tarea"); }
@@ -629,14 +627,14 @@ public class Logic : MonoBehaviour
             {
                 // Premio: Pasó el examen, siente un gran alivio
                 s.ModifyStressInstant(-35f); 
-                 s.ShowExamResultFeedback(true);
+                s.RequestExamFeedback(true);
                 Debug.Log($"{s.studentName} pasó el parcial tranquilamente.");
             }
             else
             {
                 // Castigo: Reprobó el parcial, entra en crisis
                 s.ModifyStressInstant(40f);
-                s.ShowExamResultFeedback(false); // Llamamos al feedback visual
+                s.RequestExamFeedback(false); // Llamamos al feedback visual
                 Debug.Log($"{s.studentName} reprobó el parcial. ¡Pánico!");
             }
         }
@@ -673,6 +671,30 @@ public class Logic : MonoBehaviour
                 Gizmos.DrawWireSphere(student.transform.position, contagionRadius);
             }
         }
+    }
+
+        private IEnumerator NextRoundRoutine(int cantidadAlumnos)
+    {
+        Debug.Log($"¡Ronda completada! Preparando salón para {cantidadAlumnos} alumnos...");
+        
+        // 1. Buscamos el spawner y le ordenamos reiniciar el salón con la nueva cantidad
+        StudentSpawner spawner = Object.FindAnyObjectByType<StudentSpawner>();
+        if (spawner != null)
+        {
+            spawner.NextRound(cantidadAlumnos);
+        }
+
+        // 2. Esperamos al final del frame para que Unity termine de borrar los viejos e instanciar los nuevos
+        yield return new WaitForEndOfFrame();
+
+        // 3. Volvemos a escanear el salón para actualizar nuestra lista de alumnos activos
+        allStudents = new List<Student>(Object.FindObjectsByType<Student>(FindObjectsSortMode.None));
+
+        // [Opcional] Si quieres que el temporizador global se reinicie en cada ronda, descomenta la siguiente línea:
+        globalTimer = maxGlobalTimer;
+        partialExamInterval = 100f; // Reiniciamos el contador del examen parcial también
+
+        Debug.Log("¡Nueva ronda iniciada con éxito!");
     }
 
 }

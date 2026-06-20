@@ -155,7 +155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 56.9, y: 0}
+  m_AnchoredPosition: {x: 56.899902, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &72020384
@@ -188,8 +188,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   studentPrefab: {fileID: 1433359620011395308, guid: 6e27047b93c9f47c3bbb10b1407a4da1, type: 3}
-  spacingX: 3
-  spacingY: 3.3
+  numberOfStudents: 2
+  marginX: 2
+  marginY: 4
+  maxSpacingX: 4
+  maxSpacingY: 3
+  availablePersonalities:
+  - {fileID: 11400000, guid: 9835f986cc5a340d1b12967bdcbed821, type: 2}
+  - {fileID: 11400000, guid: 09e8e62c8aa834187bda7af01272a27b, type: 2}
+  - {fileID: 11400000, guid: 9f0c8b9ae74bb4a6d81e7db69b4dfbca, type: 2}
+  - {fileID: 11400000, guid: fab0cb3621ece411992e0fa3eb3afcdd, type: 2}
   firstNames:
   - Ana
   - Luis

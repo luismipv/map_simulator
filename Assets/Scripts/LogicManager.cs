@@ -35,6 +35,7 @@ public class Logic : MonoBehaviour
     public Dictionary<Student, int> homeworkStreak = new Dictionary<Student, int>(); 
     public bool isTeacherBusy = false;
     private bool isGameActive = true;
+    private bool isTransitioning = false;
 
     void Start()
     {
@@ -95,7 +96,7 @@ public class Logic : MonoBehaviour
         UIManager.Instance.UpdateMetrics(averageStress, averageLearning);
     }
 
-    private void CheckDropouts()
+        private void CheckDropouts()
     {
         int dropoutCount = 0;
         int graduatedCount = 0;
@@ -107,8 +108,6 @@ public class Logic : MonoBehaviour
         }
 
         currentDropouts = dropoutCount;
-        
-        // Le decimos a la UI que actualice el texto de las bajas
         UIManager.Instance.UpdateDropouts(currentDropouts, maxDropouts);
 
         if (currentDropouts >= maxDropouts)
@@ -117,8 +116,11 @@ public class Logic : MonoBehaviour
             return; 
         }
 
-        if (dropoutCount + graduatedCount >= allStudents.Count)
+        // ¡EL FIX ESTÁ AQUÍ! Agregamos "&& !isTransitioning"
+        if (dropoutCount + graduatedCount >= allStudents.Count && !isTransitioning)
         {
+            isTransitioning = true; // Ponemos el seguro para que el Update no vuelva a entrar aquí
+
             if (allStudents.Count < 12)
             {
                 int nextAmount = allStudents.Count + 2;
@@ -183,19 +185,37 @@ public class Logic : MonoBehaviour
 
    
 
-    private IEnumerator NextRoundRoutine(int cantidadAlumnos)
+        private IEnumerator NextRoundRoutine(int cantidadAlumnos)
     {
-        StudentSpawner spawner = Object.FindAnyObjectByType<StudentSpawner>();
-        if (spawner != null) spawner.NextRound(cantidadAlumnos);
+        // 1. BARRIDO DEL SALÓN: Destruimos a todos los alumnos viejos y liberamos sus sillas
+        foreach (Student s in allStudents)
+        {
+            if (s != null)
+            {
+                if (s.currentSeat != null) s.currentSeat.currentStudent = null; // Liberamos la silla
+                Destroy(s.gameObject); // Despedimos al alumno
+            }
+        }
 
+        // Esperamos un frame para que Unity los borre de la memoria por completo
         yield return new WaitForEndOfFrame();
 
-        allStudents = new List<Student>(Object.FindObjectsByType<Student>(FindObjectsSortMode.None));
+        // 2. Llamamos al Spawner para que traiga a la nueva generación
+        StudentSpawner spawner = FindAnyObjectByType<StudentSpawner>();
+        if (spawner != null) spawner.NextRound(cantidadAlumnos);
+
+        // Esperamos otro frame para que el Spawner termine de acomodarlos
+        yield return new WaitForEndOfFrame();
+
+        // 3. Actualizamos la lista oficial de Logic con los nuevos alumnos
+        allStudents = new List<Student>(FindObjectsByType<Student>(FindObjectsSortMode.None));
 
         globalTimer = maxGlobalTimer;
-       if (ExamManager.Instance != null)
+        
+        if (ExamManager.Instance != null)
         {
             ExamManager.Instance.ResetExamTimer();
         }
+        isTransitioning = false; // Quitamos el seguro para permitir futuras transiciones
     }
 }

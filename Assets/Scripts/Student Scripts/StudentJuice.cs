@@ -78,7 +78,7 @@ public class StudentJuice : MonoBehaviour
         }
     }
 
-    private void HandleShakeEffect(float currentStress, StudentState state)
+        private void HandleShakeEffect(float currentStress, StudentState state)
     {
         if (currentStress >= burnoutWarningThreshold && 
             state != StudentState.Burnout && 
@@ -87,13 +87,15 @@ public class StudentJuice : MonoBehaviour
             state != StudentState.Resting)
         {
             isShaking = true;
-            // ¡CAMBIO AQUÍ! Movemos solo el transform del spriteRenderer
-            transform.localPosition = studentCore.currentSeat.transform.position + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
+            
+            // ¡MAGIA PURA! Movemos SOLAMENTE el dibujo (el hijo).
+            // Como su papá es el Asiento, su "centro" siempre es Vector3.zero
+            spriteRenderer.transform.localPosition = Vector3.zero + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
         }
         else if (isShaking)
         {
-            // ¡CAMBIO AQUÍ! Regresamos solo el transform del spriteRenderer
-            transform.localPosition = studentCore.currentSeat.transform.position;
+            // Regresamos el dibujo a su centro exacto (0,0,0)
+            spriteRenderer.transform.localPosition = Vector3.zero;
             isShaking = false;
         }
     }

@@ -25,6 +25,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public float workingStressRate = 5f;     
     public float flowStressRate = 15f;       
     public float restingRecoveryRate = 10f;  
+    [HideInInspector] public float toolStressMultiplier = 1f; 
+    [HideInInspector] public float toolLearningMultiplier = 1f; 
 
     [Header("Estadísticas: Aprendizaje")]
     public float learningLevel = 0f;
@@ -125,14 +127,14 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             
              case StudentState.Working:
                 float panicMult = (logicManager != null) ? logicManager.currentSemesterMultiplier : 1f;
-                stressLevel += (workingStressRate * stressMultiplier * panicMult) * Time.deltaTime;
-                learningLevel += (workingLearningRate * learningMultiplier) * Time.deltaTime; 
+                stressLevel += (workingStressRate * stressMultiplier * toolStressMultiplier * panicMult) * Time.deltaTime;
+                learningLevel += (workingLearningRate * learningMultiplier * toolLearningMultiplier) * Time.deltaTime; 
                 break;
 
             case StudentState.Flow:
                 float flowPanicMult = (logicManager != null) ? logicManager.currentSemesterMultiplier : 1f;
-                stressLevel += (flowStressRate * stressMultiplier * flowPanicMult) * Time.deltaTime;
-                learningLevel += (flowLearningRate * learningMultiplier) * Time.deltaTime; 
+                stressLevel += (flowStressRate * stressMultiplier * flowPanicMult * toolStressMultiplier) * Time.deltaTime;
+                learningLevel += (flowLearningRate * learningMultiplier * toolLearningMultiplier) * Time.deltaTime; 
                 currentFlowTimer -= Time.deltaTime; 
                 if (currentFlowTimer <= 0f) ChangeState(StudentState.Working); 
                 break;
@@ -253,49 +255,57 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
 
     // 3. Cuando sueltas el clic
-       public void OnEndDrag(PointerEventData eventData)
+           public void OnEndDrag(PointerEventData eventData)
     {
         bool dragExitoso = false;
+        
+        // El radio de alcance del "imán". Ajústalo si sientes que lo jala desde muy lejos.
+        float snapRadius = 3f; 
 
-        // VISIÓN DE RAYOS X: Disparamos un rayo que guarda TODO lo que toca
-        List<RaycastResult> resultados = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, resultados);
+        // 1. Buscamos TODAS las sillas en el salón
+        Seat[] todasLasSillas = FindObjectsByType<Seat>(FindObjectsSortMode.None);        Seat sillaMasCercana = null;
+        float distanciaMinima = float.MaxValue;
 
-        // Revisamos todo lo que atravesó el rayo
-        foreach (RaycastResult resultado in resultados)
+        // 2. Medimos con cuál silla estamos más cerca
+        foreach (Seat silla in todasLasSillas)
         {
-            GameObject objetoTocado = resultado.gameObject;
-
-            // CASO 1: ¿Atravesamos a otro Alumno?
-            Student targetStudent = objetoTocado.GetComponentInParent<Student>();
-            if (targetStudent != null && targetStudent != this)
+            float distancia = Vector2.Distance(transform.position, silla.transform.position);
+            if (distancia < distanciaMinima && distancia <= snapRadius)
             {
-                Seat myOldSeat = this.currentSeat;
-                Seat hisOldSeat = targetStudent.currentSeat;
-
-                if (myOldSeat != null && hisOldSeat != null)
-                {
-                    hisOldSeat.AssignStudent(this);
-                    myOldSeat.AssignStudent(targetStudent);
-                    dragExitoso = true;
-                    break; // ¡Éxito! Dejamos de buscar
-                }
-            }
-
-            // CASO 2: ¿Atravesamos un Asiento vacío?
-            Seat targetSeat = objetoTocado.GetComponentInParent<Seat>();
-            if (targetSeat != null && targetSeat.currentStudent == null)
-            {
-                Seat myOldSeat = this.currentSeat;
-                if (myOldSeat != null) myOldSeat.currentStudent = null;
-
-                targetSeat.AssignStudent(this); 
-                dragExitoso = true;
-                break; // ¡Éxito! Dejamos de buscar
+                distanciaMinima = distancia;
+                sillaMasCercana = silla;
             }
         }
 
-        // CASO 3: Si lo soltamos en la nada
+        // 3. Si soltamos el alumno cerca de una silla...
+        if (sillaMasCercana != null)
+        {
+            // CASO A: La silla está ocupada por OTRO alumno (Intercambio)
+            if (sillaMasCercana.currentStudent != null && sillaMasCercana.currentStudent != this)
+            {
+                Seat miSillaVieja = this.currentSeat;
+                Seat suSillaVieja = sillaMasCercana;
+                Student elOtroAlumno = sillaMasCercana.currentStudent;
+
+                if (miSillaVieja != null)
+                {
+                    suSillaVieja.AssignStudent(this);
+                    miSillaVieja.AssignStudent(elOtroAlumno);
+                    dragExitoso = true;
+                }
+            }
+            // CASO B: La silla está vacía
+            else if (sillaMasCercana.currentStudent == null)
+            {
+                Seat miSillaVieja = this.currentSeat;
+                if (miSillaVieja != null) miSillaVieja.currentStudent = null; // Liberamos nuestra silla
+
+                sillaMasCercana.AssignStudent(this); // Nos sentamos en la nueva
+                dragExitoso = true;
+            }
+        }
+
+        // 4. Si lo soltamos en la nada (o muy lejos de cualquier silla)
         if (dragExitoso == false)
         {
             if (currentSeat != null) transform.position = currentSeat.transform.position;

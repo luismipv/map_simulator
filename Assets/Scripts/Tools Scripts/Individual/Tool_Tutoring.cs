@@ -22,8 +22,8 @@ public class ToolTutoring : TeacherTool
 
         // Bonificaciones según la personalidad
         float learningBoost = (student.personalityData.personalityType == StudentPersonality.Anxious) ? 10f : 4f;
-        student.learningMultiplier = learningBoost;
-        student.stressMultiplier = -2f; // El estrés baja durante la asesoría
+        student.toolLearningMultiplier = learningBoost;
+        student.toolStressMultiplier = -2f; // El estrés baja durante la asesoría
 
         student.ChangeState(StudentState.Working);
 
@@ -33,7 +33,8 @@ public class ToolTutoring : TeacherTool
         // Devolvemos todo a la normalidad si el alumno sigue en el salón
         if (student.currentState != StudentState.Graduated && student.currentState != StudentState.DroppedOut)
         {
-            student.learningMultiplier = 1f;
+            student.toolLearningMultiplier = 1f;
+            student.toolStressMultiplier = 1f;
             student.stressMultiplier = 1f;
         }
 

@@ -314,6 +314,7 @@ GameObject:
   - component: {fileID: 1890518643287872859}
   - component: {fileID: 818600962525013031}
   - component: {fileID: 4968176176819280478}
+  - component: {fileID: 8615577723607062811}
   m_Layer: 0
   m_Name: Alumno
   m_TagString: Untagged
@@ -353,6 +354,7 @@ MonoBehaviour:
   studentName: 
   currentState: 0
   personalityData: {fileID: 0}
+  currentSeat: {fileID: 0}
   stressLevel: 0
   maxStress: 100
   workingStressRate: 2.5
@@ -450,6 +452,18 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.59
+--- !u!225 &8615577723607062811
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1433359620011395308}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2690812852534314318
 GameObject:
   m_ObjectHideFlags: 0

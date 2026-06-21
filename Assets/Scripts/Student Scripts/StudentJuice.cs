@@ -16,7 +16,7 @@ public class StudentJuice : MonoBehaviour
 
     [Header("Shake Effect")]
     public float burnoutWarningThreshold = 85f; 
-    public float shakeIntensity = 2f;           
+    public float shakeIntensity = 0.02f;           
     
     private Vector3 originalPosition;           
     private bool isShaking = false;             
@@ -84,14 +84,16 @@ public class StudentJuice : MonoBehaviour
             state != StudentState.Burnout && 
             state != StudentState.DroppedOut && 
             state != StudentState.Graduated && 
-            state != StudentState.Resting) // Añadí Resting aquí para que no tiemblen si descansan
+            state != StudentState.Resting)
         {
             isShaking = true;
-            transform.localPosition = originalPosition + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
+            // ¡CAMBIO AQUÍ! Movemos solo el transform del spriteRenderer
+            transform.localPosition = studentCore.currentSeat.transform.position + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
         }
         else if (isShaking)
         {
-            transform.localPosition = originalPosition;
+            // ¡CAMBIO AQUÍ! Regresamos solo el transform del spriteRenderer
+            transform.localPosition = studentCore.currentSeat.transform.position;
             isShaking = false;
         }
     }

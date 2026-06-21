@@ -1,17 +1,23 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System; // Necesario para los Eventos (Action)
+using System.Collections.Generic; // Necesario para Listas y Diccionarios
 
 // Los Enums se quedan igual, fuera de la clase
 public enum StudentState { Working, Flow, Burnout, Resting, DroppedOut, Distracted, Graduated }
 public enum StudentPersonality { Normal, Nerd, Slacker, Anxious }
 
-public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IEndDragHandler, IDragHandler,IPointerClickHandler
 {
     [Header("Datos del Estudiante")]
     public string studentName = "Juan Perez"; 
     public StudentState currentState = StudentState.Working; 
     public StudentPersonalitySO personalityData;
+
+    [Header("Sistema de Asientos")]
+    public Seat currentSeat;
+    private Vector3 originalPosition; // Para regresar si lo sueltas en la nada
+    private int originalSiblingIndex; // Para el orden visual (opcional)
 
     [Header("Estadísticas: Estrés")]
     public float stressLevel = 0f; 
@@ -212,5 +218,97 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;
         if (logicManager != null) logicManager.ApplyToolToStudent(this);
+    }
+
+        // 1. Cuando haces el primer clic y empiezas a mover el mouse
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        originalPosition = transform.position; 
+    }
+
+    // 2. Mientras mueves el mouse por la pantalla
+    public void OnDrag(PointerEventData eventData)
+    {
+        RectTransform miRect = GetComponent<RectTransform>();
+        
+        // CASO A: Si tus alumnos son de UI
+        if (miRect != null)
+        {
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(
+                miRect, 
+                eventData.position, 
+                eventData.pressEventCamera, 
+                out Vector3 posicionCorrecta);
+            
+            transform.position = posicionCorrecta;
+        }
+        // CASO B: Si tus alumnos son objetos 2D en el mundo
+        else
+        {
+            // ¡La magia está aquí! Usamos eventData.position en lugar de Input.mousePosition
+            Vector3 posicionMouse = Camera.main.ScreenToWorldPoint(eventData.position);
+            posicionMouse.z = 0f; // Evita que se sumerjan en el eje Z
+            transform.position = posicionMouse;
+        }
+    }
+
+    // 3. Cuando sueltas el clic
+       public void OnEndDrag(PointerEventData eventData)
+    {
+        bool dragExitoso = false;
+
+        // VISIÓN DE RAYOS X: Disparamos un rayo que guarda TODO lo que toca
+        List<RaycastResult> resultados = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, resultados);
+
+        // Revisamos todo lo que atravesó el rayo
+        foreach (RaycastResult resultado in resultados)
+        {
+            GameObject objetoTocado = resultado.gameObject;
+
+            // CASO 1: ¿Atravesamos a otro Alumno?
+            Student targetStudent = objetoTocado.GetComponentInParent<Student>();
+            if (targetStudent != null && targetStudent != this)
+            {
+                Seat myOldSeat = this.currentSeat;
+                Seat hisOldSeat = targetStudent.currentSeat;
+
+                if (myOldSeat != null && hisOldSeat != null)
+                {
+                    hisOldSeat.AssignStudent(this);
+                    myOldSeat.AssignStudent(targetStudent);
+                    dragExitoso = true;
+                    break; // ¡Éxito! Dejamos de buscar
+                }
+            }
+
+            // CASO 2: ¿Atravesamos un Asiento vacío?
+            Seat targetSeat = objetoTocado.GetComponentInParent<Seat>();
+            if (targetSeat != null && targetSeat.currentStudent == null)
+            {
+                Seat myOldSeat = this.currentSeat;
+                if (myOldSeat != null) myOldSeat.currentStudent = null;
+
+                targetSeat.AssignStudent(this); 
+                dragExitoso = true;
+                break; // ¡Éxito! Dejamos de buscar
+            }
+        }
+
+        // CASO 3: Si lo soltamos en la nada
+        if (dragExitoso == false)
+        {
+            if (currentSeat != null) transform.position = currentSeat.transform.position;
+            else transform.position = originalPosition;
+        }
+    }
+
+     public void OnPointerClick(PointerEventData eventData)
+    {
+        // Si el evento NO fue un arrastre, entonces fue un clic genuino
+        if (!eventData.dragging)
+        {
+            OnStudentClicked();
+        }
     }
 }

@@ -34,11 +34,7 @@ public class DistractionManager : MonoBehaviour
             if (s != source && (s.currentState == StudentState.Working || s.currentState == StudentState.Resting))
             {
                 float distance = Vector2.Distance(source.transform.position, s.transform.position);
-                
-                if (distance <= contagionRadius)
-                {
-                    infectable.Add(s);
-                }
+                if (distance <= contagionRadius) infectable.Add(s);
             }
         }
         
@@ -50,13 +46,15 @@ public class DistractionManager : MonoBehaviour
             if (Random.Range(0f, 100f) <= 40f) 
             {
                 target.ChangeState(StudentState.Distracted);
-                source.RequestDistractionFeedback(true, target.studentName);
-                target.RequestDistractionFeedback(true, source.studentName);
+                // El que inicia la distracción se ríe, el infectado saca el control
+                source.ShowFloatingText("😂", Color.white);
+                target.ShowFloatingText("🎮", Color.white);
                 Debug.Log($"¡El chisme pegó! {source.studentName} distrajo a su vecino {target.studentName}");
             }
             else
             {
-                target.RequestDistractionFeedback(false, source.studentName);
+                // Si la distracción falla, el objetivo se pone audífonos
+                target.ShowFloatingText("🎧", Color.white);
             }
         }
     }

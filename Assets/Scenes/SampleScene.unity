@@ -4505,7 +4505,7 @@ MonoBehaviour:
   resultTitleText: {fileID: 1531312293}
   statsText: {fileID: 896768035}
   partialExamWarningUI: {fileID: 569924123}
-  nextExamText: {fileID: 1578241058}
+  nextExamText: {fileID: 1411762626}
   tensionVignette: {fileID: 760217090}
 --- !u!4 &1541903375
 Transform:
@@ -5654,6 +5654,8 @@ MonoBehaviour:
   colorNormal: {r: 1, g: 1, b: 1, a: 1}
   colorSeleccionado: {r: 0.41985583, g: 0.4811321, b: 0.41985583, a: 1}
   isTeacherBusy: 0
+  graduatedStudents: 0
+  totalStudentsThisRound: 0
 --- !u!4 &1956748463
 Transform:
   m_ObjectHideFlags: 0

@@ -37,10 +37,15 @@ public class Logic : MonoBehaviour
     private bool isGameActive = true;
     private bool isTransitioning = false;
 
+    // --- NUEVA MEMORIA PARA LA TRANSICIÓN ---
+    [HideInInspector] public int graduatedStudents = 0; 
+    [HideInInspector] public int totalStudentsThisRound = 0;
+
     void Start()
     {
         isGameActive = true;
         allStudents = new List<Student>(Object.FindObjectsByType<Student>(FindObjectsSortMode.None));
+        totalStudentsThisRound = allStudents.Count;
         globalTimer = maxGlobalTimer; 
     }
 
@@ -96,15 +101,13 @@ public class Logic : MonoBehaviour
         UIManager.Instance.UpdateMetrics(averageStress, averageLearning);
     }
 
-        private void CheckDropouts()
+    private void CheckDropouts()
     {
         int dropoutCount = 0;
-        int graduatedCount = 0;
         
         foreach (Student s in allStudents)
         {
             if (s.currentState == StudentState.DroppedOut) dropoutCount++;
-            else if (s.currentState == StudentState.Graduated) graduatedCount++;
         }
 
         currentDropouts = dropoutCount;
@@ -116,14 +119,14 @@ public class Logic : MonoBehaviour
             return; 
         }
 
-        // ¡EL FIX ESTÁ AQUÍ! Agregamos "&& !isTransitioning"
-        if (dropoutCount + graduatedCount >= allStudents.Count && !isTransitioning)
+        // Si los quemados + los graduados = el tamaño de la clase original, ¡pasamos de ronda!
+        if (dropoutCount + graduatedStudents >= totalStudentsThisRound && !isTransitioning)
         {
-            isTransitioning = true; // Ponemos el seguro para que el Update no vuelva a entrar aquí
+            isTransitioning = true; 
 
-            if (allStudents.Count < 12)
+            if (totalStudentsThisRound < 12)
             {
-                int nextAmount = allStudents.Count + 2;
+                int nextAmount = totalStudentsThisRound + 2;
                 StartCoroutine(NextRoundRoutine(nextAmount));
             }
             else
@@ -139,13 +142,8 @@ public class Logic : MonoBehaviour
         isGameActive = false;
         Time.timeScale = 0f; 
 
-        int graduados = 0;
-        foreach (Student s in allStudents) if (s.currentState == StudentState.Graduated) graduados++;
-
-        bool perfectSemester = (graduados == allStudents.Count);
-        
-        // ¡El UIManager se encarga de mostrar la pantalla final!
-        UIManager.Instance.ShowEndScreen(false, perfectSemester, graduados, currentDropouts, maxDropouts, allStudents.Count);
+        bool perfectSemester = (graduatedStudents == totalStudentsThisRound);
+        UIManager.Instance.ShowEndScreen(false, perfectSemester, graduatedStudents, currentDropouts, maxDropouts, totalStudentsThisRound);
     }
 
     private void TriggerGameOver()
@@ -153,12 +151,9 @@ public class Logic : MonoBehaviour
         isGameActive = false; 
         Time.timeScale = 0f;  
 
-        int graduados = 0;
-        foreach (Student s in allStudents) if (s.currentState == StudentState.Graduated) graduados++;
-
-        // ¡Despedido! (isFired = true)
-        UIManager.Instance.ShowEndScreen(true, false, graduados, currentDropouts, maxDropouts, allStudents.Count);
+        UIManager.Instance.ShowEndScreen(true, false, graduatedStudents, currentDropouts, maxDropouts, totalStudentsThisRound);
     }
+
 
     public void RestartGame()
     {
@@ -210,6 +205,8 @@ public class Logic : MonoBehaviour
         // 3. Actualizamos la lista oficial de Logic con los nuevos alumnos
         allStudents = new List<Student>(FindObjectsByType<Student>(FindObjectsSortMode.None));
 
+        totalStudentsThisRound = allStudents.Count;
+        graduatedStudents = 0;
         globalTimer = maxGlobalTimer;
         
         if (ExamManager.Instance != null)

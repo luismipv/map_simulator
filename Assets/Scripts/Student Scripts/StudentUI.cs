@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class StudentUI : MonoBehaviour
 {
@@ -19,34 +20,46 @@ public class StudentUI : MonoBehaviour
     public GameObject burnedOutMesssage;
     public GameObject flowMessage;
 
-    [Header("Íconos de Feedback (Chistes)")]
-    public GameObject happyFaceIcon;
-    public GameObject angryFaceIcon;
+    [Header("Sistema Flotante")]
+    public GameObject floatingTextPrefab; 
+    public Transform floatingTextCanvas; 
+
+    [Header("Multiplicadores (UI Persistente)")]
+    public TextMeshProUGUI multipliersText;
+
+    private struct FloatingTextData
+    {
+        public string message;
+        public Color color;
+    
+    }
+
+    private Queue<FloatingTextData> textQueue = new Queue<FloatingTextData>();
+    private bool isSpawningText = false;
+
 
     private void Awake()
     {
-        // Buscamos el cerebro en este mismo objeto
         studentCore = GetComponent<Student>();
         Canvas myCanvas = GetComponentInChildren<Canvas>();
         if (myCanvas != null) myCanvas.worldCamera = Camera.main;
     }
 
-    // NOS SUSCRIBIMOS A LOS EVENTOS
     private void OnEnable()
     {
         studentCore.OnStatsUpdated += UpdateSliders;
         studentCore.OnStateChanged += UpdateStateMessages;
-        studentCore.OnFeedbackRequested += TriggerFeedback;
         studentCore.OnJokeFeedbackEvent += HandleJokeFeedback;
+        // ¡NOS SUSCRIBIMOS AL NUEVO EVENTO!
+        studentCore.OnFloatingTextRequested += SpawnFloatingText;
     }
 
-    // NOS DESUSCRIBIMOS (Súper importante para evitar errores si el alumno se destruye)
     private void OnDisable()
     {
         studentCore.OnStatsUpdated -= UpdateSliders;
         studentCore.OnStateChanged -= UpdateStateMessages;
-        studentCore.OnFeedbackRequested -= TriggerFeedback;
         studentCore.OnJokeFeedbackEvent -= HandleJokeFeedback;
+        studentCore.OnFloatingTextRequested -= SpawnFloatingText;
     }
 
     private void Start()
@@ -56,7 +69,6 @@ public class StudentUI : MonoBehaviour
         {
             personalityText.text = $"Personalidad: {studentCore.personalityData.personalityNameEs}";
         }
-       
     }
 
     private void UpdateSliders(float stress, float learning)
@@ -66,13 +78,14 @@ public class StudentUI : MonoBehaviour
 
         learningText.text = Mathf.RoundToInt(learning / studentCore.maxLearning * 100).ToString() + "%";
         learningSlider.value = learning / studentCore.maxLearning; 
+
+        RefreshMultipliers();
     }
 
     private void UpdateStateMessages(StudentState newState)
     {
         if (newState == StudentState.Graduated)
         {
-            
             stressSlider.gameObject.SetActive(false);
             learningSlider.gameObject.SetActive(false);
             stressText.gameObject.SetActive(false);
@@ -85,40 +98,88 @@ public class StudentUI : MonoBehaviour
         if (flowMessage != null) flowMessage.SetActive(newState == StudentState.Flow);
     }
 
-        private void TriggerFeedback(string message, string subtitle, float duration, GameObject icon)
+    private void HandleJokeFeedback(bool likedIt)
     {
-        StartCoroutine(UnifiedFeedbackRoutine(message, subtitle, duration, icon));
+        if (likedIt) SpawnFloatingText("😂", Color.white);
+        else SpawnFloatingText("🙄", Color.white);
     }
 
-     private void HandleJokeFeedback(bool likedIt)
+    // --- ¡LA MAGIA DE INSTANCIAR EL TEXTO! ---
+    // Cuando las herramientas mandan texto, ahora solo se forman en la fila
+    private void SpawnFloatingText(string message, Color color)
     {
-        if (likedIt) 
+        if (floatingTextPrefab == null || floatingTextCanvas == null) return;
+
+        // 1. Formamos el texto en la fila
+        textQueue.Enqueue(new FloatingTextData { message = message, color = color });
+
+        // 2. Si el despachador está dormido, lo despertamos
+        if (!isSpawningText)
         {
-            StartCoroutine(UnifiedFeedbackRoutine($"{studentCore.studentName} dice: ¡Jajaja!", "", 2f, happyFaceIcon));
-        }
-        else 
-        {
-            StartCoroutine(UnifiedFeedbackRoutine($"{studentCore.studentName} dice: ¡Malo!", "", 2f, angryFaceIcon));
+            StartCoroutine(ProcessTextQueueRoutine());
         }
     }
 
-    private IEnumerator UnifiedFeedbackRoutine(string message, string subtitle, float duration, GameObject iconToShow)
+    // El despachador que suelta los textos uno por uno
+    private IEnumerator ProcessTextQueueRoutine()
     {
-        if (studentCore.currentState == StudentState.DroppedOut || studentCore.currentState == StudentState.Graduated) yield break;
+        isSpawningText = true;
 
-        if (iconToShow != null) iconToShow.SetActive(true);
-        nameText.text = message;
-        personalityText.text = subtitle;
-
-        yield return new WaitForSeconds(duration);
-
-        if (iconToShow != null) iconToShow.SetActive(false);
-
-        if (studentCore.currentState != StudentState.DroppedOut && studentCore.currentState != StudentState.Graduated)
+        while (textQueue.Count > 0)
         {
-            nameText.text = studentCore.studentName;
-            string pName = (studentCore.personalityData != null) ? studentCore.personalityData.personalityNameEs : "Desconocida";
-            personalityText.text = $"Personalidad: {pName}";
+            // Sacamos el primer texto formado en la fila
+            FloatingTextData data = textQueue.Dequeue();
+
+            // Lo creamos
+            GameObject newText = Instantiate(floatingTextPrefab, floatingTextCanvas);
+            
+            // Le damos una posición central con un micro-margen aleatorio para dar dinamismo
+            float randomX = Random.Range(-0.2f, 0.2f);
+            newText.transform.localPosition = new Vector3(randomX, 0, 0);
+
+            // Lo configuramos
+            FloatingText ftScript = newText.GetComponent<FloatingText>();
+            if (ftScript != null) ftScript.Setup(data.message, data.color);
+
+            // ¡TU IDEA! Esperamos 0.2 segundos antes de procesar el siguiente en la fila
+            yield return new WaitForSeconds(0.2f); 
         }
+
+        // La fila está vacía, el despachador se va a dormir
+        isSpawningText = false;
     }
+
+    private void RefreshMultipliers()
+    {
+        if (multipliersText == null) return;
+
+        string finalText = "";
+
+        // 1. DIBUJAR TODOS LOS BUFFS DE APRENDIZAJE APILADOS
+        foreach (var buff in studentCore.activeLearningBuffs)
+        {
+            if (buff.Value > 1f) 
+                finalText += $"<color=#00FF00>{buff.Key} x{buff.Value}</color>\n";
+            else if (buff.Value < 1f) 
+                finalText += $"<color=#FF8C00>{buff.Key} x{buff.Value}</color>\n";
+        }
+
+        // 2. DIBUJAR TODOS LOS BUFFS DE ESTRÉS APILADOS
+        foreach (var buff in studentCore.activeStressBuffs)
+        {
+            if (buff.Value > 1f) 
+                finalText += $"<color=#FF0000>{buff.Key} x{buff.Value}</color>\n";
+            else if (buff.Value < 1f) 
+                finalText += $"<color=#00FF00>{buff.Key} x{buff.Value}</color>\n";
+        }
+
+        // 3. ESTADOS TEMPORALES INDEPENDIENTES (Como Flow)
+        if (studentCore.currentState == StudentState.Flow)
+        {
+            finalText += $"<color=#00FFFF>¡En Flow!x3</color>\n"; 
+        }
+
+        multipliersText.text = finalText;
+    }
+
 }

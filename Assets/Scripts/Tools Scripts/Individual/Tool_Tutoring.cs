@@ -12,30 +12,30 @@ public class ToolTutoring : TeacherTool
         gameLogic.StartCoroutine(PrivateTutoringRoutine(target, gameLogic));
     }
 
-    private IEnumerator PrivateTutoringRoutine(Student student, Logic gameLogic)
+   private IEnumerator PrivateTutoringRoutine(Student student, Logic gameLogic)
     {
-        // Ocupamos al maestro y mostramos la UI usando las referencias de Logic
+        // Ocupamos al maestro
         gameLogic.isTeacherBusy = true;
         UIManager.Instance.SetTeacherBusy(true);
 
         Debug.Log($"Iniciando asesoría privada con {student.studentName}. El maestro estará ocupado por 5s.");
 
-        // Bonificaciones según la personalidad
+        // 1. CALCULAMOS Y APLICAMOS LOS BUFFS DIRECTO AL DICCIONARIO
         float learningBoost = (student.personalityData.personalityType == StudentPersonality.Anxious) ? 10f : 4f;
-        student.toolLearningMultiplier = learningBoost;
-        student.toolStressMultiplier = -2f; // El estrés baja durante la asesoría
+        
+        student.activeLearningBuffs.Add("Asesoría 🧠", learningBoost); // Sube el aprendizaje
+        student.activeStressBuffs.Add("Asesoría 💢", -2f);             // Reduce el estrés
 
         student.ChangeState(StudentState.Working);
 
         // Esperamos 5 segundos
         yield return new WaitForSeconds(5f);
 
-        // Devolvemos todo a la normalidad si el alumno sigue en el salón
+        // 2. LIMPIEZA TOTAL (Si el alumno sigue vivo/en el salón)
         if (student.currentState != StudentState.Graduated && student.currentState != StudentState.DroppedOut)
         {
-            student.toolLearningMultiplier = 1f;
-            student.toolStressMultiplier = 1f;
-            student.stressMultiplier = 1f;
+            student.activeLearningBuffs.Remove("Asesoría 🧠");
+            student.activeStressBuffs.Remove("Asesoría 💢");
         }
 
         // Liberamos al maestro

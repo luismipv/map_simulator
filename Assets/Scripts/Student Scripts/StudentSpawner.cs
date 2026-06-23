@@ -21,9 +21,10 @@ public class StudentSpawner : MonoBehaviour
 
     public void SpawnStudentsInSeats()
     {
+        
         // 1. Obtenemos todas las sillas disponibles
         Seat[] allSeats = seatsContainer.GetComponentsInChildren<Seat>();
-        List<Seat> availableSeats = new List<Seat>(allSeats);
+        List<Seat> availableSeats = new List<Seat>();
 
         foreach (Seat s in allSeats)
         {

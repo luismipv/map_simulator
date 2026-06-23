@@ -69,12 +69,10 @@ public class ExamManager : MonoBehaviour
             if (s.learningLevel >= (s.maxLearning / 2f))
             {
                 s.ModifyStressInstant(-35f); 
-                s.RequestExamFeedback(true);
             }
             else
             {
                 s.ModifyStressInstant(40f);
-                s.RequestExamFeedback(false); 
             }
         }
 

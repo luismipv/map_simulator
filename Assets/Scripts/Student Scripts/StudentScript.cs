@@ -1,13 +1,12 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using System; // Necesario para los Eventos (Action)
-using System.Collections.Generic; // Necesario para Listas y Diccionarios
+using System; 
+using System.Collections.Generic; 
 
-// Los Enums se quedan igual, fuera de la clase
 public enum StudentState { Working, Flow, Burnout, Resting, DroppedOut, Distracted, Graduated }
 public enum StudentPersonality { Normal, Nerd, Slacker, Anxious }
 
-public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IEndDragHandler, IDragHandler,IPointerClickHandler
+public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerClickHandler
 {
     [Header("Datos del Estudiante")]
     public string studentName = "Juan Perez"; 
@@ -16,8 +15,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     [Header("Sistema de Asientos")]
     public Seat currentSeat;
-    private Vector3 originalPosition; // Para regresar si lo sueltas en la nada
-    private int originalSiblingIndex; // Para el orden visual (opcional)
+    private Vector3 originalPosition; 
 
     [Header("Estadísticas: Estrés")]
     public float stressLevel = 0f; 
@@ -25,17 +23,14 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public float workingStressRate = 5f;     
     public float flowStressRate = 15f;       
     public float restingRecoveryRate = 10f;  
-    [HideInInspector] public float toolStressMultiplier = 1f; 
-    [HideInInspector] public float toolLearningMultiplier = 1f; 
+    // ¡Borradas las variables toolStressMultiplier y stressMultiplier!
 
     [Header("Estadísticas: Aprendizaje")]
     public float learningLevel = 0f;
     public float maxLearning = 100f;
     public float workingLearningRate = 2f;   
     public float flowLearningRate = 8f; 
-
-    [HideInInspector] public float stressMultiplier = 1f;
-    [HideInInspector] public float learningMultiplier = 1f;    
+    // ¡Borradas las variables toolLearningMultiplier y learningMultiplier!
 
     [Header("Tiempos")]
     public float flowDuration = 5f; 
@@ -48,18 +43,23 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     private float contagionTimer = 0f;
     public float restCooldownDuration = 8f; 
     [HideInInspector] public float currentRestCooldown = 0f;
+
+    [Header("Efectos Visuales")]
+    public GameObject graduationVFXPrefab;
     private Logic logicManager; 
+
+    // --- SISTEMA DE MODIFICADORES APILABLES (FX CHAIN) ---
+    public Dictionary<string, float> activeLearningBuffs = new Dictionary<string, float>();
+    public Dictionary<string, float> activeStressBuffs = new Dictionary<string, float>();
 
     // ==========================================
     // --- LOS MEGÁFONOS (EVENTOS) ---
     // ==========================================
-    // Otros scripts se suscribirán a estos eventos para reaccionar
-    public event Action<float, float> OnStatsUpdated; // Manda: stressLevel, learningLevel
-    public event Action<StudentState> OnStateChanged; // Manda: el nuevo estado
-    public event Action<string, string, float, GameObject> OnFeedbackRequested; // Para los mensajes
-    public event Action<bool> OnHoverChanged; // Para que el Juice sepa si el mouse está encima
-
-    public event Action<bool> OnJokeFeedbackEvent; // Nuevo evento para feedback de chistes
+    public event Action<float, float> OnStatsUpdated; 
+    public event Action<StudentState> OnStateChanged; 
+    public event Action<string, Color> OnFloatingTextRequested;    
+    public event Action<bool> OnHoverChanged; 
+    public event Action<bool> OnJokeFeedbackEvent; 
 
     void Start()
     {
@@ -78,7 +78,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         workingLearningRate *= learningVariance;
 
         ChangeState(currentState); 
-        OnStatsUpdated?.Invoke(stressLevel, learningLevel); // Disparamos la actualización inicial
+        OnStatsUpdated?.Invoke(stressLevel, learningLevel); 
     }
 
     void Update()
@@ -87,8 +87,6 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         CheckAutomaticTransitions();
         
         if (currentRestCooldown > 0f) currentRestCooldown -= Time.deltaTime;
-        
-        // Avisamos a la UI constantemente de los números actuales
         OnStatsUpdated?.Invoke(stressLevel, learningLevel);
     }
 
@@ -99,6 +97,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         
         if (currentState == StudentState.Graduated)
         {
+            ShowFloatingText("¡Aprobo y se fue a casa!", Color.white);
+            TriggerGraduation();
             Debug.Log(studentName + " ¡Aprobó y se fue a casa!");
         }
         else if (currentState == StudentState.Flow) currentFlowTimer = flowDuration;
@@ -110,8 +110,33 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         else if (currentState == StudentState.Distracted) contagionTimer = contagionInterval;
         else if (currentState == StudentState.Resting) currentRestTimer = mandatoryRestDuration;
 
-        // ¡Gritamos por el megáfono que el estado cambió!
         OnStateChanged?.Invoke(currentState); 
+    }
+
+    private void TriggerGraduation()
+    {
+        if (graduationVFXPrefab != null)
+        {
+            Instantiate(graduationVFXPrefab, transform.position, Quaternion.identity);
+        }
+
+        if (currentSeat != null)
+        {
+            currentSeat.currentStudent = null;
+        }
+
+        if (logicManager != null)
+        {
+            // ¡NUEVO: Le avisamos al administrador que anote un graduado!
+            logicManager.graduatedStudents++; 
+            
+            if (logicManager.allStudents.Contains(this))
+            {
+                logicManager.allStudents.Remove(this);
+            }
+        }
+
+        Destroy(gameObject);
     }
 
     private void HandleStateLogic()
@@ -127,16 +152,16 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             
              case StudentState.Working:
                 float panicMult = (logicManager != null) ? logicManager.currentSemesterMultiplier : 1f;
-                stressLevel += (workingStressRate * stressMultiplier * toolStressMultiplier * panicMult) * Time.deltaTime;
-                learningLevel += (workingLearningRate * learningMultiplier * toolLearningMultiplier) * Time.deltaTime; 
+                // ¡Matemática limpia usando solo el Diccionario!
+                stressLevel += (workingStressRate * GetTotalStressMultiplier() * panicMult) * Time.deltaTime;
+                learningLevel += (workingLearningRate * GetTotalLearningMultiplier()) * Time.deltaTime; 
                 break;
 
             case StudentState.Flow:
                 float flowPanicMult = (logicManager != null) ? logicManager.currentSemesterMultiplier : 1f;
-                stressLevel += (flowStressRate * stressMultiplier * flowPanicMult * toolStressMultiplier) * Time.deltaTime;
-                learningLevel += (flowLearningRate * learningMultiplier * toolLearningMultiplier) * Time.deltaTime; 
-                currentFlowTimer -= Time.deltaTime; 
-                if (currentFlowTimer <= 0f) ChangeState(StudentState.Working); 
+                // ¡Matemática limpia para el Flow!
+                stressLevel += (flowStressRate * GetTotalStressMultiplier() * flowPanicMult) * Time.deltaTime;
+                learningLevel += (flowLearningRate * GetTotalLearningMultiplier()) * Time.deltaTime; 
                 break;
 
             case StudentState.Burnout:
@@ -181,33 +206,32 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         else if (currentState == StudentState.Resting && stressLevel <= 5f)
         {
-            if (UnityEngine.Random.value < 0.35f * Time.deltaTime) ChangeState(StudentState.Distracted);
+            if (UnityEngine.Random.value < 0.35f * Time.deltaTime)
+            {
+                ChangeState(StudentState.Distracted);
+                ShowFloatingText("Distraído!",Color.orange);
+            } 
         }
 
-        if (currentState == StudentState.Working && learningLevel > 50f && stressLevel >= 60f) ChangeState(StudentState.Flow);
-        else if (currentState == StudentState.Flow && stressLevel > 75f) ChangeState(StudentState.Working);
+        // ¡EL FIX DEL LOOP INFINITO DE FLOW ESTÁ AQUÍ! (< 75f)
+        if (currentState == StudentState.Working && learningLevel > 50f && stressLevel >= 60f && stressLevel < 75f) ChangeState(StudentState.Flow);
     }
 
-    public void ModifyStressInstant(float amount) { stressLevel = Mathf.Clamp(stressLevel + amount, 0f, maxStress); }
-    public void ModifyLearningInstant(float amount) { learningLevel = Mathf.Clamp(learningLevel + amount, 0f, maxLearning); }
-
-    // Métodos públicos que llaman los botones/herramientas
-    public void RequestJokeFeedback(bool likedIt)
-    {
-        OnJokeFeedbackEvent?.Invoke(likedIt);
+    public void ModifyStressInstant(float amount) 
+    { 
+        stressLevel = Mathf.Clamp(stressLevel + amount, 0f, maxStress);
+        if(amount > 0) ShowFloatingText(" "+ amount + "💢", Color.red);
+        else ShowFloatingText(" "+ amount + "💢", Color.green);
     }
 
-    public void RequestDistractionFeedback(bool success, string partnerName)
-    {
-        if (success) OnFeedbackRequested?.Invoke($"<color=yellow>¡Chismeando con {partnerName}!</color>", "🗣️ 📱", 2.5f, null);
-        else OnFeedbackRequested?.Invoke("<color=#808080>¡Shh! Déjame trabajar.</color>", "🛑", 2.5f, null);
+    public void ModifyLearningInstant(float amount) 
+    { 
+        learningLevel = Mathf.Clamp(learningLevel + amount, 0f, maxLearning);
+        if(amount > 0) ShowFloatingText(" "+ amount +"🧠", Color.green); 
+        else ShowFloatingText(" "+ amount +"🧠", Color.red);
     }
 
-    public void RequestExamFeedback(bool passed)
-    {
-        if (passed) OnFeedbackRequested?.Invoke("<color=#FFD700>¡Aprobado! 😎</color>", "¡Uff, qué alivio!", 3f, null);
-        else OnFeedbackRequested?.Invoke("<color=#DC143C>¡Reprobado! 😱</color>", "¡A estudiar más!", 3f, null);
-    }
+    public void RequestJokeFeedback(bool likedIt) { OnJokeFeedbackEvent?.Invoke(likedIt); }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -215,58 +239,41 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         OnHoverChanged?.Invoke(true);
     }
 
+    public void ShowFloatingText(string text, Color color) { OnFloatingTextRequested?.Invoke(text, color); }
     public void OnPointerExit(PointerEventData eventData) { OnHoverChanged?.Invoke(false); }
+    
     public void OnStudentClicked()
     {
         if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;
         if (logicManager != null) logicManager.ApplyToolToStudent(this);
     }
 
-        // 1. Cuando haces el primer clic y empiezas a mover el mouse
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        originalPosition = transform.position; 
-    }
+    public void OnBeginDrag(PointerEventData eventData) { originalPosition = transform.position; }
 
-    // 2. Mientras mueves el mouse por la pantalla
     public void OnDrag(PointerEventData eventData)
     {
         RectTransform miRect = GetComponent<RectTransform>();
-        
-        // CASO A: Si tus alumnos son de UI
         if (miRect != null)
         {
-            RectTransformUtility.ScreenPointToWorldPointInRectangle(
-                miRect, 
-                eventData.position, 
-                eventData.pressEventCamera, 
-                out Vector3 posicionCorrecta);
-            
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(miRect, eventData.position, eventData.pressEventCamera, out Vector3 posicionCorrecta);
             transform.position = posicionCorrecta;
         }
-        // CASO B: Si tus alumnos son objetos 2D en el mundo
         else
         {
-            // ¡La magia está aquí! Usamos eventData.position en lugar de Input.mousePosition
             Vector3 posicionMouse = Camera.main.ScreenToWorldPoint(eventData.position);
-            posicionMouse.z = 0f; // Evita que se sumerjan en el eje Z
+            posicionMouse.z = 0f; 
             transform.position = posicionMouse;
         }
     }
 
-    // 3. Cuando sueltas el clic
-           public void OnEndDrag(PointerEventData eventData)
+    public void OnEndDrag(PointerEventData eventData)
     {
         bool dragExitoso = false;
-        
-        // El radio de alcance del "imán". Ajústalo si sientes que lo jala desde muy lejos.
         float snapRadius = 3f; 
-
-        // 1. Buscamos TODAS las sillas en el salón
-        Seat[] todasLasSillas = FindObjectsByType<Seat>(FindObjectsSortMode.None);        Seat sillaMasCercana = null;
+        Seat[] todasLasSillas = FindObjectsByType<Seat>(FindObjectsSortMode.None);        
+        Seat sillaMasCercana = null;
         float distanciaMinima = float.MaxValue;
 
-        // 2. Medimos con cuál silla estamos más cerca
         foreach (Seat silla in todasLasSillas)
         {
             float distancia = Vector2.Distance(transform.position, silla.transform.position);
@@ -277,10 +284,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             }
         }
 
-        // 3. Si soltamos el alumno cerca de una silla...
         if (sillaMasCercana != null)
         {
-            // CASO A: La silla está ocupada por OTRO alumno (Intercambio)
             if (sillaMasCercana.currentStudent != null && sillaMasCercana.currentStudent != this)
             {
                 Seat miSillaVieja = this.currentSeat;
@@ -294,18 +299,16 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                     dragExitoso = true;
                 }
             }
-            // CASO B: La silla está vacía
             else if (sillaMasCercana.currentStudent == null)
             {
                 Seat miSillaVieja = this.currentSeat;
-                if (miSillaVieja != null) miSillaVieja.currentStudent = null; // Liberamos nuestra silla
+                if (miSillaVieja != null) miSillaVieja.currentStudent = null; 
 
-                sillaMasCercana.AssignStudent(this); // Nos sentamos en la nueva
+                sillaMasCercana.AssignStudent(this); 
                 dragExitoso = true;
             }
         }
 
-        // 4. Si lo soltamos en la nada (o muy lejos de cualquier silla)
         if (dragExitoso == false)
         {
             if (currentSeat != null) transform.position = currentSeat.transform.position;
@@ -313,12 +316,22 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
     }
 
-     public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerClick(PointerEventData eventData)
     {
-        // Si el evento NO fue un arrastre, entonces fue un clic genuino
-        if (!eventData.dragging)
-        {
-            OnStudentClicked();
-        }
+        if (!eventData.dragging) OnStudentClicked();
+    }
+
+    public float GetTotalLearningMultiplier()
+    {
+        float total = 1f;
+        foreach (float val in activeLearningBuffs.Values) total *= val; 
+        return total;
+    }
+
+    public float GetTotalStressMultiplier()
+    {
+        float total = 1f;
+        foreach (float val in activeStressBuffs.Values) total *= val;
+        return total;
     }
 }

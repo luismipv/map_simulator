@@ -21,33 +21,19 @@ public class GlobalToolSurpriseExam : GlobalTool
 
             s.ChangeState(StudentState.Working); 
 
+            GlobalToolReaction reaction = s.personalityData.GetReactionForGlobalTool(this);
+
             float learningMod = 1f;
             float stressMod = 1f;
 
-            switch (s.personalityData.personalityType)
-            {
-                case StudentPersonality.Nerd:
-                    learningMod = 3.5f; 
-                    stressMod = 1.5f;   
-                    break;
-                case StudentPersonality.Slacker:
-                    learningMod = 1f;   
-                    stressMod = 1.2f;   
-                    break;
-                case StudentPersonality.Anxious:
-                    learningMod = 1.5f; 
-                    stressMod = 4f;     
-                    break;
-                default: 
-                    learningMod = 2f; 
-                    stressMod = 2f;
-                    break;
-            }
+            float finalLearningMod = learningMod*reaction.learningMod;
+            float finalStressMod = stressMod*reaction.stressMod;
 
+           
             // ¡NUEVO SISTEMA! Agregamos los modificadores al diccionario en lugar de sobrescribir 
             //Se puso este método diferente para evitar crasheos!
-            s.activeLearningBuffs["Examen 🧠"] = learningMod;
-            s.activeStressBuffs["Examen 💢"] = stressMod;
+            s.activeLearningBuffs["Examen 🧠"] = finalLearningMod;
+            s.activeStressBuffs["Examen 💢"] = finalStressMod;
         
         }
 
@@ -60,7 +46,7 @@ public class GlobalToolSurpriseExam : GlobalTool
             if (s == null || s.currentState == StudentState.DroppedOut || s.currentState == StudentState.Graduated) continue;
             
             // ¡NUEVO SISTEMA! Solo removemos la llave "Examen" y la matemática se arregla sola
-            s.activeLearningBuffs.Remove("Examen");
+            s.activeLearningBuffs.Remove("Examen 🧠");
             s.activeStressBuffs.Remove("Examen 💢");
         }
         

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b486db072aa114593a7164297e895288, type: 3}
+  m_Name: Nerd_Nerd_Rule
+  m_EditorClassIdentifier: Assembly-CSharp::SynergyRuleSO
+  personalityA: 1
+  personalityB: 1
+  learningMultA: 1.2
+  stressMultA: 1
+  learningMultB: 1.2
+  stressMultB: 1

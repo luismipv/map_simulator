@@ -14,6 +14,7 @@ public class SpatialManager : MonoBehaviour
     public Sprite negativeFeedback; 
     
     private HashSet<string> parejasMostradas = new HashSet<string>();
+    public List<SynergyRuleSO> reglasDeSinergia = new List<SynergyRuleSO>();
 
     void Start()
     {
@@ -25,12 +26,10 @@ public class SpatialManager : MonoBehaviour
         Student[] todosLosAlumnos = FindObjectsByType<Student>(FindObjectsSortMode.None);
         HashSet<string> parejasActuales = new HashSet<string>();
 
-        // 1. LOS BUSES SEPARADOS: Uno para la Fila (Entorno) y otros para los Vecinos (Sinergia)
         Dictionary<Student, float> tempEntornoLearning = new Dictionary<Student, float>();
         Dictionary<Student, float> tempSinergiaLearning = new Dictionary<Student, float>();
         Dictionary<Student, float> tempSinergiaStress = new Dictionary<Student, float>();
 
-        // Inicializamos todos en neutro (1)
         foreach (Student s in todosLosAlumnos)
         {
             tempEntornoLearning[s] = 1f;
@@ -38,20 +37,21 @@ public class SpatialManager : MonoBehaviour
             tempSinergiaStress[s] = 1f;
         }
 
-        // 2. CALCULAMOS LA MATEMÁTICA SEPARADA
         for (int i = 0; i < todosLosAlumnos.Length; i++)
         {
             Student s = todosLosAlumnos[i];
             
             if (s.currentState == StudentState.DroppedOut || s.currentState == StudentState.Graduated) continue;
+            
+            // CHALECO ANTIBALAS 1: Si este alumno no tiene personalidad, lo saltamos para no romper el juego
+            if (s.personalityData == null) continue;
 
-            // FACTOR 1: Fila -> Se va al bus de Entorno (Ajustado con tu lógica de Y)
-            if (s.transform.position.y >= yFilaFrente) //Estás enfrente
+            // FACTOR 1: Fila -> Se va al bus de Entorno
+            if (s.transform.position.y >= yFilaFrente) // Estás enfrente
             {
                 if(s.personalityData.personalityType == StudentPersonality.Nerd)
                 {
                     tempEntornoLearning[s] *= 1.2f;
-                    Debug.Log("El Nerd está enfrente");
                 }
                 else if(s.personalityData.personalityType == StudentPersonality.Normal)
                 {
@@ -61,17 +61,16 @@ public class SpatialManager : MonoBehaviour
                 {
                     tempEntornoLearning[s] *= 0.8f;
                 }
-                
             }
-            else if (s.transform.position.y <= yFilaAtras) //Estás atrás
+            else if (s.transform.position.y <= yFilaAtras) // Estás atrás
             {
-                if(s.personalityData.personalityType == StudentPersonality.Slacker || s.personalityData.personalityType == StudentPersonality.Anxious ){
+                if(s.personalityData.personalityType == StudentPersonality.Slacker || s.personalityData.personalityType == StudentPersonality.Anxious )
+                {
                     tempEntornoLearning[s] *= 1.2f;
                 }
                 else if(s.personalityData.personalityType == StudentPersonality.Nerd)
                 {
                     tempEntornoLearning[s] *= 0.8f;
-                    Debug.Log("El Nerd está atrás");
                 }
                 else
                 {
@@ -79,17 +78,19 @@ public class SpatialManager : MonoBehaviour
                 }
             } 
 
-            // FACTOR 2: Revisar Vecinos -> Se va a los buses de Sinergia
+            // FACTOR 2: Revisar Vecinos
             for (int j = i + 1; j < todosLosAlumnos.Length; j++) 
             {
                 Student vecino = todosLosAlumnos[j];
                 if (vecino.currentState == StudentState.DroppedOut || vecino.currentState == StudentState.Graduated) continue;
+                
+                // CHALECO ANTIBALAS 2: Revisamos que el vecino también tenga personalidad
+                if (vecino.personalityData == null) continue;
 
                 float distancia = Vector2.Distance(s.transform.position, vecino.transform.position);
 
                 if (distancia <= radioVecinos)
                 {
-                    // Le pasamos los diccionarios de sinergia específicos
                     ApplySynergy(s, vecino, parejasActuales, tempSinergiaLearning, tempSinergiaStress);
                 }
             }
@@ -116,7 +117,6 @@ public class SpatialManager : MonoBehaviour
         parejasMostradas.IntersectWith(parejasActuales);
     }
 
-    // Actualizamos los parámetros que recibe para que use los nuevos diccionarios
     void ApplySynergy(Student me, Student neighbor, HashSet<string> parejasActuales, Dictionary<Student, float> synLearn, Dictionary<Student, float> synStress)
     {
         int id1 = me.GetInstanceID();
@@ -125,37 +125,64 @@ public class SpatialManager : MonoBehaviour
 
         parejasActuales.Add(pairHash);
 
-        bool huboSinergia = false;
-        bool esPositiva = false;
+        StudentPersonality myType = me.personalityData.personalityType;
+        StudentPersonality neighborType = neighbor.personalityData.personalityType;
 
-        // Nerd + Nerd = ¡Bonus de Aprendizaje!
-        if (me.personalityData.personalityType == StudentPersonality.Nerd && 
-            neighbor.personalityData.personalityType == StudentPersonality.Nerd)
-        {
-            synLearn[me] *= 1.05f; 
-            synLearn[neighbor] *= 1.05f; 
-            huboSinergia = true; esPositiva = true;
-        }
+        SynergyRuleSO reglaValida = null;
         
-        // Nerd + Slacker = ¡Estrés para el Nerd!
-        if ((me.personalityData.personalityType == StudentPersonality.Nerd && neighbor.personalityData.personalityType == StudentPersonality.Slacker) ||
-            (neighbor.personalityData.personalityType == StudentPersonality.Nerd && me.personalityData.personalityType == StudentPersonality.Slacker))
+        // CHALECO ANTIBALAS 3: Evitamos errores si la lista en Unity está vacía
+        if (reglasDeSinergia != null && reglasDeSinergia.Count > 0)
         {
-            Student elNerd = (me.personalityData.personalityType == StudentPersonality.Nerd) ? me : neighbor;
-            synStress[elNerd] *= 1.2f; 
-            huboSinergia = true; esPositiva = false;
+            foreach (SynergyRuleSO regla in reglasDeSinergia)
+            {
+                if (regla != null && regla.Matches(myType, neighborType))
+                {
+                    reglaValida = regla;
+                    break;
+                }
+            }
         }
 
-        if (huboSinergia && !parejasMostradas.Contains(pairHash))
+        if (reglaValida != null)
         {
-            StartCoroutine(ShowFeedback(me, neighbor, esPositiva));
-            parejasMostradas.Add(pairHash);
+            bool huboSinergia = false;
+            bool esPositiva = false; 
+
+            // CASO 1: Yo soy A y vecino es B
+            if (reglaValida.personalityA == myType && reglaValida.personalityB == neighborType)
+            {
+                synLearn[me] *= reglaValida.learningMultA;
+                synStress[me] *= reglaValida.stressMultA;
+
+                synLearn[neighbor] *= reglaValida.learningMultB;
+                synStress[neighbor] *= reglaValida.stressMultB;
+                
+                huboSinergia = true;
+                esPositiva = (reglaValida.learningMultA >= 1f);
+            }
+            // CASO 2: Yo soy B y vecino es A (Invertido)
+            else if (reglaValida.personalityA == neighborType && reglaValida.personalityB == myType)
+            {
+                synLearn[me] *= reglaValida.learningMultB;
+                synStress[me] *= reglaValida.stressMultB;
+
+                synLearn[neighbor] *= reglaValida.learningMultA;
+                synStress[neighbor] *= reglaValida.stressMultA;
+                
+                huboSinergia = true;
+                esPositiva = (reglaValida.learningMultB >= 1f);
+            }
+
+            if (huboSinergia && !parejasMostradas.Contains(pairHash))
+            {
+                StartCoroutine(ShowFeedback(me, neighbor, esPositiva));
+                parejasMostradas.Add(pairHash);
+            }
         }
     }
 
     private IEnumerator ShowFeedback(Student student, Student neighbor, bool isPositive)
     {
-        // Chaleco antibalas para el Feedback visual
         if (student == null || neighbor == null) yield break;
 
         GameObject feedbackObj = new GameObject("Feedback Sinergia");

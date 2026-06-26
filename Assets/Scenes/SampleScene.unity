@@ -338,6 +338,7 @@ MonoBehaviour:
   - Marco
   - Jorge
   - Monica
+  - Ale
   lastNames:
   - "P\xE9rez"
   - "G\xF3mez"
@@ -349,6 +350,7 @@ MonoBehaviour:
   - Moreno
   - Nitales
   - Galindo
+  - "Pay\xE1n"
 --- !u!4 &72020386
 Transform:
   m_ObjectHideFlags: 0
@@ -4979,6 +4981,17 @@ MonoBehaviour:
   yFilaAtras: -1
   positiveFeedback: {fileID: 4606908045521496030, guid: dce5917c1ef5f4b0fbc66fb7fd108720, type: 3}
   negativeFeedback: {fileID: 3933101037953055773, guid: 0b69b5d1e9e75412e9a41651fbb00640, type: 3}
+  reglasDeSinergia:
+  - {fileID: 11400000, guid: 6236c5943ca524cd582b35149839b774, type: 2}
+  - {fileID: 11400000, guid: d796b59dd26334710a05dd014aae3d19, type: 2}
+  - {fileID: 11400000, guid: 5e07bfd49d2424f189f5a263942a8741, type: 2}
+  - {fileID: 11400000, guid: 78d32c58ed25146ee91d8360f8d68bb9, type: 2}
+  - {fileID: 11400000, guid: b03041a053363485b9c74861490a6925, type: 2}
+  - {fileID: 11400000, guid: 888760748cfcc484d87fdc7fb1b4f5e9, type: 2}
+  - {fileID: 11400000, guid: 9d1cc08f6856546379de55e1ae25734d, type: 2}
+  - {fileID: 11400000, guid: 7ce5f5025c5ec4b918d34481bc82ab67, type: 2}
+  - {fileID: 11400000, guid: 3fa5db31b09d84c38bbf871787585fa6, type: 2}
+  - {fileID: 11400000, guid: 629bf495be34d4808b847cb1fd3d14f1, type: 2}
 --- !u!1 &1609383641
 GameObject:
   m_ObjectHideFlags: 0

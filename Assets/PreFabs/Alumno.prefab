@@ -361,14 +361,10 @@ MonoBehaviour:
   workingStressRate: 2.5
   flowStressRate: 7.5
   restingRecoveryRate: 10
-  toolStressMultiplier: 1
-  toolLearningMultiplier: 1
   learningLevel: 0
   maxLearning: 100
   workingLearningRate: 1
   flowLearningRate: 4
-  stressMultiplier: 1
-  learningMultiplier: 1
   flowDuration: 5
   mandatoryRestDuration: 12
   burnoutTimeLimit: 10
@@ -2435,7 +2431,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5291825614760888367, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_HorizontalAlignment
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_Pivot.x
@@ -2463,7 +2459,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1.5
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_SizeDelta.y
@@ -2499,11 +2495,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 5.16
       objectReference: {fileID: 0}
     - target: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 0.02
       objectReference: {fileID: 0}
     - target: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

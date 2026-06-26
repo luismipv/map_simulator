@@ -48,6 +48,7 @@ public class DistractionManager : MonoBehaviour
                 target.ChangeState(StudentState.Distracted);
                 // El que inicia la distracción se ríe, el infectado saca el control
                 source.ShowFloatingText("😂", Color.white);
+                source.ShowFloatingText($"¡El chisme pegó! {source.studentName} distrajo a su vecino {target.studentName}",Color.white);
                 target.ShowFloatingText("🎮", Color.white);
                 Debug.Log($"¡El chisme pegó! {source.studentName} distrajo a su vecino {target.studentName}");
             }

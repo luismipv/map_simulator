@@ -20,15 +20,19 @@ public class ToolHomework : TeacherTool
 
         int streak = gameLogic.homeworkStreak[target];
 
-        // 3. Matemáticas de Rendimiento Decreciente
+        // 2.5 ¡LA NUEVA MAGIA! Le preguntamos a la personalidad cómo reacciona a ESTA herramienta
+        ToolReaction reaction = target.personalityData.GetReactionForTool(this);
+
+        // 3. Matemáticas de Rendimiento Decreciente (Tu lógica original)
         // Aprendizaje: Baja 25% por tarea extra (tope mínimo de 25% de efectividad)
         float learningMultiplier = Mathf.Max(0.25f, 1f - (streak * 0.25f));
         
         // Estrés: Sube 50% por tarea extra (¡castigo por spamear!)
         float stressMultiplier = 1f + (streak * 0.5f);
 
-        float finalLearning = 10f * learningMultiplier;
-        float finalStress = 20f * stressMultiplier;
+        // 3.5 Combinamos tu matemática de rachas con el modificador de su personalidad
+        float finalLearning = (10f * learningMultiplier) * reaction.learningMod;
+        float finalStress = (20f * stressMultiplier) * reaction.stressMod;
 
         // 4. Aplicamos los efectos al alumno
         target.ModifyStressInstant(finalStress);
@@ -37,6 +41,6 @@ public class ToolHomework : TeacherTool
         // 5. Aumentamos su racha para la próxima vez
         gameLogic.homeworkStreak[target]++; 
         
-        Debug.Log($"¡Tarea a {target.studentName}! Racha actual: {gameLogic.homeworkStreak[target]}. Aprendizaje: +{finalLearning}, Estrés: +{finalStress}");
+        //Debug.Log($"¡Tarea a {target.studentName}! Racha actual: {gameLogic.homeworkStreak[target]}. Aprendizaje: +{finalLearning}, Estrés: +{finalStress}");
     }
 }

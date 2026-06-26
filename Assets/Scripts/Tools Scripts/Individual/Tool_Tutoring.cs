@@ -4,43 +4,63 @@ using System.Collections;
 [CreateAssetMenu(fileName = "Tool_Tutoring", menuName = "TeacherTools/Tool_Tutoring")]
 public class ToolTutoring : TeacherTool
 {
+    [Header("Impacto Base de Asesoría")]
+    public float baseLearningBoost = 4f;
+    public float baseStressRelief = -2f; // Negativo porque reduce el estrés
+
     public override void ApplyToolEffect(Student target, Logic gameLogic)
     {
         if (target.currentState == StudentState.Resting) return;
         
-        // Le pedimos a Logic que ejecute nuestra corrutina
-        gameLogic.StartCoroutine(PrivateTutoringRoutine(target, gameLogic));
+        // Le pedimos a Logic que ejecute nuestra corrutina, pasándole "this" (esta herramienta)
+        gameLogic.StartCoroutine(PrivateTutoringRoutine(target, gameLogic, this));
     }
 
-   private IEnumerator PrivateTutoringRoutine(Student student, Logic gameLogic)
+   private IEnumerator PrivateTutoringRoutine(Student student, Logic gameLogic, TeacherTool toolReference)
     {
-        // Ocupamos al maestro
-        gameLogic.isTeacherBusy = true;
-        UIManager.Instance.SetTeacherBusy(true);
+    // Ocupamos al maestro
+    gameLogic.isTeacherBusy = true;
+    UIManager.Instance.SetTeacherBusy(true);
 
-        Debug.Log($"Iniciando asesoría privada con {student.studentName}. El maestro estará ocupado por 5s.");
+    Debug.Log($"Iniciando asesoría privada con {student.studentName}.");
 
-        // 1. CALCULAMOS Y APLICAMOS LOS BUFFS DIRECTO AL DICCIONARIO
-        float learningBoost = (student.personalityData.personalityType == StudentPersonality.Anxious) ? 10f : 4f;
-        
-        student.activeLearningBuffs.Add("Asesoría 🧠", learningBoost); // Sube el aprendizaje
-        student.activeStressBuffs.Add("Asesoría 💢", -2f);             // Reduce el estrés
+    // 1. Calculamos la reacción
+    ToolReaction reaction = student.personalityData.GetReactionForTool(toolReference);
+    float finalLearningBoost = baseLearningBoost * reaction.learningMod;
+    float finalStressRelief = baseStressRelief * reaction.stressMod;
+    
+    // 2. Aplicamos Buffs
+    student.activeLearningBuffs.Add("Asesoría 🧠", finalLearningBoost); 
+    student.activeStressBuffs.Add("Asesoría 💢", finalStressRelief);             
+    student.ChangeState(StudentState.Working);
 
-        student.ChangeState(StudentState.Working);
-
-        // Esperamos 5 segundos
-        yield return new WaitForSeconds(5f);
-
-        // 2. LIMPIEZA TOTAL (Si el alumno sigue vivo/en el salón)
-        if (student.currentState != StudentState.Graduated && student.currentState != StudentState.DroppedOut)
+    // 3. ¡EL NUEVO TEMPORIZADOR INTERRUMPIBLE!
+    float timer = 0f;
+    while (timer < 5f)
+    {
+        // Si el alumno es destruido, se gradúa o renuncia, cortamos el reloj de inmediato
+        if (student == null || student.currentState == StudentState.Graduated || student.currentState == StudentState.DroppedOut)
         {
-            student.activeLearningBuffs.Remove("Asesoría 🧠");
-            student.activeStressBuffs.Remove("Asesoría 💢");
+            Debug.Log("Asesoría cancelada tempranamente: El alumno ya no está en clase.");
+            break; // Esto rompe el ciclo while al instante
         }
 
-        // Liberamos al maestro
-        gameLogic.isTeacherBusy = false;
-        UIManager.Instance.SetTeacherBusy(false);
-        Debug.Log("Terminó la asesoría. El maestro vuelve a estar libre.");
+        timer += Time.deltaTime; // Sumamos el tiempo que tardó este frame
+        yield return null; // Esperamos al siguiente frame para volver a revisar
     }
+
+    // 4. LIMPIEZA TOTAL (Validando que el alumno siga vivo)
+    if (student != null && student.currentState != StudentState.Graduated && student.currentState != StudentState.DroppedOut)
+    {
+        student.activeLearningBuffs.Remove("Asesoría 🧠");
+        student.activeStressBuffs.Remove("Asesoría 💢");
+    }
+    
+
+    // Liberamos al maestro
+    gameLogic.isTeacherBusy = false;
+    UIManager.Instance.SetTeacherBusy(false);
+    Debug.Log("Terminó la asesoría. El maestro vuelve a estar libre.");
+}
+
 }

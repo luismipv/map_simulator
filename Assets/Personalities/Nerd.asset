@@ -17,3 +17,29 @@ MonoBehaviour:
   learningRateMod: 1.4
   stressRateMod: 1.2
   recoveryRateMod: 1
+  toolReactions:
+  - tool: {fileID: 11400000, guid: 43f2748fd64634d89ae875bf151b8254, type: 2}
+    stressMod: 0.8
+    learningMod: 1.5
+    successChance: 0
+  - tool: {fileID: 11400000, guid: 918485bc529094ce99d8f236287dea9e, type: 2}
+    stressMod: 1.5
+    learningMod: 0.6
+    successChance: 0
+  - tool: {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
+    stressMod: 0.5
+    learningMod: 1
+    successChance: 0
+  - tool: {fileID: 11400000, guid: 85829a54985e64014bdd6aea94e4579a, type: 2}
+    stressMod: 0.5
+    learningMod: 2
+    successChance: 0
+  globalToolReactions:
+  - globalTool: {fileID: 11400000, guid: 53aa0de8b58f04ef186178210dc0ea9d, type: 2}
+    stressMod: 1.4
+    learningMod: 0
+    successChance: 70
+  - globalTool: {fileID: 11400000, guid: b5c3e2e9c86764899ada89cb11ca21f9, type: 2}
+    stressMod: 1.5
+    learningMod: 1.5
+    successChance: 100

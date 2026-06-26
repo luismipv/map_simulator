@@ -5,22 +5,42 @@ public class ToolNag : TeacherTool
 {
     public override void ApplyToolEffect(Student target, Logic gameLogic)
     {
+        // 1. Le preguntamos a la personalidad cómo reacciona a ESTA herramienta (El Regaño)
+        ToolReaction reaction = target.personalityData.GetReactionForTool(this);
+
         // Solo si el alumno está distraído, el regaño tiene su efecto ideal
         if (target.currentState == StudentState.Distracted)
         {
-            target.ModifyStressInstant(10f); 
+            // Multiplicamos la base (10) por su modificador de personalidad
+            float finalStress = 10f * reaction.stressMod;
+            
+            target.ModifyStressInstant(finalStress); 
             target.ChangeState(StudentState.Working); // Lo regañas y vuelve a trabajar
-            Debug.Log($"¡Regañaste a {target.studentName}!");
+            target.ShowFloatingText($"¡Ya me pongo a trabajar!",Color.orange);
+            //Debug.Log($"¡Regañaste a {target.studentName}! Estrés: +{finalStress}");
         }
         else if (target.currentState == StudentState.Resting)
         {
-            target.ModifyStressInstant(25f); // Regañar en el recreo es muy tóxico
-            Debug.Log($"¡{target.studentName} está descansando! Regañarlo lo estresa mucho.");
+            // Multiplicamos la base tóxica (25) por su modificador
+            float finalStress = 25f * reaction.stressMod;
+            
+            target.ModifyStressInstant(finalStress); // Regañar en el recreo es muy tóxico
+            target.ShowFloatingText($"¡Estoy descansando!",Color.orange);
+            //Debug.Log($"¡{target.studentName} está descansando! Regañarlo lo estresa mucho. Estrés: +{finalStress}");
         }
         else
         {
-            target.ModifyStressInstant(20f); // Regañar a alguien que ya estaba trabajando
-            Debug.Log($"Intentaste regañar a {target.studentName}, pero no estaba distraído.");
+            // Multiplicamos la base de error (20) por su modificador
+            float finalStress = 20f * reaction.stressMod;
+            
+            target.ModifyStressInstant(finalStress); // Regañar a alguien que ya estaba trabajando
+            target.ShowFloatingText($"¡No estoy distraído!",Color.orange);
+            //Debug.Log($"Intentaste regañar a {target.studentName}, pero no estaba distraído. Estrés: +{finalStress}");
         }
+        
+        // (Opcional) Si la personalidad tiene un modificador de aprendizaje al ser regañado
+        // (Ej: El Flojo o Bully que aprenden de golpe por el susto)
+        // float finalLearning = 5f * reaction.learningMod;
+        // target.ModifyLearningInstant(finalLearning);
     }
 }

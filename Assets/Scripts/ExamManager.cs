@@ -26,7 +26,7 @@ public class ExamManager : MonoBehaviour
         nextExamTimer = partialExamInterval;
         
         // El ExamManager ahora se encarga de apagar el letrero al inicio
-        if (UIManager.Instance != null) UIManager.Instance.ShowExamWarning(false);
+        //if (UIManager.Instance != null) UIManager.Instance.ShowExamWarning(false);
     }
 
     private void Update()
@@ -34,10 +34,10 @@ public class ExamManager : MonoBehaviour
         // Solo corre si el juego no está pausado y si encontró el Logic
         if (Time.timeScale == 0f || gameLogic == null) return; 
 
-        HandlePartialExams();
+        //HandlePartialExams();
     }
 
-    private void HandlePartialExams()
+  /*  private void HandlePartialExams()
     {
         nextExamTimer -= Time.deltaTime;
 
@@ -79,7 +79,7 @@ public class ExamManager : MonoBehaviour
         if (UIManager.Instance != null) UIManager.Instance.ShowExamWarning(false);
         Time.timeScale = 1f; // Reanuda el juego
     }
-
+*/
     // Método público para que Logic pueda reiniciar el reloj cuando hay cambio de salón
     public void ResetExamTimer()
     {

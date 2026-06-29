@@ -53,7 +53,7 @@ public class StudentPersonalitySO : ScriptableObject
         }
 
         // Si no la pusiste en la lista, devolvemos una reacción neutra (x1)
-        return new ToolReaction { tool = toolToCheck, stressMod = 1f, learningMod = 1f };
+        return new ToolReaction { tool = toolToCheck, stressMod = 1f, learningMod = 1f , successChance = 100f};
     }
 
     public GlobalToolReaction GetReactionForGlobalTool(GlobalTool globalToolToCheck)
@@ -65,6 +65,6 @@ public class StudentPersonalitySO : ScriptableObject
                 return reaction;
             }
         }
-        return new GlobalToolReaction { globalTool = globalToolToCheck, stressMod = 1f, learningMod = 1f };
+        return new GlobalToolReaction { globalTool = globalToolToCheck, stressMod = 1f, learningMod = 1f , successChance = 100f};
     }
 }

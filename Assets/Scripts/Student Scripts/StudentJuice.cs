@@ -12,6 +12,7 @@ public class StudentJuice : MonoBehaviour
     public Color burnoutColor = Color.red;
     public Color droppedOutColor = Color.gray;
     public Color distractedColor = new Color(1f, 0.5f, 0f);
+    public Color finishedColor = Color.gold;
     public Color hoverColor = Color.yellow;
 
     [Header("Shake Effect")]
@@ -64,6 +65,7 @@ public class StudentJuice : MonoBehaviour
             case StudentState.Burnout: colorOriginalDeEstado = burnoutColor; break;
             case StudentState.DroppedOut: colorOriginalDeEstado = droppedOutColor; break;
             case StudentState.Distracted: colorOriginalDeEstado = distractedColor; break;
+            case StudentState.Finished: colorOriginalDeEstado = finishedColor; break;
         }
 
         if (!isHovered && spriteRenderer != null) spriteRenderer.color = colorOriginalDeEstado;

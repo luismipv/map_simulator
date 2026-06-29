@@ -371,6 +371,7 @@ MonoBehaviour:
   contagionInterval: 4
   restCooldownDuration: 8
   currentRestCooldown: 0
+  isExamMode: 0
   graduationVFXPrefab: {fileID: 5012725775303256726, guid: 07e4fc7c24c1542c9a3a588676644546, type: 3}
 --- !u!114 &1890518643287872859
 MonoBehaviour:
@@ -414,7 +415,8 @@ MonoBehaviour:
   burnoutColor: {r: 1, g: 0, b: 0, a: 1}
   droppedOutColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   distractedColor: {r: 1, g: 0.5, b: 0, a: 1}
-  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  finishedColor: {r: 1, g: 0.8431373, b: 0, a: 1}
+  hoverColor: {r: 0.9622642, g: 0.93216354, b: 0.67630833, a: 1}
   burnoutWarningThreshold: 85
   shakeIntensity: 0.02
 --- !u!58 &4968176176819280478

@@ -16,12 +16,19 @@ public class StudentSpawner : MonoBehaviour
 
     void Start()
     {
-        SpawnStudentsInSeats();
+       
+    }
+
+    public void SetStudentCountFromSlider(float count)
+    {
+        numberOfStudents = Mathf.RoundToInt(count);
+        // Actualizamos el texto de la UI (si creaste el método en UIManager)
+        UIManager.Instance.UpdateStudentCountText(numberOfStudents);
     }
 
     public void SpawnStudentsInSeats()
     {
-        
+         
         // 1. Obtenemos todas las sillas disponibles
         Seat[] allSeats = seatsContainer.GetComponentsInChildren<Seat>();
         List<Seat> availableSeats = new List<Seat>();

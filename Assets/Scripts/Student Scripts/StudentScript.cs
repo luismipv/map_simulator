@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using System; 
 using System.Collections.Generic; 
 
-public enum StudentState { Working, Flow, Burnout, Resting, DroppedOut, Distracted, Graduated }
+public enum StudentState { Working, Flow, Burnout, Resting, DroppedOut, Distracted, Finished, Graduated }
 public enum StudentPersonality { Normal, Nerd, Slacker, Anxious }
 
 public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerClickHandler
@@ -43,10 +43,13 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     private float contagionTimer = 0f;
     public float restCooldownDuration = 8f; 
     [HideInInspector] public float currentRestCooldown = 0f;
+    [HideInInspector] public bool isExamMode = false;
 
     [Header("Efectos Visuales")]
     public GameObject graduationVFXPrefab;
     private Logic logicManager; 
+
+
 
     // --- SISTEMA DE MODIFICADORES APILABLES (FX CHAIN) ---
     public Dictionary<string, float> activeLearningBuffs = new Dictionary<string, float>();
@@ -101,6 +104,34 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             TriggerGraduation();
             Debug.Log(studentName + " ¡Aprobó y se fue a casa!");
         }
+        else if (currentState == StudentState.Finished)
+        {
+            ShowFloatingText("¡Listo! Ayudando a otros...", Color.yellow);
+            learningLevel = maxLearning; // Aseguramos que se quede al máximo
+
+            // ¡LA MECÁNICA DEL TUTOR!
+            float tutorRadius = 4f; // Distancia en unidades de Unity. Ajústala para que alcance a los de al lado.
+            
+            if (logicManager != null)
+            {
+                foreach (Student neighbor in logicManager.allStudents)
+                {
+                    // Si es un vecino válido (no es él mismo, no desertó, y no ha terminado)
+                    if (neighbor != this && neighbor.currentState != StudentState.DroppedOut && neighbor.currentState != StudentState.Finished)
+                    {
+                        // Medimos la distancia
+                        float distance = Vector2.Distance(transform.position, neighbor.transform.position);
+                        
+                        if (distance <= tutorRadius)
+                        {
+                            // Le damos un buff pasivo del 25% extra en aprendizaje
+                            neighbor.activeLearningBuffs["Compañero Tutor 🎓"] = 1.25f;
+                            neighbor.ShowFloatingText("¡Inspirado!", Color.white);
+                        }
+                    }
+                }
+            }
+        }
         else if (currentState == StudentState.Flow) currentFlowTimer = flowDuration;
         else if (currentState == StudentState.Burnout)
         {
@@ -118,6 +149,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (graduationVFXPrefab != null)
         {
             Instantiate(graduationVFXPrefab, transform.position, Quaternion.identity);
+            ShowFloatingText("¡Graduado!",Color.gold);
         }
 
         if (currentSeat != null)
@@ -141,6 +173,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     private void HandleStateLogic()
     {
+        if (isExamMode) return;
         switch (currentState)
         {
             case StudentState.Resting:
@@ -189,6 +222,12 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 learningLevel = maxLearning;
                 stressLevel = 0f;
                 break;
+            case StudentState.Finished:
+                // El alumno ya acabó su cuota del parcial. 
+                // Su aprendizaje se queda al máximo y su estrés empieza a bajar lentamente por la paz mental.
+                learningLevel = maxLearning;
+                stressLevel -= (restingRecoveryRate * 0.5f) * Time.deltaTime;
+                break;
         }
 
         stressLevel = Mathf.Clamp(stressLevel, 0f, maxStress);
@@ -197,7 +236,11 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     private void CheckAutomaticTransitions()
     {
-        if (learningLevel >= maxLearning && currentState != StudentState.Graduated) { ChangeState(StudentState.Graduated); return; }
+        if (learningLevel >= maxLearning && currentState != StudentState.Finished && currentState != StudentState.Graduated) 
+    { 
+        ChangeState(StudentState.Finished); 
+        return; 
+    }
         if (stressLevel >= maxStress && currentState != StudentState.Burnout) { ChangeState(StudentState.Burnout); return; }
         
         if (currentState == StudentState.Working && personalityData != null && personalityData.personalityType == StudentPersonality.Slacker && stressLevel < 40f)
@@ -211,6 +254,11 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 ChangeState(StudentState.Distracted);
                 ShowFloatingText("Distraído!",Color.orange);
             } 
+        }
+        else if (currentState == StudentState.Finished)
+        {
+            //ShowFloatingText("¡Listo para el examen!", Color.yellow);
+            // Aquí en el futuro le prenderemos su "Aura de Tutor"
         }
 
         // ¡EL FIX DEL LOOP INFINITO DE FLOW ESTÁ AQUÍ! (< 75f)

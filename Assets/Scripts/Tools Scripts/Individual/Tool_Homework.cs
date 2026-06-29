@@ -31,8 +31,8 @@ public class ToolHomework : TeacherTool
         float stressMultiplier = 1f + (streak * 0.5f);
 
         // 3.5 Combinamos tu matemática de rachas con el modificador de su personalidad
-        float finalLearning = (10f * learningMultiplier) * reaction.learningMod;
-        float finalStress = (20f * stressMultiplier) * reaction.stressMod;
+        float finalLearning = 10f * learningMultiplier * reaction.learningMod;
+        float finalStress = 20f * stressMultiplier * reaction.stressMod;
 
         // 4. Aplicamos los efectos al alumno
         target.ModifyStressInstant(finalStress);

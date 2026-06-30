@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic; 
 
 public enum StudentState { Working, Flow, Burnout, Resting, DroppedOut, Distracted, Finished, Graduated }
-public enum StudentPersonality { Normal, Nerd, Slacker, Anxious }
+public enum StudentPersonality { Normal, Nerd, Slacker, Anxious, Bully, Cool }
 
 public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerClickHandler
 {
@@ -171,9 +171,16 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         Destroy(gameObject);
     }
 
-    private void HandleStateLogic()
+   private void HandleStateLogic()
     {
         if (isExamMode) return;
+
+        // ¡LA MAGIA! Inyectamos el multiplicador directamente en tu cadena de efectos
+        if (logicManager != null)
+        {
+            activeStressBuffs["¡Falta Poco! ⏰"] = logicManager.currentSemesterMultiplier;
+        }
+
         switch (currentState)
         {
             case StudentState.Resting:
@@ -184,16 +191,14 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 break;
             
              case StudentState.Working:
-                float panicMult = (logicManager != null) ? logicManager.currentSemesterMultiplier : 1f;
-                // ¡Matemática limpia usando solo el Diccionario!
-                stressLevel += (workingStressRate * GetTotalStressMultiplier() * panicMult) * Time.deltaTime;
+                // La matemática queda hiper limpia porque GetTotalStressMultiplier() ya incluye el Tiempo Límite
+                stressLevel += (workingStressRate * GetTotalStressMultiplier()) * Time.deltaTime;
                 learningLevel += (workingLearningRate * GetTotalLearningMultiplier()) * Time.deltaTime; 
                 break;
 
             case StudentState.Flow:
-                float flowPanicMult = (logicManager != null) ? logicManager.currentSemesterMultiplier : 1f;
-                // ¡Matemática limpia para el Flow!
-                stressLevel += (flowStressRate * GetTotalStressMultiplier() * flowPanicMult) * Time.deltaTime;
+                // Lo mismo para el estado de Flow
+                stressLevel += (flowStressRate * GetTotalStressMultiplier()) * Time.deltaTime;
                 learningLevel += (flowLearningRate * GetTotalLearningMultiplier()) * Time.deltaTime; 
                 break;
 
@@ -223,8 +228,6 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 stressLevel = 0f;
                 break;
             case StudentState.Finished:
-                // El alumno ya acabó su cuota del parcial. 
-                // Su aprendizaje se queda al máximo y su estrés empieza a bajar lentamente por la paz mental.
                 learningLevel = maxLearning;
                 stressLevel -= (restingRecoveryRate * 0.5f) * Time.deltaTime;
                 break;

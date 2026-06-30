@@ -167,10 +167,23 @@ public class StudentUI : MonoBehaviour
         // 2. DIBUJAR TODOS LOS BUFFS DE ESTRÉS APILADOS
         foreach (var buff in studentCore.activeStressBuffs)
         {
-            if (buff.Value > 1f) 
-                finalText += $"<color=#FF0000>{buff.Key} x{buff.Value}</color>\n";
-            else if (buff.Value < 1f) 
-                finalText += $"<color=#00FF00>{buff.Key} x{buff.Value}</color>\n";
+            // Tratamiento especial para el reloj: Solo lo mostramos si ya hay verdadero pánico
+            if (buff.Key == "¡Falta Poco! ⏰")
+            {
+                // Solo se dibuja en la UI si el multiplicador cruzó el umbral crítico (ej: 1.5x)
+                if (buff.Value >= 1.8f) 
+                {
+                    finalText += $"<color=#FF5555>{buff.Key} x{buff.Value:F1}</color>\n";
+                }
+            }
+            // Para todos los demás buffs de estrés normales:
+            else 
+            {
+                if (buff.Value > 1f) 
+                    finalText += $"<color=#FF0000>{buff.Key} x{buff.Value}</color>\n";
+                else if (buff.Value < 1f) 
+                    finalText += $"<color=#00FF00>{buff.Key} x{buff.Value}</color>\n";
+            }
         }
 
         // 3. ESTADOS TEMPORALES INDEPENDIENTES (Como Flow)

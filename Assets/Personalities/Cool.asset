@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9aa71470e2ac4bf584d6a7592fbda44, type: 3}
+  m_Name: Cool
+  m_EditorClassIdentifier: Assembly-CSharp::StudentPersonalitySO
+  personalityType: 5
+  personalityNameEs: Buena Onda
+  learningRateMod: 1.2
+  stressRateMod: 1.2
+  recoveryRateMod: 1.2
+  toolReactions:
+  - tool: {fileID: 11400000, guid: 43f2748fd64634d89ae875bf151b8254, type: 2}
+    stressMod: 0.8
+    learningMod: 1.2
+    successChance: 0
+  - tool: {fileID: 11400000, guid: 918485bc529094ce99d8f236287dea9e, type: 2}
+    stressMod: 1.5
+    learningMod: 1
+    successChance: 0
+  - tool: {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
+    stressMod: 1.2
+    learningMod: 1
+    successChance: 0
+  - tool: {fileID: 11400000, guid: 85829a54985e64014bdd6aea94e4579a, type: 2}
+    stressMod: 0.8
+    learningMod: 1.2
+    successChance: 0
+  globalToolReactions:
+  - globalTool: {fileID: 11400000, guid: 53aa0de8b58f04ef186178210dc0ea9d, type: 2}
+    stressMod: 1
+    learningMod: 1
+    successChance: 70
+  - globalTool: {fileID: 11400000, guid: b5c3e2e9c86764899ada89cb11ca21f9, type: 2}
+    stressMod: 1
+    learningMod: 1.4
+    successChance: 0

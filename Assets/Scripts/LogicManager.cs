@@ -24,8 +24,11 @@ public class Logic : MonoBehaviour
     
 
     [Header("Flujo del Juego (Timer)")]
-    public float maxGlobalTimer = 300f; 
-    public float globalTimer = 300f;
+    public float maxGlobalTimer = 120f; 
+    public float minGlobalTimer = 70f;
+    public float timeReduction = 30f;
+
+    [HideInInspector]public float globalTimer = 300f;
     public float maxEndSemesterMultiplier = 2f; 
     [HideInInspector] public float currentSemesterMultiplier = 1f;
     [HideInInspector] public int graduatedStudents = 0; 
@@ -181,7 +184,7 @@ public class Logic : MonoBehaviour
     // --- FASE 3: EL EXAMEN (RELÓJ DETENIDO) ---
     // ==========================================
 
-    private void TriggerExamPhase()
+   private void TriggerExamPhase()
     {
         isGameActive = false; 
         isTeacherBusy = true;
@@ -191,17 +194,17 @@ public class Logic : MonoBehaviour
         int passedStudents = 0;
         int failedStudents = 0;
         int moneyEarnedThisRound = 0;
-        
-        // ¡NUEVO: Aquí construiremos el reporte de texto!
         string dashboardDetails = ""; 
 
-        foreach (Student s in allStudents)
+        // 1. CAMBIO VITAL: Un bucle 'for' inverso para poder borrar alumnos sin romper la lista
+        for (int i = allStudents.Count - 1; i >= 0; i--)
         {
+            Student s = allStudents[i];
             if (s == null || s.currentState == StudentState.DroppedOut) continue;
 
             float finalLearning = s.learningLevel;
             float currentStress = s.stressLevel;
-            string studentNote = ""; // La nota especial para el dashboard
+            string studentNote = ""; 
 
             // APLICAMOS LA LÓGICA DEL INTERRUPTOR
             switch (currentTestMode)
@@ -226,19 +229,9 @@ public class Logic : MonoBehaviour
 
                 case ExamPenaltyMode.Snowball:
                     int roundedStress = Mathf.RoundToInt(currentStress);
-                    
-                    if (currentStress >= 80f)
-                    {
-                        studentNote = $"<color=#FF5555>Al borde del Burnout (Arrastra {roundedStress}% al P{currentPartial + 1})</color>";
-                    }
-                    else if (currentStress >= 40f)
-                    {
-                        studentNote = $"<color=yellow>Sobreviviendo (Arrastra {roundedStress}% al P{currentPartial + 1})</color>";
-                    }
-                    else
-                    {
-                        studentNote = $"<color=green>Mente fresca (Arrastra {roundedStress}% al P{currentPartial + 1})</color>";
-                    }
+                    if (currentStress >= 80f) studentNote = $"<color=#FF5555>Al borde del Burnout (Arrastra {roundedStress}% al P{currentPartial + 1})</color>";
+                    else if (currentStress >= 40f) studentNote = $"<color=yellow>Sobreviviendo (Arrastra {roundedStress}% al P{currentPartial + 1})</color>";
+                    else studentNote = $"<color=green>Mente fresca (Arrastra {roundedStress}% al P{currentPartial + 1})</color>";
                     break;
             }
 
@@ -249,13 +242,23 @@ public class Logic : MonoBehaviour
                 passedStudents++;
                 moneyEarnedThisRound += moneyPerPass;
                 passedThisExam = true;
+
+                // ¡NUEVO! LÓGICA DE GRADUACIÓN
+                if (currentPartial >= totalPartials)
+                {
+                    dashboardDetails += $"• <b>{s.studentName}</b>: ¡SE GRADUÓ CON HONORES! 🎓\n";
+                    s.ChangeState(StudentState.Graduated);
+                    
+                    // Saltamos a la siguiente iteración porque el alumno acaba de ser destruido
+                    continue; 
+                }
             }
             else
             {
                 failedStudents++;
             }
 
-            // AGREGAMOS AL ALUMNO AL REPORTE VISUAL
+            // AGREGAMOS AL ALUMNO AL REPORTE VISUAL (Solo si no se ha graduado)
             string statusColor = passedThisExam ? "<color=green>APROBADO</color>" : "<color=red>REPROBADO</color>";
             dashboardDetails += $"• <b>{s.studentName}</b>: {Mathf.RoundToInt(finalLearning)} pts | {statusColor} | {studentNote}\n";
 
@@ -263,16 +266,26 @@ public class Logic : MonoBehaviour
             s.learningLevel = 0f; 
             if (currentTestMode != ExamPenaltyMode.Snowball) s.stressLevel = 0f; 
             
-            s.isExamMode = true; // Congelamos usando tu nueva bandera booleana
+            s.isExamMode = true; 
         }
 
         currentMoney += moneyEarnedThisRound;
         if (currentMoney < 0) currentMoney = 0; 
 
-        // Enviamos todo a la UI, incluyendo la lista detallada y el modo actual
-        UIManager.Instance.ShowExamResults(passedStudents, failedStudents, moneyEarnedThisRound, currentMoney, currentTestMode, dashboardDetails);
+        StartCoroutine(ShowResultsWithDelay(passedStudents, failedStudents, moneyEarnedThisRound, currentMoney, currentTestMode, dashboardDetails));
     }
 
+    private IEnumerator ShowResultsWithDelay(int passed, int failed, int money, int totalMoney, ExamPenaltyMode mode, string details)
+    {
+        // Si estamos en el último parcial, le damos 2.5 segundos para que se vea la explosión de graduación
+        // Si es un parcial normal, le damos solo 1 segundo de pausa dramática
+        float delayTime = (currentPartial >= totalPartials) ? 2.5f : 1.0f;
+        
+        yield return new WaitForSeconds(delayTime);
+
+        // Pasado el tiempo, ahora sí, cubrimos la pantalla con las calificaciones
+        UIManager.Instance.ShowExamResults(passed, failed, money, totalMoney, mode, details);
+    }
     public void StartNextPartial()
     {
         currentPartial++;
@@ -286,8 +299,24 @@ public class Logic : MonoBehaviour
 
         // 1. ESCALAMOS LA DIFICULTAD
         partialLearningQuota += 50f; 
-        maxGlobalTimer -= 30f; 
-        if (maxGlobalTimer < 120f) maxGlobalTimer = 120f; 
+        maxGlobalTimer -= timeReduction; 
+        if (maxGlobalTimer < minGlobalTimer) maxGlobalTimer = minGlobalTimer; 
+
+        // ========================================================
+        // ¡NUEVO: EVACUACIÓN DE ALUMNOS DADOS DE BAJA!
+        // Recorremos al revés para limpiar el salón de forma segura
+        // ========================================================
+        for (int i = allStudents.Count - 1; i >= 0; i--)
+        {
+            if (allStudents[i] != null && allStudents[i].currentState == StudentState.DroppedOut)
+            {
+                // 1. Lo apagamos en la escena para que su silla quede vacía visualmente
+                allStudents[i].gameObject.SetActive(false); 
+                
+                // 2. Lo sacamos de la lista para que ya no afecte los promedios del nuevo parcial
+                allStudents.RemoveAt(i); 
+            }
+        }
 
         // 2. LIMPIEZA DE BUFFS (Quitamos el aura del Tutor)
         foreach (Student s in allStudents)

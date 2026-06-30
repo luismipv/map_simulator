@@ -15,3 +15,4 @@ MonoBehaviour:
   toolName: Descanso
   toolDescription: Les doy 10 segundos de descanso, no los molestes.
   toolIcon: {fileID: 0}
+  baseInstantStressRelief: -10

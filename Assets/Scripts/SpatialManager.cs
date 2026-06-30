@@ -53,10 +53,11 @@ public class SpatialManager : MonoBehaviour
                 {
                     tempEntornoLearning[s] *= 1.2f;
                 }
-                else if(s.personalityData.personalityType == StudentPersonality.Normal)
+                else if(s.personalityData.personalityType == StudentPersonality.Normal || s.personalityData.personalityType == StudentPersonality.Cool)
                 {
                     tempEntornoLearning[s] *= 1f;
                 }
+               
                 else
                 {
                     tempEntornoLearning[s] *= 0.8f;
@@ -64,7 +65,7 @@ public class SpatialManager : MonoBehaviour
             }
             else if (s.transform.position.y <= yFilaAtras) // Estás atrás
             {
-                if(s.personalityData.personalityType == StudentPersonality.Slacker || s.personalityData.personalityType == StudentPersonality.Anxious )
+                if(s.personalityData.personalityType == StudentPersonality.Slacker || s.personalityData.personalityType == StudentPersonality.Anxious || s.personalityData.personalityType == StudentPersonality.Bully )
                 {
                     tempEntornoLearning[s] *= 1.2f;
                 }

@@ -152,6 +152,8 @@ public class UIManager : MonoBehaviour
     public void ShowEndScreen(bool isFired, bool perfectSemester, int grads, int dropouts, int maxDropouts, int totalStudents)
     {
         if (gameplayContainer != null) gameplayContainer.SetActive(false);
+        if (examResultsPanel != null ) examResultsPanel.SetActive(false);
+        
         if (endGamePanel != null) endGamePanel.SetActive(true);
 
         if (isFired)

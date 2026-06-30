@@ -460,6 +460,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 09e8e62c8aa834187bda7af01272a27b, type: 2}
   - {fileID: 11400000, guid: 9f0c8b9ae74bb4a6d81e7db69b4dfbca, type: 2}
   - {fileID: 11400000, guid: fab0cb3621ece411992e0fa3eb3afcdd, type: 2}
+  - {fileID: 11400000, guid: 0afbd07a193554ef08067a437ad642f8, type: 2}
+  - {fileID: 11400000, guid: 5fc7e183e04bb40bdb73dd91dc73e5c4, type: 2}
   firstNames:
   - Ana
   - Luis
@@ -6056,14 +6058,25 @@ MonoBehaviour:
   negativeFeedback: {fileID: 3933101037953055773, guid: 0b69b5d1e9e75412e9a41651fbb00640, type: 3}
   reglasDeSinergia:
   - {fileID: 11400000, guid: 6236c5943ca524cd582b35149839b774, type: 2}
+  - {fileID: 11400000, guid: b0228f621304e44daaef1bee53401dce, type: 2}
+  - {fileID: 11400000, guid: 3161dfc5a881a48fb810340e027d46a2, type: 2}
+  - {fileID: 11400000, guid: 2211baef6e34a404d953f86161eaaa08, type: 2}
+  - {fileID: 11400000, guid: f31a4515f168346b19fadda584bf3525, type: 2}
+  - {fileID: 11400000, guid: 179e85607892a4860bd9e7c8f3f6efa7, type: 2}
   - {fileID: 11400000, guid: d796b59dd26334710a05dd014aae3d19, type: 2}
+  - {fileID: 11400000, guid: 8b5c6bb63b63f444fb0982bc4c650cf2, type: 2}
+  - {fileID: 11400000, guid: a6abbc0d4766f409ba368edb309b001e, type: 2}
   - {fileID: 11400000, guid: 5e07bfd49d2424f189f5a263942a8741, type: 2}
   - {fileID: 11400000, guid: 78d32c58ed25146ee91d8360f8d68bb9, type: 2}
   - {fileID: 11400000, guid: b03041a053363485b9c74861490a6925, type: 2}
+  - {fileID: 11400000, guid: 5b8267fbd04474c4b983e5ee989af19d, type: 2}
+  - {fileID: 11400000, guid: 3162a12c0bd31461b986a4b972e6b424, type: 2}
   - {fileID: 11400000, guid: 888760748cfcc484d87fdc7fb1b4f5e9, type: 2}
   - {fileID: 11400000, guid: 9d1cc08f6856546379de55e1ae25734d, type: 2}
   - {fileID: 11400000, guid: 7ce5f5025c5ec4b918d34481bc82ab67, type: 2}
   - {fileID: 11400000, guid: 3fa5db31b09d84c38bbf871787585fa6, type: 2}
+  - {fileID: 11400000, guid: 0c97aaf534be44f7b8e95daa3c9ad315, type: 2}
+  - {fileID: 11400000, guid: 008a405a87f424c75a6cee6c6bc483f9, type: 2}
   - {fileID: 11400000, guid: 629bf495be34d4808b847cb1fd3d14f1, type: 2}
 --- !u!1 &1609383641
 GameObject:
@@ -7928,6 +7941,8 @@ MonoBehaviour:
   currentPartial: 1
   totalPartials: 3
   maxGlobalTimer: 100
+  minGlobalTimer: 70
+  timeReduction: 30
   globalTimer: 100
   maxEndSemesterMultiplier: 2
   currentSemesterMultiplier: 1

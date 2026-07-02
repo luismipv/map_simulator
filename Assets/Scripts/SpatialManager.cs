@@ -4,10 +4,13 @@ using System.Collections;
 
 public class SpatialManager : MonoBehaviour
 {
+    public static SpatialManager Instance { get; private set; }
     [Header("Configuración del Salón")]
     public float radioVecinos = 3.5f; 
     public float yFilaFrente = -1.0f;  
     public float yFilaAtras = 1.0f;  
+
+    public Dictionary<Student, List<Student>> neighborGraph = new Dictionary<Student, List<Student>>();
 
     [Header("Feedback Visual")]
     public Sprite positiveFeedback; 
@@ -16,6 +19,11 @@ public class SpatialManager : MonoBehaviour
     private HashSet<string> parejasMostradas = new HashSet<string>();
     public List<SynergyRuleSO> reglasDeSinergia = new List<SynergyRuleSO>();
 
+    public void Awake()
+    {
+        if (Instance != null && Instance != this) Destroy(this);
+        else Instance = this;
+    }
     void Start()
     {
         InvokeRepeating("UpdateSpatialEffects", 1f, 1f);
@@ -35,6 +43,12 @@ public class SpatialManager : MonoBehaviour
             tempEntornoLearning[s] = 1f;
             tempSinergiaLearning[s] = 1f;
             tempSinergiaStress[s] = 1f;
+        }
+
+        neighborGraph.Clear();
+        foreach (Student s in todosLosAlumnos)
+        {
+            neighborGraph[s] = new List<Student>(); // Le creamos una lista vacía a cada quien
         }
 
         for (int i = 0; i < todosLosAlumnos.Length; i++)
@@ -92,6 +106,8 @@ public class SpatialManager : MonoBehaviour
 
                 if (distancia <= radioVecinos)
                 {
+                    neighborGraph[s].Add(vecino);
+                    neighborGraph[vecino].Add(s);
                     ApplySynergy(s, vecino, parejasActuales, tempSinergiaLearning, tempSinergiaStress);
                 }
             }

@@ -2,11 +2,21 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 
+// 1. ESTA CAJITA DE DATOS VA AFUERA PARA PODER CONFIGURAR TODO EN EL INSPECTOR
+[System.Serializable]
+public class LayoutConfig
+{
+    public string layoutName; 
+    public GameObject layoutContainer;
+    public Vector3 idealCameraPosition;
+    public float idealCameraSize = 5f; 
+}
+
 public class StudentSpawner : MonoBehaviour
 {
     [Header("Configuración")]
     public GameObject studentPrefab;
-    public Transform seatsContainer; // Arrastra aquí el objeto "--- ASIENTOS ---"
+    public Transform seatsContainer; // Se actualizará automáticamente al cambiar de layout
     public int numberOfStudents = 4; 
 
     [Header("Base de Datos")]
@@ -14,21 +24,52 @@ public class StudentSpawner : MonoBehaviour
     public string[] firstNames = new string[] { "Ana", "Luis", "Sofía", "Carlos", "Elena", "Marta", "Diego" };
     public string[] lastNames = new string[] { "Pérez", "Gómez", "López", "Martínez", "Rodríguez", "Sánchez" };
 
+    // ¡NUEVO!: Lista de layouts configurables desde Unity
+    [Header("Layouts del Salón")]
+    public LayoutConfig[] classroomLayouts;
+
     void Start()
     {
+        SetStudentCountFromSlider(4);
+        SelectClassroomLayout(0);
        
     }
 
     public void SetStudentCountFromSlider(float count)
     {
         numberOfStudents = Mathf.RoundToInt(count);
-        // Actualizamos el texto de la UI (si creaste el método en UIManager)
         UIManager.Instance.UpdateStudentCountText(numberOfStudents);
+    }
+
+    // ¡NUEVO!: Este es el método que llamará tu botón o dropdown del menú
+    public void SelectClassroomLayout(int layoutIndex)
+    {
+        if (classroomLayouts == null || classroomLayouts.Length == 0) return;
+
+        // A. Prendemos el layout seleccionado y apagamos los demás
+        for (int i = 0; i < classroomLayouts.Length; i++)
+        {
+            if (classroomLayouts[i].layoutContainer != null)
+            {
+                classroomLayouts[i].layoutContainer.SetActive(i == layoutIndex);
+            }
+        }
+
+        // B. Le reasignamos el contenedor de sillas al Spawner
+        seatsContainer = classroomLayouts[layoutIndex].layoutContainer.transform;
+        
+        // C. Le delegamos la orden a la cámara de forma limpia (con el script que desacoplamos)
+        if (CameraController.Instance != null)
+        {
+            CameraController.Instance.SetCameraTarget(
+                classroomLayouts[layoutIndex].idealCameraPosition, 
+                classroomLayouts[layoutIndex].idealCameraSize
+            );
+        }
     }
 
     public void SpawnStudentsInSeats()
     {
-         
         // 1. Obtenemos todas las sillas disponibles
         Seat[] allSeats = seatsContainer.GetComponentsInChildren<Seat>();
         List<Seat> availableSeats = new List<Seat>();
@@ -46,32 +87,50 @@ public class StudentSpawner : MonoBehaviour
 
         for (int i = 0; i < studentsToSpawn; i++)
         {
-            // 3. Elegimos una silla al azar y la quitamos de la lista para no repetir
             int randomIndex = Random.Range(0, availableSeats.Count);
             Seat chosenSeat = availableSeats[randomIndex];
             availableSeats.RemoveAt(randomIndex);
 
-            // 4. Instanciamos al alumno (la posición no importa, porque el asiento lo moverá)
             GameObject newStudentObj = Instantiate(studentPrefab, transform.position, Quaternion.identity);
             Student studentScript = newStudentObj.GetComponent<Student>();
 
-            // 5. ¡LA MAGIA! Usamos tu método del asiento para "magnetizarlo" y setear datos
             chosenSeat.AssignStudent(studentScript);
 
-            // 6. Configuramos datos
             string generatedName = GenerateRandomName();
             newStudentObj.name = generatedName;
             studentScript.studentName = generatedName;
 
             if (availablePersonalities != null && availablePersonalities.Length > 0)
             {
-                studentScript.personalityData = availablePersonalities[Random.Range(0, availablePersonalities.Length)];
+                studentScript.personalityData = GetRandomPersonalityByWeight();
             }
 
-            // Actualizamos UI
             TMP_Text textUI = newStudentObj.GetComponentInChildren<TMP_Text>();
             if (textUI != null) textUI.text = $"{generatedName}:\n0/100";
         }
+    }
+
+    private StudentPersonalitySO GetRandomPersonalityByWeight()
+    {
+        int totalWeight = 0;
+        foreach (var p in availablePersonalities) 
+        {
+            totalWeight += p.spawnWeight;
+        }
+
+        int randomValue = Random.Range(0, totalWeight);
+
+        int currentWeightSum = 0;
+        foreach (var p in availablePersonalities)
+        {
+            currentWeightSum += p.spawnWeight;
+            if (randomValue < currentWeightSum)
+            {
+                return p; 
+            }
+        }
+        
+        return availablePersonalities[0]; 
     }
 
     string GenerateRandomName()

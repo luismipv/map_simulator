@@ -17,6 +17,7 @@ MonoBehaviour:
   learningRateMod: 0.6
   stressRateMod: 0.8
   recoveryRateMod: 1
+  spawnWeight: 2
   toolReactions:
   - tool: {fileID: 11400000, guid: 43f2748fd64634d89ae875bf151b8254, type: 2}
     stressMod: 0.8

@@ -34,6 +34,9 @@ public class StudentPersonalitySO : ScriptableObject
     public float stressRateMod = 1f;
     public float recoveryRateMod = 1f;
 
+    [Header("Aparición")]
+    public int spawnWeight = 10; // 10 será el valor por defecto
+
     // 2. BORRAMOS LAS VARIABLES SUELTAS Y PONEMOS ESTO:
     // Una lista dinámica donde puedes agregar tantas herramientas como quieras
     [Header("Reacciones Dinámicas a Herramientas")]

@@ -95,9 +95,28 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public void ChangeState(StudentState newState)
     {
+        // 1. Cláusula de guardia (¡Solo una vez!)
         if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;  
+        
         currentState = newState;
         
+        // 2. ¡LA MAGIA DEL COOL OPTIMIZADA!
+        if (currentState == StudentState.Flow && personalityData != null && personalityData.personalityType == StudentPersonality.Cool)
+        {
+            if (SpatialManager.Instance != null && SpatialManager.Instance.neighborGraph.ContainsKey(this))
+            {
+                foreach (Student neighbor in SpatialManager.Instance.neighborGraph[this])
+                {
+                    if (neighbor.currentState == StudentState.Working)
+                    {
+                        neighbor.ChangeState(StudentState.Flow);
+                        neighbor.ShowFloatingText("¡Contagiado 😎!", Color.cyan);
+                    }
+                }
+            }
+        }
+
+        // 3. LA ASIGNACIÓN DE TEMPORIZADORES Y EVENTOS FALTANTES
         if (currentState == StudentState.Graduated)
         {
             ShowFloatingText("¡Aprobo y se fue a casa!", Color.white);
@@ -107,39 +126,28 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         else if (currentState == StudentState.Finished)
         {
             ShowFloatingText("¡Listo! Ayudando a otros...", Color.yellow);
-            learningLevel = maxLearning; // Aseguramos que se quede al máximo
-
-            // ¡LA MECÁNICA DEL TUTOR!
-            float tutorRadius = 4f; // Distancia en unidades de Unity. Ajústala para que alcance a los de al lado.
+            learningLevel = maxLearning; 
             
-            if (logicManager != null)
-            {
-                foreach (Student neighbor in logicManager.allStudents)
-                {
-                    // Si es un vecino válido (no es él mismo, no desertó, y no ha terminado)
-                    if (neighbor != this && neighbor.currentState != StudentState.DroppedOut && neighbor.currentState != StudentState.Finished)
-                    {
-                        // Medimos la distancia
-                        float distance = Vector2.Distance(transform.position, neighbor.transform.position);
-                        
-                        if (distance <= tutorRadius)
-                        {
-                            // Le damos un buff pasivo del 25% extra en aprendizaje
-                            neighbor.activeLearningBuffs["Compañero Tutor 🎓"] = 1.25f;
-                            neighbor.ShowFloatingText("¡Inspirado!", Color.white);
-                        }
-                    }
-                }
-            }
+            // Aquí va tu lógica espacial del Tutor si la sigues manejando en este script
         }
-        else if (currentState == StudentState.Flow) currentFlowTimer = flowDuration;
+        else if (currentState == StudentState.Flow) 
+        {
+            currentFlowTimer = flowDuration;
+        }
         else if (currentState == StudentState.Burnout)
         {
             currentBurnoutTimer = burnoutTimeLimit;
             ModifyLearningInstant(-20f); 
         }
-        else if (currentState == StudentState.Distracted) contagionTimer = contagionInterval;
-        else if (currentState == StudentState.Resting) currentRestTimer = mandatoryRestDuration;
+        else if (currentState == StudentState.Distracted) 
+        {
+            contagionTimer = contagionInterval;
+        }
+        else if (currentState == StudentState.Resting) 
+        {
+            // ¡ESTA ES LA LÍNEA QUE SALVA LA VIDA DEL ALUMNO!
+            currentRestTimer = mandatoryRestDuration; 
+        }
 
         OnStateChanged?.Invoke(currentState); 
     }

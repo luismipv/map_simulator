@@ -131,6 +131,7 @@ public class Student3D : Student
         originalPosition = transform.position; 
         lastState = currentState;
         Dragged();
+        FindAnyObjectByType<DragSynergyWeb>().StartDragging(this);
         
         // 1. Creamos un piso matemático invisible exactamente a la altura del alumno
         dragPlane = new Plane(Vector3.up, transform.position);
@@ -161,6 +162,7 @@ public class Student3D : Student
         Seat[] todasLasSillas = FindObjectsByType<Seat>(FindObjectsSortMode.None);        
         Seat sillaMasCercana = null;
         float distanciaMinima = float.MaxValue;
+        FindAnyObjectByType<DragSynergyWeb>().StopDragging();
 
         foreach (Seat silla in todasLasSillas)
         {

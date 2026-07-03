@@ -5,16 +5,17 @@ using System.Collections;
 public class SpatialManager : MonoBehaviour
 {
     public static SpatialManager Instance { get; private set; }
-    [Header("Configuración del Salón")]
+    
+    [Header("Configuración del Salón (Eje Z)")]
     public float radioVecinos = 3.5f; 
-    public float yFilaFrente = -1.0f;  
-    public float yFilaAtras = 1.0f;  
+    public float zFilaFrente = 5.0f;  // Ajusta en el inspector de Unity
+    public float zFilaAtras = -5.0f;  // Ajusta en el inspector de Unity
 
     public Dictionary<Student, List<Student>> neighborGraph = new Dictionary<Student, List<Student>>();
 
-    [Header("Feedback Visual")]
-    public Sprite positiveFeedback; 
-    public Sprite negativeFeedback; 
+    [Header("Feedback Visual (Partículas)")]
+    public GameObject positiveParticlesPrefab; // Arrastra tu sistema de Corazones aquí
+    public GameObject negativeParticlesPrefab; // Arrastra tus partículas de estrés aquí
     
     private HashSet<string> parejasMostradas = new HashSet<string>();
     public List<SynergyRuleSO> reglasDeSinergia = new List<SynergyRuleSO>();
@@ -24,6 +25,7 @@ public class SpatialManager : MonoBehaviour
         if (Instance != null && Instance != this) Destroy(this);
         else Instance = this;
     }
+    
     void Start()
     {
         InvokeRepeating("UpdateSpatialEffects", 1f, 1f);
@@ -55,54 +57,46 @@ public class SpatialManager : MonoBehaviour
         {
             Student s = todosLosAlumnos[i];
             
-            if (s.currentState == StudentState.DroppedOut || s.currentState == StudentState.Graduated) continue;
+            // --- EL CANDADO MAESTRO ---
+            // Si el alumno no está sentado trabajando (ej. está siendo arrastrado o dado de baja), 
+            // no evaluamos su sinergia ni su posición en la fila.
+            if (s.currentState != StudentState.Working) continue;
             
-            // CHALECO ANTIBALAS 1: Si este alumno no tiene personalidad, lo saltamos para no romper el juego
             if (s.personalityData == null) continue;
 
-            // FACTOR 1: Fila -> Se va al bus de Entorno
-            if (s.transform.position.y >= yFilaFrente) // Estás enfrente
+            // FACTOR 1: Fila -> Se va al bus de Entorno (AQUÍ YA USAMOS LA Z)
+            if (s.transform.position.z >= zFilaFrente) 
             {
                 if(s.personalityData.personalityType == StudentPersonality.Nerd)
-                {
                     tempEntornoLearning[s] *= 1.2f;
-                }
                 else if(s.personalityData.personalityType == StudentPersonality.Normal || s.personalityData.personalityType == StudentPersonality.Cool)
-                {
                     tempEntornoLearning[s] *= 1f;
-                }
-               
                 else
-                {
                     tempEntornoLearning[s] *= 0.8f;
-                }
             }
-            else if (s.transform.position.y <= yFilaAtras) // Estás atrás
+            else if (s.transform.position.z <= zFilaAtras) 
             {
                 if(s.personalityData.personalityType == StudentPersonality.Slacker || s.personalityData.personalityType == StudentPersonality.Anxious || s.personalityData.personalityType == StudentPersonality.Bully )
-                {
                     tempEntornoLearning[s] *= 1.2f;
-                }
                 else if(s.personalityData.personalityType == StudentPersonality.Nerd)
-                {
                     tempEntornoLearning[s] *= 0.8f;
-                }
                 else
-                {
                     tempEntornoLearning[s] *= 1f;
-                }
             } 
 
             // FACTOR 2: Revisar Vecinos
             for (int j = i + 1; j < todosLosAlumnos.Length; j++) 
             {
                 Student vecino = todosLosAlumnos[j];
-                if (vecino.currentState == StudentState.DroppedOut || vecino.currentState == StudentState.Graduated) continue;
                 
-                // CHALECO ANTIBALAS 2: Revisamos que el vecino también tenga personalidad
+                // Si el vecino está volando, tampoco hay sinergia
+                if (vecino.currentState != StudentState.Working) continue;
                 if (vecino.personalityData == null) continue;
 
-                float distancia = Vector2.Distance(s.transform.position, vecino.transform.position);
+                // Aplanamos las coordenadas (Ignoramos la altura Y) para medir la distancia real en el piso
+                Vector3 posS = new Vector3(s.transform.position.x, 0, s.transform.position.z);
+                Vector3 posVecino = new Vector3(vecino.transform.position.x, 0, vecino.transform.position.z);
+                float distancia = Vector3.Distance(posS, posVecino);
 
                 if (distancia <= radioVecinos)
                 {
@@ -118,17 +112,25 @@ public class SpatialManager : MonoBehaviour
         {
             if (s == null || s.currentState == StudentState.DroppedOut || s.currentState == StudentState.Graduated) continue;
 
-            // A) Etiqueta de Entorno (Fila)
-            if (tempEntornoLearning[s] != 1f) s.activeLearningBuffs["Entorno 🧠"] = tempEntornoLearning[s];
-            else s.activeLearningBuffs.Remove("Entorno 🧠");
+            // Si está trabajando, inyectamos los buffs
+            if (s.currentState == StudentState.Working)
+            {
+                if (tempEntornoLearning[s] != 1f) s.activeLearningBuffs["Entorno 🧠"] = tempEntornoLearning[s];
+                else s.activeLearningBuffs.Remove("Entorno 🧠");
 
-            // B) Etiqueta de Sinergia (Vecinos - Aprendizaje)
-            if (tempSinergiaLearning[s] != 1f) s.activeLearningBuffs["Sinergia 🧠"] = tempSinergiaLearning[s];
-            else s.activeLearningBuffs.Remove("Sinergia 🧠");
+                if (tempSinergiaLearning[s] != 1f) s.activeLearningBuffs["Sinergia 🧠"] = tempSinergiaLearning[s];
+                else s.activeLearningBuffs.Remove("Sinergia 🧠");
 
-            // C) Etiqueta de Sinergia (Vecinos - Estrés)
-            if (tempSinergiaStress[s] != 1f) s.activeStressBuffs["Sinergia 💢"] = tempSinergiaStress[s];
-            else s.activeStressBuffs.Remove("Sinergia 💢");
+                if (tempSinergiaStress[s] != 1f) s.activeStressBuffs["Sinergia 💢"] = tempSinergiaStress[s];
+                else s.activeStressBuffs.Remove("Sinergia 💢");
+            }
+            else 
+            {
+                // Si lo levantaste con el dedo, le quitamos las etiquetas temporalmente
+                s.activeLearningBuffs.Remove("Entorno 🧠");
+                s.activeLearningBuffs.Remove("Sinergia 🧠");
+                s.activeStressBuffs.Remove("Sinergia 💢");
+            }
         }
 
         parejasMostradas.IntersectWith(parejasActuales);
@@ -147,7 +149,6 @@ public class SpatialManager : MonoBehaviour
 
         SynergyRuleSO reglaValida = null;
         
-        // CHALECO ANTIBALAS 3: Evitamos errores si la lista en Unity está vacía
         if (reglasDeSinergia != null && reglasDeSinergia.Count > 0)
         {
             foreach (SynergyRuleSO regla in reglasDeSinergia)
@@ -165,7 +166,6 @@ public class SpatialManager : MonoBehaviour
             bool huboSinergia = false;
             bool esPositiva = false; 
 
-            // CASO 1: Yo soy A y vecino es B
             if (reglaValida.personalityA == myType && reglaValida.personalityB == neighborType)
             {
                 synLearn[me] *= reglaValida.learningMultA;
@@ -177,7 +177,6 @@ public class SpatialManager : MonoBehaviour
                 huboSinergia = true;
                 esPositiva = (reglaValida.learningMultA >= 1f);
             }
-            // CASO 2: Yo soy B y vecino es A (Invertido)
             else if (reglaValida.personalityA == neighborType && reglaValida.personalityB == myType)
             {
                 synLearn[me] *= reglaValida.learningMultB;
@@ -190,6 +189,7 @@ public class SpatialManager : MonoBehaviour
                 esPositiva = (reglaValida.learningMultB >= 1f);
             }
 
+            // Ya comprobamos arriba que AMBOS están sentados (Working), así que explotamos las partículas de inmediato
             if (huboSinergia && !parejasMostradas.Contains(pairHash))
             {
                 StartCoroutine(ShowFeedback(me, neighbor, esPositiva));
@@ -202,16 +202,33 @@ public class SpatialManager : MonoBehaviour
     {
         if (student == null || neighbor == null) yield break;
 
-        GameObject feedbackObj = new GameObject("Feedback Sinergia");
-        feedbackObj.transform.position = (student.transform.position + neighbor.transform.position) / 2f; 
-        
-        SpriteRenderer sr = feedbackObj.AddComponent<SpriteRenderer>();
-        sr.sprite = isPositive ? positiveFeedback : negativeFeedback;
-        sr.sortingOrder = 10; 
+        GameObject prefabAUsar = isPositive ? positiveParticlesPrefab : negativeParticlesPrefab;
 
-        yield return new WaitForSeconds(1f); 
+        if (prefabAUsar != null)
+        {
+            // Subimos más la altura y empujamos las partículas hacia la cámara
+            float alturaOffset = 3.5f; 
+            float zOffset = -1.0f; // Este -1 lo saca de la cabeza hacia el frente
 
-        if (feedbackObj != null) Destroy(feedbackObj);
+            // 1. Partículas pegadas al primer alumno
+            Vector3 posStudent = student.transform.position;
+            posStudent.y += alturaOffset;
+            posStudent.z += zOffset;
+            GameObject part1 = Instantiate(prefabAUsar, posStudent, Quaternion.identity);
+            part1.transform.SetParent(student.transform); 
+
+            // 2. Partículas pegadas al vecino
+            Vector3 posNeighbor = neighbor.transform.position;
+            posNeighbor.y += alturaOffset;
+            posNeighbor.z += zOffset;
+            GameObject part2 = Instantiate(prefabAUsar, posNeighbor, Quaternion.identity);
+            part2.transform.SetParent(neighbor.transform); 
+
+            Destroy(part1, 2f);
+            Destroy(part2, 2f);
+        }
+
+        yield return null; 
     }
 
     private void OnDrawGizmos()
@@ -225,7 +242,9 @@ public class SpatialManager : MonoBehaviour
         {
             if (s.currentState != StudentState.DroppedOut && s.currentState != StudentState.Graduated)
             {
-                Gizmos.DrawWireSphere(s.transform.position, radioVecinos);
+                // Aplanamos el radar visual para que no te mienta en la vista de edición
+                Vector3 pisoPos = new Vector3(s.transform.position.x, 0, s.transform.position.z);
+                Gizmos.DrawWireSphere(pisoPos, radioVecinos);
             }
         }
     }

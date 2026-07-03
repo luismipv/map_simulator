@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5679166214075894824}
   - component: {fileID: 505883167815927960}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cara Enojada
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   - component: {fileID: 6513627250506436854}
   - component: {fileID: 4017190146338736107}
   - component: {fileID: 91340967156877534}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Stress Number
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -226,6 +226,81 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &1092550949444247776
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2552950205622650575}
+  - component: {fileID: 6063800622876306446}
+  - component: {fileID: 5746991514554621212}
+  m_Layer: 6
+  m_Name: Panel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2552950205622650575
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092550949444247776}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4679583175130655112}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 13.21, y: -125.66998}
+  m_SizeDelta: {x: 144.2, y: -72.18}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &6063800622876306446
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092550949444247776}
+  m_CullTransparentMesh: 1
+--- !u!114 &5746991514554621212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092550949444247776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.70980394}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &1330030763060764218
 GameObject:
   m_ObjectHideFlags: 0
@@ -237,7 +312,7 @@ GameObject:
   - component: {fileID: 485266483927516985}
   - component: {fileID: 8076805627658577434}
   - component: {fileID: 1348763785784641060}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,6 +450,7 @@ MonoBehaviour:
   isExamMode: 0
   graduationVFXPrefab: {fileID: 5012725775303256726, guid: 07e4fc7c24c1542c9a3a588676644546, type: 3}
   animator: {fileID: 0}
+  alturaDeVuelo: 1.5
 --- !u!114 &1890518643287872859
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -452,8 +528,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.5, y: 0.5, z: 0.5}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1978303, y: 4.5015936, z: 1}
+  m_Center: {x: 0.000000059604645, y: 1.7507968, z: 0}
 --- !u!1 &2050255531369209779
 GameObject:
   m_ObjectHideFlags: 0
@@ -465,7 +541,7 @@ GameObject:
   - component: {fileID: 5819994551212253511}
   - component: {fileID: 7494899188713834158}
   - component: {fileID: 5522920166092629867}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: MultipliersText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -489,7 +565,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 160, y: 0}
-  m_SizeDelta: {x: 200, y: 100}
+  m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7494899188713834158
 CanvasRenderer:
@@ -522,7 +598,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -546,8 +622,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 12
-  m_fontSizeBase: 12
+  m_fontSize: 21
+  m_fontSizeBase: 21
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -599,7 +675,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4965911440213291899}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle Slide Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -635,7 +711,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7227123258768114562}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle Slide Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -671,7 +747,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 726491176919841447}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -708,7 +784,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7667702126978834039}
   - component: {fileID: 6800803799119490529}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cara Feliz
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -799,7 +875,7 @@ GameObject:
   - component: {fileID: 3329110276105534531}
   - component: {fileID: 6545767991293277868}
   - component: {fileID: 3075808194535664435}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Flow Message
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -935,7 +1011,7 @@ GameObject:
   - component: {fileID: 5204607979770040233}
   - component: {fileID: 6153005864192078546}
   - component: {fileID: 6911609544279048721}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1008,7 +1084,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7229953900097376686}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1046,7 +1122,7 @@ GameObject:
   - component: {fileID: 7016920468946487179}
   - component: {fileID: 172018673771375811}
   - component: {fileID: 7041150220544697907}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Personalidad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1182,7 +1258,7 @@ GameObject:
   - component: {fileID: 8160351135712322313}
   - component: {fileID: 245212163964796694}
   - component: {fileID: 9019692329283946533}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1257,7 +1333,7 @@ GameObject:
   - component: {fileID: 7837953329824347873}
   - component: {fileID: 7485311963193386308}
   - component: {fileID: 796381288861830446}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Learn Number
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1393,7 +1469,7 @@ GameObject:
   - component: {fileID: 1950190446286403589}
   - component: {fileID: 3090305394846618888}
   - component: {fileID: 3709146360394009676}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1469,7 +1545,7 @@ GameObject:
   - component: {fileID: 3080383898669099001}
   - component: {fileID: 2542493301461747586}
   - component: {fileID: 747164233249961396}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: ClickDetector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1599,7 +1675,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1877535575032179805}
   - component: {fileID: 5580458494293558280}
-  m_Layer: 0
+  - component: {fileID: 1164857807612165006}
+  m_Layer: 6
   m_Name: Grafico
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1615,9 +1692,9 @@ Transform:
   m_GameObject: {fileID: 7127132972052080076}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.01}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 4.16, z: -0.01}
+  m_LocalScale: {x: 0.54, y: 0.54, z: 0.54}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7667702126978834039}
   - {fileID: 5679166214075894824}
@@ -1681,6 +1758,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1164857807612165006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7127132972052080076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dfb3a176b99a40bd943c0b6de3ce887, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Billboard
 --- !u!1 &7157593305529830974
 GameObject:
   m_ObjectHideFlags: 0
@@ -1692,7 +1781,7 @@ GameObject:
   - component: {fileID: 7895896270021152689}
   - component: {fileID: 137477841608566115}
   - component: {fileID: 3039622748070328059}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1767,7 +1856,7 @@ GameObject:
   - component: {fileID: 8477918603912287984}
   - component: {fileID: 571687624181030099}
   - component: {fileID: 5247446805912701805}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: BurnedOut Message
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1902,7 +1991,7 @@ GameObject:
   m_Component:
   - component: {fileID: 650255484772190868}
   - component: {fileID: 6640659698815522457}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: LearningLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1994,7 +2083,7 @@ GameObject:
   - component: {fileID: 1515827340986837517}
   - component: {fileID: 7510016822885728604}
   - component: {fileID: 7421523918618200702}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Nombre
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2130,7 +2219,7 @@ GameObject:
   - component: {fileID: 8935728433735765178}
   - component: {fileID: 2116858265694927600}
   - component: {fileID: 7699889604672985457}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2204,7 +2293,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2834407291639998084}
   - component: {fileID: 1318836210478464894}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: StressLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2298,7 +2387,8 @@ GameObject:
   - component: {fileID: 4183104095336821538}
   - component: {fileID: 7265579120874672331}
   - component: {fileID: 6563067197231650905}
-  m_Layer: 5
+  - component: {fileID: 9200454450544199867}
+  m_Layer: 6
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2317,6 +2407,7 @@ RectTransform:
   m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 2552950205622650575}
   - {fileID: 1515827340986837517}
   - {fileID: 7016920468946487179}
   - {fileID: 6513627250506436854}
@@ -2402,7 +2493,7 @@ LookAtConstraint:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8362643810356354981}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Weight: 1
   m_RotationAtRest: {x: 0, y: 0, z: 0}
@@ -2413,6 +2504,18 @@ LookAtConstraint:
   m_Active: 1
   m_IsLocked: 1
   m_Sources: []
+--- !u!114 &9200454450544199867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8362643810356354981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dfb3a176b99a40bd943c0b6de3ce887, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Billboard
 --- !u!1001 &258131962658553040
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2425,18 +2528,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: FloatingTextCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 366846897359062504, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5291825614760888367, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_text
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5291825614760888367, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_fontSize
-      value: 0.2
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 5291825614760888367, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_fontSizeBase
-      value: 0.2
+      value: 0.3
       objectReference: {fileID: 0}
+    - target: {fileID: 5291825614760888367, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}
     - target: {fileID: 5291825614760888367, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_HorizontalAlignment
       value: 1
@@ -2503,11 +2614,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 5.16
+      value: 2.62
       objectReference: {fileID: 0}
     - target: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.02
+      value: -7.56
       objectReference: {fileID: 0}
     - target: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2525,13 +2636,28 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 2353667960074034372, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 366846897359062504, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6395157996451355685}
   m_SourcePrefab: {fileID: 100100000, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
 --- !u!1 &469039463765735736 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 366846897359062504, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}
   m_PrefabInstance: {fileID: 258131962658553040}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6395157996451355685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 469039463765735736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dfb3a176b99a40bd943c0b6de3ce887, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Billboard
 --- !u!224 &8790021109948391172 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8820717717939512276, guid: 0c5087e5153be45218f77a3352574cb1, type: 3}

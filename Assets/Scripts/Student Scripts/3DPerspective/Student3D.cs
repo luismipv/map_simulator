@@ -26,6 +26,12 @@ public class Student3D : Student
     private Plane dragPlane;
     private Vector3 dragOffset;
     private Camera mainCamera;
+
+    private StudentState lastState;
+
+    [Header("Efecto de Arrastre")]
+    public float alturaDeVuelo = 1.5f;
+
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
@@ -53,6 +59,16 @@ public class Student3D : Student
         Distracted = false;
         IsDragged = false;
         BurnedOut = false;
+    }
+
+    public void Dragged()
+    {
+        IsDragged = true;
+        Resting = false;
+        WorkingMultiplier = 1.0f;
+        Distracted = false;
+        BurnedOut = false;
+
     }
 
     public override void ChangeState(StudentState newState){
@@ -103,6 +119,8 @@ public class Student3D : Student
     public override void OnBeginDrag(PointerEventData eventData)  { 
         Debug.Log("OnBeginDrag");
         originalPosition = transform.position; 
+        lastState = currentState;
+        Dragged();
         
         // 1. Creamos un piso matemático invisible exactamente a la altura del alumno
         dragPlane = new Plane(Vector3.up, transform.position);
@@ -116,15 +134,18 @@ public class Student3D : Student
     }
     
     public override void OnDrag(PointerEventData eventData) {
-        Ray camRay = Camera.main.ScreenPointToRay(eventData.position);
-        if (dragPlane.Raycast(camRay, out float distance))
-        {
-            transform.position = camRay.GetPoint(distance) + dragOffset;
+        if (IsDragged) {
+            Ray camRay = Camera.main.ScreenPointToRay(eventData.position);
+            if (dragPlane.Raycast(camRay, out float distance))
+            {
+                // ¡LA MAGIA!: Lo mantenemos atado al mouse, pero flotando a la altura deseada
+                transform.position = camRay.GetPoint(distance) + dragOffset + (Vector3.up * alturaDeVuelo);
+            }
         }
-        
     }
 
     public override void OnEndDrag(PointerEventData eventData) {
+        IsDragged = false; // <--- ¡APAGAMOS LA ANIMACIÓN AL SOLTARLO!
         bool dragExitoso = false;
         float snapRadius = 3f; // Quizás en 3D necesites ajustar este número un poco
         Seat[] todasLasSillas = FindObjectsByType<Seat>(FindObjectsSortMode.None);        
@@ -133,8 +154,12 @@ public class Student3D : Student
 
         foreach (Seat silla in todasLasSillas)
         {
-            // OJO: Usamos Vector3.Distance para 3D
-            float distancia = Vector3.Distance(transform.position, silla.transform.position);
+            // Aplanamos las posiciones ignorando la altura (Y) para que el imán funcione perfecto aunque esté volando
+            Vector3 posicionPlanaAlumno = new Vector3(transform.position.x, 0, transform.position.z);
+            Vector3 posicionPlanaSilla = new Vector3(silla.transform.position.x, 0, silla.transform.position.z);
+
+            float distancia = Vector3.Distance(posicionPlanaAlumno, posicionPlanaSilla);
+            
             if (distancia < distanciaMinima && distancia <= snapRadius)
             {
                 distanciaMinima = distancia;
@@ -165,6 +190,7 @@ public class Student3D : Student
 
                 sillaMasCercana.AssignStudent(this); 
                 dragExitoso = true;
+                ChangeState(lastState); // Restauramos el estado anterior del alumno
             }
         }
 

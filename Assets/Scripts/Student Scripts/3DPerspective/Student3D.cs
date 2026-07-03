@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class Student3D : Student
 {
     [SerializeField] private Animator animator;
+    [SerializeField] private StudentVFX studentVFX;
 
     private bool _resting = false;
     private float _workingMultiplier = 1.0f;
@@ -32,14 +34,19 @@ public class Student3D : Student
     [Header("Efecto de Arrastre")]
     public float alturaDeVuelo = 1.5f;
 
+    public StudentVFX GetStudentVFX() {
+        return this.studentVFX;
+    }
+
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
         mainCamera = Camera.main;
+        studentVFX = GetComponent<StudentVFX>();
         dragPlane = new Plane(Vector3.up, Vector3.zero);
         Working();
     }
-    
+
     public void FailPartial() {
         animator.SetTrigger("FailPartial");
     }
@@ -74,6 +81,7 @@ public class Student3D : Student
     public override void ChangeState(StudentState newState){
         StudentState currState = currentState;
         base.ChangeState(newState);
+        studentVFX.DeactivateAllParticles();
         switch (newState)
         {
             case StudentState.Working:
@@ -88,6 +96,7 @@ public class Student3D : Student
             case StudentState.Burnout:
                 Working();
                 BurnedOut = true;
+                studentVFX.ActivateFire();
                 break;
             case StudentState.Resting:
                 Working();
@@ -103,7 +112,8 @@ public class Student3D : Student
                 break;
             case StudentState.Finished:
                 Working();
-                PartialPassed();
+                PartialPassed();    
+                studentVFX.ActivateFinished();
                 break;
             case StudentState.Graduated:
                 Working();

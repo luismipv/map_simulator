@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class StudentJuice : MonoBehaviour
 {
-    private Student studentCore;
+    private Student3D studentCore;
 
     [Header("Visuales")]
     public SpriteRenderer spriteRenderer; 
@@ -26,7 +26,7 @@ public class StudentJuice : MonoBehaviour
 
     private void Awake()
     {
-        studentCore = GetComponent<Student>();
+        studentCore = GetComponent<Student3D>();
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         originalPosition = transform.localPosition;
     }
@@ -43,7 +43,7 @@ public class StudentJuice : MonoBehaviour
         studentCore.OnHoverChanged -= HandleHover;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         // Le preguntamos al cerebro su estrés actual para saber si temblamos
         HandleShakeEffect(studentCore.stressLevel, studentCore.currentState);
@@ -93,12 +93,14 @@ public class StudentJuice : MonoBehaviour
             // ¡MAGIA PURA! Movemos SOLAMENTE el dibujo (el hijo).
             // Como su papá es el Asiento, su "centro" siempre es Vector3.zero
             spriteRenderer.transform.localPosition = Vector3.zero + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
+            studentCore.GetStudentVFX().ActivateSmoke();
         }
         else if (isShaking)
         {
             // Regresamos el dibujo a su centro exacto (0,0,0)
             spriteRenderer.transform.localPosition = Vector3.zero;
             isShaking = false;
+            studentCore.GetStudentVFX().DeactivateAllParticles();
         }
     }
 }

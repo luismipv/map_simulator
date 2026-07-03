@@ -33,6 +33,8 @@ public class StudentSpawner : MonoBehaviour
         SetStudentCountFromSlider(4);
         SelectClassroomLayout(0);
        
+        //numberOfStudents = (int)UIManager.Instance.studentCountSlider.value;
+        UIManager.Instance.UpdateStudentCountText(numberOfStudents);
     }
 
     public void SetStudentCountFromSlider(float count)

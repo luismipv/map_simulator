@@ -15,7 +15,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     [Header("Sistema de Asientos")]
     public Seat currentSeat;
-    private Vector3 originalPosition; 
+    protected Vector3 originalPosition; 
 
     [Header("Estadísticas: Estrés")]
     public float stressLevel = 0f; 
@@ -93,7 +93,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         OnStatsUpdated?.Invoke(stressLevel, learningLevel);
     }
 
-    public void ChangeState(StudentState newState)
+    public virtual void ChangeState(StudentState newState)
     {
         // 1. Cláusula de guardia (¡Solo una vez!)
         if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;  
@@ -307,9 +307,9 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (logicManager != null) logicManager.ApplyToolToStudent(this);
     }
 
-    public void OnBeginDrag(PointerEventData eventData) { originalPosition = transform.position; }
+    public virtual void OnBeginDrag(PointerEventData eventData) { originalPosition = transform.position; }
 
-    public void OnDrag(PointerEventData eventData)
+    public virtual void OnDrag(PointerEventData eventData)
     {
         RectTransform miRect = GetComponent<RectTransform>();
         if (miRect != null)
@@ -325,7 +325,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public virtual void OnEndDrag(PointerEventData eventData)
     {
         bool dragExitoso = false;
         float snapRadius = 3f; 
@@ -375,7 +375,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public virtual void OnPointerClick(PointerEventData eventData)
     {
         if (!eventData.dragging) OnStudentClicked();
     }

@@ -24,11 +24,13 @@ public class StudentJuice : MonoBehaviour
     private Color colorOriginalDeEstado; 
     private bool isHovered = false;
 
-    private void Awake()
+   private void Awake()
     {
         studentCore = GetComponent<Student3D>();
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
-        originalPosition = transform.localPosition;
+        
+        // Le pedimos la posición AL SPRITE, no al padre.
+        originalPosition = spriteRenderer.transform.localPosition; 
     }
 
     private void OnEnable()
@@ -92,15 +94,15 @@ public class StudentJuice : MonoBehaviour
             
             // ¡MAGIA PURA! Movemos SOLAMENTE el dibujo (el hijo).
             // Como su papá es el Asiento, su "centro" siempre es Vector3.zero
-            spriteRenderer.transform.localPosition = Vector3.zero + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
+            spriteRenderer.transform.localPosition = originalPosition + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
             studentCore.GetStudentVFX().ActivateSmoke();
         }
         else if (isShaking)
         {
             // Regresamos el dibujo a su centro exacto (0,0,0)
-            spriteRenderer.transform.localPosition = Vector3.zero;
+            spriteRenderer.transform.localPosition = originalPosition;
             isShaking = false;
-            studentCore.GetStudentVFX().DeactivateAllParticles();
+            //studentCore.GetStudentVFX().DeactivateAllParticles();
         }
     }
 }

@@ -10,6 +10,9 @@ public class GlobalToolsButtonUI: MonoBehaviour, IPointerEnterHandler, IPointerE
 
     [Header("Referencias Visuales")] // ¡NUEVO!
     public TextMeshProUGUI buttonText;
+    public float alturaExtra = 10f; // Altura extra para el efecto de hover
+    private Vector3 posicionBase;
+    private bool estaElevado = false;
 
     public Color colorNormal = Color.white;
     public Color colorActivo = Color.yellow;
@@ -23,6 +26,7 @@ public class GlobalToolsButtonUI: MonoBehaviour, IPointerEnterHandler, IPointerE
         gameLogic = Object.FindAnyObjectByType<Logic>();
         buttonImage = GetComponent<Image>();
         buttonComponent = GetComponent<Button>();
+        
 
         // Autoconfiguración estilo Mario Maker:
         if (assignedTool != null)
@@ -71,17 +75,26 @@ public class GlobalToolsButtonUI: MonoBehaviour, IPointerEnterHandler, IPointerE
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (assignedTool != null)
+        // Solo lo subimos si no está ya arriba
+        if (estaElevado == false) 
         {
-            Debug.Log($"Mouse encima de: {assignedTool.globalToolName} -> Desc: {assignedTool.globalToolDescription}");
-            // AQUÍ: Más adelante llamaremos a tu panel de Tooltip UI para mostrar la descripción
+            // Leemos dónde lo acomodó el Layout Group exactamente en este momento
+            posicionBase = transform.localPosition;
+            
+            // Lo empujamos hacia arriba
+            transform.localPosition = new Vector3(posicionBase.x, posicionBase.y + alturaExtra, posicionBase.z);
+            estaElevado = true;
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // AQUÍ: Más adelante ocultaremos el panel de Tooltip UI
-        Debug.Log("El mouse salió del botón.");
+        if (estaElevado == true)
+        {
+            // Lo regresamos a su posición base
+            transform.localPosition = posicionBase;
+            estaElevado = false;
+        }
     }
 
         // ==================================================

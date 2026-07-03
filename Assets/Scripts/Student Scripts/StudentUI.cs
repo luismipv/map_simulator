@@ -121,6 +121,7 @@ public class StudentUI : MonoBehaviour
     }
 
     // El despachador que suelta los textos uno por uno
+    // El despachador que suelta los textos uno por uno
     private IEnumerator ProcessTextQueueRoutine()
     {
         isSpawningText = true;
@@ -130,18 +131,24 @@ public class StudentUI : MonoBehaviour
             // Sacamos el primer texto formado en la fila
             FloatingTextData data = textQueue.Dequeue();
 
-            // Lo creamos
-            GameObject newText = Instantiate(floatingTextPrefab, floatingTextCanvas);
+            // ¡LA MAGIA!: Agregamos 'false' al final. 
+            // Esto le dice a Unity que NO intente mantener la posición global del prefab.
+            GameObject newText = Instantiate(floatingTextPrefab, floatingTextCanvas, false);
             
-            // Le damos una posición central con un micro-margen aleatorio para dar dinamismo
+            // Obligamos a que el tamaño no se distorsione al nacer
+            newText.transform.localScale = Vector3.one;
+
+            // Le damos una posición central. 
+            // Tip: Le puse un 0.5f en 'Y' para que el texto nazca un poquito más arriba 
+            // y no se amontone con la barra de estrés, pero puedes ajustarlo.
             float randomX = Random.Range(-0.2f, 0.2f);
-            newText.transform.localPosition = new Vector3(randomX, 0, 0);
+            newText.transform.localPosition = new Vector3(randomX, 0.5f, 0);
 
             // Lo configuramos
             FloatingText ftScript = newText.GetComponent<FloatingText>();
             if (ftScript != null) ftScript.Setup(data.message, data.color);
 
-            // ¡TU IDEA! Esperamos 0.2 segundos antes de procesar el siguiente en la fila
+            // Esperamos 0.2 segundos antes de procesar el siguiente en la fila
             yield return new WaitForSeconds(0.2f); 
         }
 

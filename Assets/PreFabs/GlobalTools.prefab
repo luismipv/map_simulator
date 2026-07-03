@@ -136,6 +136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GlobalToolsButtonUI
   assignedTool: {fileID: 11400000, guid: f5fdb8992668f439ca06d631ad660eff, type: 2}
   buttonText: {fileID: 6367253946495092487}
+  alturaExtra: 15
   colorNormal: {r: 1, g: 1, b: 1, a: 1}
   colorActivo: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &5205346116502558448

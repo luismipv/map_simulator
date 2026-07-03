@@ -8,4 +8,6 @@ public abstract class GlobalTool : ScriptableObject
      public Sprite globalToolIcon;
 
     public abstract void ApplyGlobalToolEffect(Logic gameLogic, Action onFinished); 
+
+    
 }

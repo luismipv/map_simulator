@@ -31,12 +31,10 @@ public class StudentUI : MonoBehaviour
     {
         public string message;
         public Color color;
-    
     }
 
     private Queue<FloatingTextData> textQueue = new Queue<FloatingTextData>();
     private bool isSpawningText = false;
-
 
     private void Awake()
     {
@@ -50,7 +48,6 @@ public class StudentUI : MonoBehaviour
         studentCore.OnStatsUpdated += UpdateSliders;
         studentCore.OnStateChanged += UpdateStateMessages;
         studentCore.OnJokeFeedbackEvent += HandleJokeFeedback;
-        // ¡NOS SUSCRIBIMOS AL NUEVO EVENTO!
         studentCore.OnFloatingTextRequested += SpawnFloatingText;
     }
 
@@ -104,56 +101,59 @@ public class StudentUI : MonoBehaviour
         else SpawnFloatingText("🙄", Color.white);
     }
 
-    // --- ¡LA MAGIA DE INSTANCIAR EL TEXTO! ---
-    // Cuando las herramientas mandan texto, ahora solo se forman en la fila
     private void SpawnFloatingText(string message, Color color)
     {
         if (floatingTextPrefab == null || floatingTextCanvas == null) return;
 
-        // 1. Formamos el texto en la fila
         textQueue.Enqueue(new FloatingTextData { message = message, color = color });
 
-        // 2. Si el despachador está dormido, lo despertamos
         if (!isSpawningText)
         {
             StartCoroutine(ProcessTextQueueRoutine());
         }
     }
 
-    // El despachador que suelta los textos uno por uno
-    // El despachador que suelta los textos uno por uno
     private IEnumerator ProcessTextQueueRoutine()
     {
         isSpawningText = true;
 
         while (textQueue.Count > 0)
         {
-            // Sacamos el primer texto formado en la fila
             FloatingTextData data = textQueue.Dequeue();
 
-            // ¡LA MAGIA!: Agregamos 'false' al final. 
-            // Esto le dice a Unity que NO intente mantener la posición global del prefab.
             GameObject newText = Instantiate(floatingTextPrefab, floatingTextCanvas, false);
-            
-            // Obligamos a que el tamaño no se distorsione al nacer
             newText.transform.localScale = Vector3.one;
 
-            // Le damos una posición central. 
-            // Tip: Le puse un 0.5f en 'Y' para que el texto nazca un poquito más arriba 
-            // y no se amontone con la barra de estrés, pero puedes ajustarlo.
             float randomX = Random.Range(-0.2f, 0.2f);
             newText.transform.localPosition = new Vector3(randomX, 0.5f, 0);
 
-            // Lo configuramos
             FloatingText ftScript = newText.GetComponent<FloatingText>();
             if (ftScript != null) ftScript.Setup(data.message, data.color);
 
-            // Esperamos 0.2 segundos antes de procesar el siguiente en la fila
             yield return new WaitForSeconds(0.2f); 
         }
 
-        // La fila está vacía, el despachador se va a dormir
         isSpawningText = false;
+    }
+
+    // --- EL TRADUCTOR VISUAL ---
+    // Convierte el Enum matemático en un string amigable para el jugador
+    private string GetModifierUIName(ModifierID id)
+    {
+        switch (id)
+        {
+            case ModifierID.Personalidad: return "Personalidad 👤";
+            case ModifierID.Entorno: return "Entorno 🧠";
+            case ModifierID.Sinergia: return "Sinergia 🔗"; 
+            case ModifierID.Panico: return "Pánico 😱";
+            case ModifierID.Tutor: return "Alumno Tutor 🎓";
+            case ModifierID.FaltaPoco: return "¡Falta Poco! ⏰";
+            case ModifierID.Tool_Tutoring: return "Asesoría 📚";
+            //case ModifierID.Herramienta_Cafe: return "Café ☕";
+            case ModifierID.Tool_Nag: return "Regaño 💢";
+            case ModifierID.GlobalTool_Exam: return "Examen Sorpresa 📝";
+            default: return id.ToString(); // Salvavidas por si olvidas agregar uno aquí
+        }
     }
 
     private void RefreshMultipliers()
@@ -165,35 +165,37 @@ public class StudentUI : MonoBehaviour
         // 1. DIBUJAR TODOS LOS BUFFS DE APRENDIZAJE APILADOS
         foreach (var buff in studentCore.activeLearningBuffs)
         {
+            string uiName = GetModifierUIName(buff.Key); // Pasamos por el traductor
+
             if (buff.Value > 1f) 
-                finalText += $"<color=#00FF00>{buff.Key} x{buff.Value}</color>\n";
+                finalText += $"<color=#00FF00>{uiName} x{buff.Value}</color>\n";
             else if (buff.Value < 1f) 
-                finalText += $"<color=#FF8C00>{buff.Key} x{buff.Value}</color>\n";
+                finalText += $"<color=#FF8C00>{uiName} x{buff.Value}</color>\n";
         }
 
         // 2. DIBUJAR TODOS LOS BUFFS DE ESTRÉS APILADOS
         foreach (var buff in studentCore.activeStressBuffs)
         {
-            // Tratamiento especial para el reloj: Solo lo mostramos si ya hay verdadero pánico
-            if (buff.Key == "¡Falta Poco! ⏰")
+            string uiName = GetModifierUIName(buff.Key); // Pasamos por el traductor
+
+            // Tratamiento especial usando el Enum directamente
+            if (buff.Key == ModifierID.FaltaPoco)
             {
-                // Solo se dibuja en la UI si el multiplicador cruzó el umbral crítico (ej: 1.5x)
                 if (buff.Value >= 1.8f) 
                 {
-                    finalText += $"<color=#FF5555>{buff.Key} x{buff.Value:F1}</color>\n";
+                    finalText += $"<color=#FF5555>{uiName} x{buff.Value:F1}</color>\n";
                 }
             }
-            // Para todos los demás buffs de estrés normales:
             else 
             {
                 if (buff.Value > 1f) 
-                    finalText += $"<color=#FF0000>{buff.Key} x{buff.Value}</color>\n";
+                    finalText += $"<color=#FF0000>{uiName} x{buff.Value}</color>\n";
                 else if (buff.Value < 1f) 
-                    finalText += $"<color=#00FF00>{buff.Key} x{buff.Value}</color>\n";
+                    finalText += $"<color=#00FF00>{uiName} x{buff.Value}</color>\n";
             }
         }
 
-        // 3. ESTADOS TEMPORALES INDEPENDIENTES (Como Flow)
+        // 3. ESTADOS TEMPORALES INDEPENDIENTES
         if (studentCore.currentState == StudentState.Flow)
         {
             finalText += $"<color=#00FFFF>¡En Flow!x3</color>\n"; 
@@ -201,5 +203,4 @@ public class StudentUI : MonoBehaviour
 
         multipliersText.text = finalText;
     }
-
 }

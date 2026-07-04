@@ -6,6 +6,20 @@ using System.Collections.Generic;
 public enum StudentState { Working, Flow, Burnout, Resting, DroppedOut, Distracted, Finished, Graduated }
 public enum StudentPersonality { Normal, Nerd, Slacker, Anxious, Bully, Cool }
 
+// Catálogo oficial de identificadores para modificadores (Inmune a errores de dedo y localización)
+public enum ModifierID 
+{ 
+    Personalidad, 
+    Entorno, 
+    Sinergia, 
+    Panico, 
+    Tutor, 
+    FaltaPoco,
+    Tool_Tutoring,
+    GlobalTool_Exam,
+    Tool_Nag
+}
+
 public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerClickHandler
 {
     [Header("Datos del Estudiante")]
@@ -23,14 +37,12 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public float workingStressRate = 5f;     
     public float flowStressRate = 15f;       
     public float restingRecoveryRate = 10f;  
-    // ¡Borradas las variables toolStressMultiplier y stressMultiplier!
 
     [Header("Estadísticas: Aprendizaje")]
     public float learningLevel = 0f;
     public float maxLearning = 100f;
     public float workingLearningRate = 2f;   
     public float flowLearningRate = 8f; 
-    // ¡Borradas las variables toolLearningMultiplier y learningMultiplier!
 
     [Header("Tiempos")]
     public float flowDuration = 5f; 
@@ -49,14 +61,12 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public GameObject graduationVFXPrefab;
     private Logic logicManager; 
 
-
-
-    // --- SISTEMA DE MODIFICADORES APILABLES (FX CHAIN) ---
-    public Dictionary<string, float> activeLearningBuffs = new Dictionary<string, float>();
-    public Dictionary<string, float> activeStressBuffs = new Dictionary<string, float>();
+    // --- SISTEMA DE DICCIONARIOS SEGUROS (LLAVE: ENUM) ---
+    public Dictionary<ModifierID, float> activeLearningBuffs = new Dictionary<ModifierID, float>();
+    public Dictionary<ModifierID, float> activeStressBuffs = new Dictionary<ModifierID, float>();
 
     // ==========================================
-    // --- LOS MEGÁFONOS (EVENTOS) ---
+    // --- EVENTOS (MEGÁFONOS) ---
     // ==========================================
     public event Action<float, float> OnStatsUpdated; 
     public event Action<StudentState> OnStateChanged; 
@@ -68,13 +78,17 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         logicManager = FindAnyObjectByType<Logic>();
 
+        // Registramos los rasgos nativos en los diccionarios usando el Enum seguro
         if (personalityData != null)
         {
-            workingLearningRate *= personalityData.learningRateMod;
-            workingStressRate *= personalityData.stressRateMod;
+            AddLearningModifier(ModifierID.Personalidad, personalityData.learningRateMod);
+            AddStressModifier(ModifierID.Personalidad, personalityData.stressRateMod);
+            
+            // Modificación directa de descanso (no requiere apilamiento dinámico)
             restingRecoveryRate *= personalityData.recoveryRateMod;
         }
 
+        // Variabilidad individual de cada alumno
         float stressVariance = UnityEngine.Random.Range(0.85f, 1.15f);
         float learningVariance = UnityEngine.Random.Range(0.85f, 1.15f);
         workingStressRate *= stressVariance;
@@ -95,12 +109,11 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public virtual void ChangeState(StudentState newState)
     {
-        // 1. Cláusula de guardia (¡Solo una vez!)
         if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;  
         
         currentState = newState;
         
-        // 2. ¡LA MAGIA DEL COOL OPTIMIZADA!
+        // EFECTO CONTAGIO DEL COOL
         if (currentState == StudentState.Flow && personalityData != null && personalityData.personalityType == StudentPersonality.Cool)
         {
             if (SpatialManager.Instance != null && SpatialManager.Instance.neighborGraph.ContainsKey(this))
@@ -116,19 +129,17 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             }
         }
 
-        // 3. LA ASIGNACIÓN DE TEMPORIZADORES Y EVENTOS FALTANTES
+        // CONTROL DE ESTADOS AL CAMBIAR
         if (currentState == StudentState.Graduated)
         {
-            ShowFloatingText("¡Aprobo y se fue a casa!", Color.white);
+            ShowFloatingText("¡Aprobó y se fue a casa!", Color.white);
             TriggerGraduation();
-            Debug.Log(studentName + " ¡Aprobó y se fue a casa!");
         }
         else if (currentState == StudentState.Finished)
         {
             ShowFloatingText("¡Listo! Ayudando a otros...", Color.yellow);
             learningLevel = maxLearning; 
-            
-            // Aquí va tu lógica espacial del Tutor si la sigues manejando en este script
+            RemoveLearningModifier(ModifierID.Panico);
         }
         else if (currentState == StudentState.Flow) 
         {
@@ -142,11 +153,12 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         else if (currentState == StudentState.Distracted) 
         {
             contagionTimer = contagionInterval;
+            RemoveLearningModifier(ModifierID.Panico);
         }
         else if (currentState == StudentState.Resting) 
         {
-            // ¡ESTA ES LA LÍNEA QUE SALVA LA VIDA DEL ALUMNO!
             currentRestTimer = mandatoryRestDuration; 
+            RemoveLearningModifier(ModifierID.Panico);
         }
 
         OnStateChanged?.Invoke(currentState); 
@@ -157,36 +169,28 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (graduationVFXPrefab != null)
         {
             Instantiate(graduationVFXPrefab, transform.position, Quaternion.identity);
-            ShowFloatingText("¡Graduado!",Color.gold);
+            ShowFloatingText("¡Graduado!", Color.gold);
         }
 
-        if (currentSeat != null)
-        {
-            currentSeat.currentStudent = null;
-        }
+        if (currentSeat != null) currentSeat.currentStudent = null;
 
         if (logicManager != null)
         {
-            // ¡NUEVO: Le avisamos al administrador que anote un graduado!
             logicManager.graduatedStudents++; 
-            
-            if (logicManager.allStudents.Contains(this))
-            {
-                logicManager.allStudents.Remove(this);
-            }
+            if (logicManager.allStudents.Contains(this)) logicManager.allStudents.Remove(this);
         }
 
         Destroy(gameObject);
     }
 
-   private void HandleStateLogic()
+    private void HandleStateLogic()
     {
         if (isExamMode) return;
 
-        // ¡LA MAGIA! Inyectamos el multiplicador directamente en tu cadena de efectos
+        // Inyección del multiplicador de fin de semestre directo al Enum seguro
         if (logicManager != null)
         {
-            activeStressBuffs["¡Falta Poco! ⏰"] = logicManager.currentSemesterMultiplier;
+            AddStressModifier(ModifierID.FaltaPoco, logicManager.currentSemesterMultiplier);
         }
 
         switch (currentState)
@@ -198,14 +202,12 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 if (currentRestTimer <= 0f) ChangeState(StudentState.Working);
                 break;
             
-             case StudentState.Working:
-                // La matemática queda hiper limpia porque GetTotalStressMultiplier() ya incluye el Tiempo Límite
+            case StudentState.Working:
                 stressLevel += (workingStressRate * GetTotalStressMultiplier()) * Time.deltaTime;
                 learningLevel += (workingLearningRate * GetTotalLearningMultiplier()) * Time.deltaTime; 
                 break;
 
             case StudentState.Flow:
-                // Lo mismo para el estado de Flow
                 stressLevel += (flowStressRate * GetTotalStressMultiplier()) * Time.deltaTime;
                 learningLevel += (flowLearningRate * GetTotalLearningMultiplier()) * Time.deltaTime; 
                 break;
@@ -235,6 +237,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 learningLevel = maxLearning;
                 stressLevel = 0f;
                 break;
+
             case StudentState.Finished:
                 learningLevel = maxLearning;
                 stressLevel -= (restingRecoveryRate * 0.5f) * Time.deltaTime;
@@ -248,46 +251,83 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     private void CheckAutomaticTransitions()
     {
         if (learningLevel >= maxLearning && currentState != StudentState.Finished && currentState != StudentState.Graduated) 
-    { 
-        ChangeState(StudentState.Finished); 
-        return; 
-    }
+        { 
+            ChangeState(StudentState.Finished); 
+            return; 
+        }
         if (stressLevel >= maxStress && currentState != StudentState.Burnout) { ChangeState(StudentState.Burnout); return; }
         
-        if (currentState == StudentState.Working && personalityData != null && personalityData.personalityType == StudentPersonality.Slacker && stressLevel < 40f)
+        // --- BALANCEO CÓDIGO SEGURO: EL FLOJO (SLACKER) ---
+        if (personalityData != null && personalityData.personalityType == StudentPersonality.Slacker)
         {
-            if (UnityEngine.Random.value < 0.15f * Time.deltaTime) ChangeState(StudentState.Distracted);
+            if (currentState == StudentState.Working)
+            {
+                // Si está muy relajado, se distrae (Balanceado al 8% de probabilidad)
+                if (stressLevel < 40f)
+                {
+                    if (UnityEngine.Random.value < 0.08f * Time.deltaTime)
+                    {
+                        ChangeState(StudentState.Distracted);
+                    }
+                }
+                // ACELERÓN DE PÁNICO: Estrés crítico = Aprende al doble usando el Enum
+                else if (stressLevel >= 80f)
+                {
+                    AddLearningModifier(ModifierID.Panico, 2.0f);
+                }
+                // Si regresa al rango intermedio, limpiamos el pánico
+                else
+                {
+                    RemoveLearningModifier(ModifierID.Panico);
+                }
+            }
         }
         else if (currentState == StudentState.Resting && stressLevel <= 5f)
         {
             if (UnityEngine.Random.value < 0.35f * Time.deltaTime)
             {
                 ChangeState(StudentState.Distracted);
-                ShowFloatingText("Distraído!",Color.orange);
+                ShowFloatingText("Distraído!", Color.orange);
             } 
         }
-        else if (currentState == StudentState.Finished)
-        {
-            //ShowFloatingText("¡Listo para el examen!", Color.yellow);
-            // Aquí en el futuro le prenderemos su "Aura de Tutor"
-        }
 
-        // ¡EL FIX DEL LOOP INFINITO DE FLOW ESTÁ AQUÍ! (< 75f)
-        if (currentState == StudentState.Working && learningLevel > 50f && stressLevel >= 60f && stressLevel < 75f) ChangeState(StudentState.Flow);
+        if (currentState == StudentState.Working && learningLevel > 50f && stressLevel >= 60f && stressLevel < 75f) 
+            ChangeState(StudentState.Flow);
+    }
+
+    // --- INTERFAZ PÚBLICA SEGURA PARA COMPONENTES Y HERRAMIENTAS EXTEALAS ---
+    public void AddLearningModifier(ModifierID id, float multiplier)
+    {
+        activeLearningBuffs[id] = multiplier;
+    }
+
+    public void RemoveLearningModifier(ModifierID id)
+    {
+        if (activeLearningBuffs.ContainsKey(id)) activeLearningBuffs.Remove(id);
+    }
+
+    public void AddStressModifier(ModifierID id, float multiplier)
+    {
+        activeStressBuffs[id] = multiplier;
+    }
+
+    public void RemoveStressModifier(ModifierID id)
+    {
+        if (activeStressBuffs.ContainsKey(id)) activeStressBuffs.Remove(id);
     }
 
     public void ModifyStressInstant(float amount) 
     { 
         stressLevel = Mathf.Clamp(stressLevel + amount, 0f, maxStress);
-        if(amount > 0) ShowFloatingText(" "+ amount + "💢", Color.red);
-        else ShowFloatingText(" "+ amount + "💢", Color.green);
+        if(amount > 0) ShowFloatingText(" +" + amount + "💢", Color.red);
+        else ShowFloatingText(" " + amount + "💢", Color.green);
     }
 
     public void ModifyLearningInstant(float amount) 
     { 
         learningLevel = Mathf.Clamp(learningLevel + amount, 0f, maxLearning);
-        if(amount > 0) ShowFloatingText(" "+ amount +"🧠", Color.green); 
-        else ShowFloatingText(" "+ amount +"🧠", Color.red);
+        if(amount > 0) ShowFloatingText(" +" + amount +"🧠", Color.green); 
+        else ShowFloatingText(" " + amount +"🧠", Color.red);
     }
 
     public void RequestJokeFeedback(bool likedIt) { OnJokeFeedbackEvent?.Invoke(likedIt); }
@@ -380,6 +420,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (!eventData.dragging) OnStudentClicked();
     }
 
+    // --- EVALUACIÓN DE MULTIPLICADORES TOTALES ---
     public float GetTotalLearningMultiplier()
     {
         float total = 1f;

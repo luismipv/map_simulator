@@ -17,6 +17,9 @@ public class Student3D : Student
     private bool _victory = false;
     private bool _isDragged = false;
 
+    // --- ¡NUEVO! El silenciador temporal ---
+    private bool suppressManagerUpdate = false; 
+
     public bool Resting { get => _resting; set {_resting = value; animator?.SetBool("Resting", value); } }
     public float WorkingMultiplier { get => _workingMultiplier; set {_workingMultiplier = value; animator?.SetFloat("WorkingMultiplier", value); } }
     public bool Distracted { get => _distracted; set {_distracted = value; animator?.SetBool("Distracted", value); } }
@@ -47,18 +50,9 @@ public class Student3D : Student
         Working();
     }
 
-    public void FailPartial() {
-        animator.SetTrigger("FailPartial");
-    }
-
-    public void PartialPassed() {
-        animator.SetTrigger("PartialPassed");
-    }
-
-    public void Grounded() {
-        //animator.ResetTrigger("Grounded", true);
-        animator.SetTrigger("Grounded");
-    }
+    public void FailPartial() { animator.SetTrigger("FailPartial"); }
+    public void PartialPassed() { animator.SetTrigger("PartialPassed"); }
+    public void Grounded() { animator.SetTrigger("Grounded"); }
 
     private void Working() {
         Resting = false;
@@ -75,23 +69,22 @@ public class Student3D : Student
         WorkingMultiplier = 1.0f;
         Distracted = false;
         BurnedOut = false;
-
     }
 
     public override void ChangeState(StudentState newState){
         StudentState currState = currentState;
-        base.ChangeState(newState);
+        base.ChangeState(newState); 
         studentVFX.DeactivateAllParticles();
+        
         switch (newState)
         {
             case StudentState.Working:
                 Working();
-                if (currState == StudentState.Distracted) {
-                    Grounded();
-                }
+                if (currState == StudentState.Distracted) Grounded();
                 break;
             case StudentState.Flow:
                 WorkingMultiplier = 1.5f;
+                studentVFX.ActivateFlow();
                 break;
             case StudentState.Burnout:
                 Working();
@@ -124,6 +117,11 @@ public class Student3D : Student
                 break;
         }
    
+        // Evitamos mandar señal doble al Manager
+        if (SpatialManager.Instance != null && !suppressManagerUpdate) 
+        {
+            SpatialManager.Instance.UpdateSpatialEffects(false);
+        }
     }
 
     public override void OnBeginDrag(PointerEventData eventData)  { 
@@ -133,14 +131,17 @@ public class Student3D : Student
         Dragged();
         FindAnyObjectByType<DragSynergyWeb>().StartDragging(this);
         
-        // 1. Creamos un piso matemático invisible exactamente a la altura del alumno
         dragPlane = new Plane(Vector3.up, transform.position);
 
-        // 2. Calculamos de dónde lo agarramos para que no salte al centro del mouse
         Ray camRay = Camera.main.ScreenPointToRay(eventData.position);
         if (dragPlane.Raycast(camRay, out float distance))
         {
             dragOffset = transform.position - camRay.GetPoint(distance);
+        }
+
+        // --- ¡NUEVO! Le avisamos al Manager que ya está volando para que corte la sinergia matemática ---
+        if (SpatialManager.Instance != null) {
+            SpatialManager.Instance.UpdateSpatialEffects(false);
         }
     }
     
@@ -149,24 +150,23 @@ public class Student3D : Student
             Ray camRay = Camera.main.ScreenPointToRay(eventData.position);
             if (dragPlane.Raycast(camRay, out float distance))
             {
-                // ¡LA MAGIA!: Lo mantenemos atado al mouse, pero flotando a la altura deseada
                 transform.position = camRay.GetPoint(distance) + dragOffset + (Vector3.up * alturaDeVuelo);
             }
         }
     }
 
     public override void OnEndDrag(PointerEventData eventData) {
-        IsDragged = false; // <--- ¡APAGAMOS LA ANIMACIÓN AL SOLTARLO!
+        IsDragged = false; 
         bool dragExitoso = false;
-        float snapRadius = 3f; // Quizás en 3D necesites ajustar este número un poco
+        float snapRadius = 3f; 
         Seat[] todasLasSillas = FindObjectsByType<Seat>(FindObjectsSortMode.None);        
         Seat sillaMasCercana = null;
         float distanciaMinima = float.MaxValue;
+        
         FindAnyObjectByType<DragSynergyWeb>().StopDragging();
 
         foreach (Seat silla in todasLasSillas)
         {
-            // Aplanamos las posiciones ignorando la altura (Y) para que el imán funcione perfecto aunque esté volando
             Vector3 posicionPlanaAlumno = new Vector3(transform.position.x, 0, transform.position.z);
             Vector3 posicionPlanaSilla = new Vector3(silla.transform.position.x, 0, silla.transform.position.z);
 
@@ -179,7 +179,6 @@ public class Student3D : Student
             }
         }
 
-        // ... (El resto de tu lógica de intercambiar sillas se queda exactamente igual)
         if (sillaMasCercana != null)
         {
             if (sillaMasCercana.currentStudent != null && sillaMasCercana.currentStudent != this)
@@ -202,14 +201,24 @@ public class Student3D : Student
 
                 sillaMasCercana.AssignStudent(this); 
                 dragExitoso = true;
-                ChangeState(lastState); // Restauramos el estado anterior del alumno
             }
         }
 
-        if (dragExitoso == false)
+        // --- ¡NUEVO! Silenciamos la llamada doble de ChangeState ---
+        suppressManagerUpdate = true;
+        if (dragExitoso) ChangeState(lastState); 
+        else 
         {
             if (currentSeat != null) transform.position = currentSeat.transform.position;
             else transform.position = originalPosition;
+            ChangeState(lastState); 
+        }
+        suppressManagerUpdate = false; 
+
+        // --- Y MANDAMOS LA LLAMADA EXPLICITA CON PERMISO DE PARTÍCULAS ---
+        if (SpatialManager.Instance != null) 
+        {
+            SpatialManager.Instance.UpdateSpatialEffects(true); 
         }
     }
 }

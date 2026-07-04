@@ -16,5 +16,5 @@ MonoBehaviour:
   personalityB: 2
   learningMultA: 0.8
   stressMultA: 1.2
-  learningMultB: 1.1
+  learningMultB: 1.5
   stressMultB: 1

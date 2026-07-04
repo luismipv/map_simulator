@@ -9,6 +9,7 @@ public class StudentVFX : MonoBehaviour
     public ParticleSystem distracted;
     public ParticleSystem finished;
     public ParticleSystem fire;
+    public ParticleSystem flow;
 
     public void ActivateSmoke()
     {
@@ -63,6 +64,25 @@ public class StudentVFX : MonoBehaviour
             fire.Play();
         }
     }
+
+    public void ActivateFlow()
+    {
+        if (flow != null)
+        {
+            flow.gameObject.SetActive(true);
+            flow.Play();
+        }
+    }
+
+    public void DeactivateFlow()
+    {
+        if (flow != null)
+        {
+            flow.gameObject.SetActive(false);
+            flow.Stop();
+        }
+    }
+    
 
     public void DeactivateAllParticles()
     {

@@ -3,11 +3,10 @@ using System.Collections.Generic;
 
 public class DistractionManager : MonoBehaviour
 {
-    // ¡Nuestro Singleton para que los alumnos lo encuentren fácil!
     public static DistractionManager Instance { get; private set; }
 
     [Header("Sistema de Distracción Espacial")]
-    public float contagionRadius = 250f; 
+    public float contagionRadius = 5f; // <-- ¡Te lo ajusté a 5f, 250f era gigante para 3D!
 
     private Logic gameLogic;
 
@@ -19,7 +18,6 @@ public class DistractionManager : MonoBehaviour
 
     private void Start()
     {
-        // Buscamos al Logic original para poder leer su lista de alumnos
         gameLogic = Object.FindAnyObjectByType<Logic>();
     }
 
@@ -33,7 +31,11 @@ public class DistractionManager : MonoBehaviour
         {
             if (s != source && (s.currentState == StudentState.Working || s.currentState == StudentState.Resting))
             {
-                float distance = Vector2.Distance(source.transform.position, s.transform.position);
+                // ¡CORRECCIÓN CRÍTICA! Aplanamos la Y y usamos Vector3 para medir bien en 3D
+                Vector3 posSource = new Vector3(source.transform.position.x, 0, source.transform.position.z);
+                Vector3 posS = new Vector3(s.transform.position.x, 0, s.transform.position.z);
+                
+                float distance = Vector3.Distance(posSource, posS);
                 if (distance <= contagionRadius) infectable.Add(s);
             }
         }
@@ -46,31 +48,33 @@ public class DistractionManager : MonoBehaviour
             if (Random.Range(0f, 100f) <= 40f) 
             {
                 target.ChangeState(StudentState.Distracted);
-                // El que inicia la distracción se ríe, el infectado saca el control
-                source.ShowFloatingText("😂", Color.white);
+                source.ShowBubble("Te tengo chisme...", Color.orange);
                 source.ShowFloatingText($"¡El chisme pegó! {source.studentName} distrajo a su vecino {target.studentName}",Color.white);
-                target.ShowFloatingText("🎮", Color.white);
-                Debug.Log($"¡El chisme pegó! {source.studentName} distrajo a su vecino {target.studentName}");
+                target.ShowBubble("Cuenta!", Color.orange);
+                AudioManager.Instance.PostEvent("Student_Distraction_Successful", target.gameObject); //SONIDO
+                //Debug.Log($"¡El chisme pegó! {source.studentName} distrajo a su vecino {target.studentName}");
             }
             else
             {
-                // Si la distracción falla, el objetivo se pone audífonos
-                target.ShowFloatingText("🎧", Color.white);
+                target.ShowBubble("¡Déjame Trabajar!", Color.orange);
             }
         }
     }
 
-    // Mudamos los Gizmos visuales para acá también
     private void OnDrawGizmos()
     {
-        if (!Application.isPlaying || gameLogic == null || gameLogic.allStudents == null) return;
+        // Encontramos a los alumnos directo en la escena para que el Gizmo funcione sin darle Play
+        Student[] todosLosAlumnos = FindObjectsByType<Student>(FindObjectsSortMode.None);
+        if (todosLosAlumnos == null) return;
 
-        Gizmos.color = new Color(1f, 0.5f, 0f, 0.8f); 
-        foreach (Student student in gameLogic.allStudents)
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.4f); // Naranja para el chisme
+        foreach (Student student in todosLosAlumnos)
         {
+            // Solo dibujamos la nube tóxica de distracción si el alumno está realmente distraído
             if (student.gameObject.activeSelf && student.currentState == StudentState.Distracted)
             {
-                Gizmos.DrawWireSphere(student.transform.position, contagionRadius);
+                Vector3 pisoPos = new Vector3(student.transform.position.x, 0, student.transform.position.z);
+                Gizmos.DrawWireSphere(pisoPos, contagionRadius);
             }
         }
     }

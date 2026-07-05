@@ -47,6 +47,7 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         if (gameLogic != null && assignedTool != null)
         {
             gameLogic.SelectTool(assignedTool);
+            AudioManager.Instance.PostEvent("UI_Button_Press", this.gameObject); //SONIDO
         }
     }
 
@@ -58,7 +59,7 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         if (assignedTool != null)
         {
-            Debug.Log($"Mouse encima de: {assignedTool.toolName} -> Desc: {assignedTool.toolDescription}");
+            //Debug.Log($"Mouse encima de: {assignedTool.toolName} -> Desc: {assignedTool.toolDescription}");
             // AQUÍ: Más adelante llamaremos a tu panel de Tooltip UI para mostrar la descripción
         }
     }
@@ -66,7 +67,7 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnPointerExit(PointerEventData eventData)
     {
         // AQUÍ: Más adelante ocultaremos el panel de Tooltip UI
-        Debug.Log("El mouse salió del botón.");
+        //Debug.Log("El mouse salió del botón.");
     }
 
         // ==================================================

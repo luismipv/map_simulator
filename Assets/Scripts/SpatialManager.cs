@@ -236,6 +236,15 @@ public class SpatialManager : MonoBehaviour
         GameObject prefabMe = isPositiveMe ? positiveParticlesPrefab : negativeParticlesPrefab;
         GameObject prefabNeighbor = isPositiveNeighbor ? positiveParticlesPrefab : negativeParticlesPrefab;
 
+        //Sonido de feedback
+
+        if (isPositiveMe) AudioManager.Instance.PostEvent("Synergy_Positive", student.gameObject);
+        else AudioManager.Instance.PostEvent("Synergy_Negative", student.gameObject);
+        if (isPositiveNeighbor) AudioManager.Instance.PostEvent("Synergy_Positive", neighbor.gameObject);
+        else AudioManager.Instance.PostEvent("Synergy_Negative", neighbor.gameObject);
+        
+        /////////---------------------
+
         float alturaOffset = 3.5f; 
         float zOffset = -1.0f; 
 
@@ -263,20 +272,32 @@ public class SpatialManager : MonoBehaviour
     }
 
     //... OnDrawGizmos se queda igual
-    private void OnDrawGizmos()
+   private void OnDrawGizmos()
     {
-        Gizmos.color = new Color(0f, 1f, 0f, 0.2f); 
+        // 1. DIBUJAMOS LA BRÚJULA DEL SALÓN (Frente y Atrás)
+        Gizmos.color = new Color(1f, 0.92f, 0.016f, 0.5f); // Amarillo semitransparente
+        Vector3 size = new Vector3(20f, 0.1f, 0.5f); // Un rectángulo largo que cruza el salón
+        
+        Gizmos.DrawCube(new Vector3(0, 0, zFilaFrente), size); // Línea de los Nerds
+        Gizmos.DrawCube(new Vector3(0, 0, zFilaAtras), size);  // Línea de los Slackers
 
         Student[] todosLosAlumnos = FindObjectsByType<Student>(FindObjectsSortMode.None);
         if (todosLosAlumnos == null) return;
 
+        // 2. DIBUJAMOS EL RADAR INTELIGENTE
         foreach (Student s in todosLosAlumnos)
         {
-            if (s.currentState != StudentState.DroppedOut && s.currentState != StudentState.Graduated)
-            {
-                Vector3 pisoPos = new Vector3(s.transform.position.x, 0, s.transform.position.z);
-                Gizmos.DrawWireSphere(pisoPos, radioVecinos);
-            }
+            if (s.currentState == StudentState.DroppedOut || s.currentState == StudentState.Graduated) continue;
+
+            // Verificamos si el alumno tiene vecinos conectados en su red
+            bool tieneVecinos = neighborGraph != null && neighborGraph.ContainsKey(s) && neighborGraph[s].Count > 0;
+            
+            // Si está conectado es Verde, si está aislado es Blanco fantasma
+            Gizmos.color = tieneVecinos ? Color.green : new Color(1f, 1f, 1f, 0.2f);
+
+            // Lo aplanamos al piso para que la esfera no flote raro si el modelo es muy alto
+            Vector3 pisoPos = new Vector3(s.transform.position.x, 0, s.transform.position.z);
+            Gizmos.DrawWireSphere(pisoPos, radioVecinos);
         }
     }
 }

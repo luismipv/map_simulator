@@ -71,6 +71,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public event Action<float, float> OnStatsUpdated; 
     public event Action<StudentState> OnStateChanged; 
     public event Action<string, Color> OnFloatingTextRequested;    
+    public event Action<string,Color> OnBubbleTextRequested;
     public event Action<bool> OnHoverChanged; 
     public event Action<bool> OnJokeFeedbackEvent; 
 
@@ -132,12 +133,12 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         // CONTROL DE ESTADOS AL CAMBIAR
         if (currentState == StudentState.Graduated)
         {
-            ShowFloatingText("¡Aprobó y se fue a casa!", Color.white);
+            ShowBubble("¡Se logró!", Color.yellow);
             TriggerGraduation();
         }
         else if (currentState == StudentState.Finished)
         {
-            ShowFloatingText("¡Listo! Ayudando a otros...", Color.yellow);
+            ShowBubble("¡Listo! ¿Quién necesita ayuda?", Color.yellow);
             learningLevel = maxLearning; 
             RemoveLearningModifier(ModifierID.Panico);
         }
@@ -149,6 +150,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             currentBurnoutTimer = burnoutTimeLimit;
             ModifyLearningInstant(-20f); 
+            AudioManager.Instance.PostEvent("Student_BurnedOut", this.gameObject); //SONIDO
         }
         else if (currentState == StudentState.Distracted) 
         {
@@ -287,7 +289,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             if (UnityEngine.Random.value < 0.35f * Time.deltaTime)
             {
                 ChangeState(StudentState.Distracted);
-                ShowFloatingText("Distraído!", Color.orange);
+                //dialogBubble.ShowBubble("*Distraído*");
+                ShowBubble("Distraído!", Color.orange);
             } 
         }
 
@@ -340,6 +343,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public void ShowFloatingText(string text, Color color) { OnFloatingTextRequested?.Invoke(text, color); }
     public void OnPointerExit(PointerEventData eventData) { OnHoverChanged?.Invoke(false); }
+
+    public void ShowBubble(string message, Color color) { OnBubbleTextRequested?.Invoke(message, color); }
     
     public void OnStudentClicked()
     {

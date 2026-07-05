@@ -45,6 +45,7 @@ public class GlobalToolsButtonUI: MonoBehaviour, IPointerEnterHandler, IPointerE
             if (buttonComponent != null)
             {
                 buttonComponent.onClick.AddListener(SelectThisTool);
+                
             }
         }
     }
@@ -56,6 +57,7 @@ public class GlobalToolsButtonUI: MonoBehaviour, IPointerEnterHandler, IPointerE
             // 1. Pintamos el botón de color activo y lo desactivamos temporalmente para evitar doble clic
             if (buttonImage != null) buttonImage.color = colorActivo;
             buttonComponent.interactable = false;
+            AudioManager.Instance.PostEvent("UI_Button_Press", this.gameObject); //SONIDO
 
             // 2. Ejecutamos la herramienta y le pasamos nuestra función "OnEffectFinished" como aviso
             assignedTool.ApplyGlobalToolEffect(gameLogic, OnEffectFinished);

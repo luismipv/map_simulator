@@ -16,7 +16,7 @@ public class ToolNag : TeacherTool
             
             target.ModifyStressInstant(finalStress); 
             target.ChangeState(StudentState.Working); // Lo regañas y vuelve a trabajar
-            target.ShowFloatingText($"¡Ya me pongo a trabajar!",Color.orange);
+            target.ShowBubble($"¡Ya me pongo a trabajar!",Color.orange);
             //Debug.Log($"¡Regañaste a {target.studentName}! Estrés: +{finalStress}");
         }
         else if (target.currentState == StudentState.Resting)
@@ -25,7 +25,7 @@ public class ToolNag : TeacherTool
             float finalStress = 25f * reaction.stressMod;
             
             target.ModifyStressInstant(finalStress); // Regañar en el recreo es muy tóxico
-            target.ShowFloatingText($"¡Estoy descansando!",Color.orange);
+            target.ShowBubble($"¡Estoy descansando!",Color.orange);
             //Debug.Log($"¡{target.studentName} está descansando! Regañarlo lo estresa mucho. Estrés: +{finalStress}");
         }
         else
@@ -34,7 +34,7 @@ public class ToolNag : TeacherTool
             float finalStress = 20f * reaction.stressMod;
             
             target.ModifyStressInstant(finalStress); // Regañar a alguien que ya estaba trabajando
-            target.ShowFloatingText($"¡No estoy distraído!",Color.orange);
+            target.ShowBubble($"¡No estoy distraído!",Color.orange);
             //Debug.Log($"Intentaste regañar a {target.studentName}, pero no estaba distraído. Estrés: +{finalStress}");
         }
         

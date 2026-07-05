@@ -126,6 +126,7 @@ public class Student3D : Student
 
     public override void OnBeginDrag(PointerEventData eventData)  { 
         Debug.Log("OnBeginDrag");
+        AudioManager.Instance.PostEvent("Student_PickUp", this.gameObject); //SONIDO
         originalPosition = transform.position; 
         lastState = currentState;
         Dragged();
@@ -162,6 +163,8 @@ public class Student3D : Student
         Seat[] todasLasSillas = FindObjectsByType<Seat>(FindObjectsSortMode.None);        
         Seat sillaMasCercana = null;
         float distanciaMinima = float.MaxValue;
+
+        AudioManager.Instance.PostEvent("Student_Drop", this.gameObject); //SONIDO
         
         FindAnyObjectByType<DragSynergyWeb>().StopDragging();
 

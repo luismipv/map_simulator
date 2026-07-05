@@ -18,6 +18,7 @@ public class GlobalToolBreak : GlobalTool
     private IEnumerator GlobalBreakRoutine(Logic gameLogic, Action onFinished)
     {
         Debug.Log("¡Recreo General! Todos desaparecen.");
+        AudioManager.Instance.PostEvent("GlobalTools_Break", null); //SONIDO
         
         // 1. DESAPARECER (Sin curarlos todavía)
         foreach (Student s in gameLogic.allStudents)

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class StudentUI : MonoBehaviour
 {
-    private Student studentCore;
+    protected Student studentCore;
 
     [Header("UI General")]
     public Slider stressSlider; 
@@ -27,13 +27,20 @@ public class StudentUI : MonoBehaviour
     [Header("Multiplicadores (UI Persistente)")]
     public TextMeshProUGUI multipliersText;
 
-    private struct FloatingTextData
+     [Header("Dialogo de Burbuja")]
+    public GameObject bubbleText;
+    public GameObject bubbleBackground;
+    public GameObject student;
+
+
+
+    protected struct FloatingTextData
     {
         public string message;
         public Color color;
     }
 
-    private Queue<FloatingTextData> textQueue = new Queue<FloatingTextData>();
+    protected Queue<FloatingTextData> textQueue = new Queue<FloatingTextData>();
     private bool isSpawningText = false;
 
     private void Awake()
@@ -41,6 +48,8 @@ public class StudentUI : MonoBehaviour
         studentCore = GetComponent<Student>();
         Canvas myCanvas = GetComponentInChildren<Canvas>();
         if (myCanvas != null) myCanvas.worldCamera = Camera.main;
+        if (bubbleBackground != null) bubbleBackground.SetActive(false); // Oculta la burbuja al inicio
+        
     }
 
     private void OnEnable()
@@ -49,6 +58,7 @@ public class StudentUI : MonoBehaviour
         studentCore.OnStateChanged += UpdateStateMessages;
         studentCore.OnJokeFeedbackEvent += HandleJokeFeedback;
         studentCore.OnFloatingTextRequested += SpawnFloatingText;
+        studentCore.OnBubbleTextRequested += ShowBubble;
     }
 
     private void OnDisable()
@@ -57,6 +67,7 @@ public class StudentUI : MonoBehaviour
         studentCore.OnStateChanged -= UpdateStateMessages;
         studentCore.OnJokeFeedbackEvent -= HandleJokeFeedback;
         studentCore.OnFloatingTextRequested -= SpawnFloatingText;
+        studentCore.OnBubbleTextRequested -= ShowBubble;
     }
 
     private void Start()
@@ -97,9 +108,10 @@ public class StudentUI : MonoBehaviour
 
     private void HandleJokeFeedback(bool likedIt)
     {
-        if (likedIt) SpawnFloatingText("😂", Color.white);
-        else SpawnFloatingText("🙄", Color.white);
+        if (likedIt) ShowBubble("😂", Color.green);
+        else ShowBubble("🙄", Color.red);
     }
+
 
     private void SpawnFloatingText(string message, Color color)
     {
@@ -203,4 +215,71 @@ public class StudentUI : MonoBehaviour
 
         multipliersText.text = finalText;
     }
+
+    public void ShowBubble(string message, Color color)
+    {
+        // Validamos solo lo que la burbuja necesita
+        if (bubbleText != null && bubbleBackground != null)
+        {
+            bubbleBackground.SetActive(true);
+            StartCoroutine(PopUpAnimationCoroutine(bubbleBackground));
+            // Asignamos el texto y el color (usando el parámetro en vez del color fijo, si lo deseas)
+            TMPro.TextMeshPro textComponent = bubbleText.GetComponent<TMPro.TextMeshPro>();
+            if (textComponent != null)
+            {
+                textComponent.text = message;
+                textComponent.color = color; // o Color.yellow si prefieres forzarlo siempre
+            }
+            
+
+            // Reiniciamos el contador por si llega un mensaje nuevo antes de que se oculte el anterior
+            CancelInvoke(nameof(HideBubble));
+            Invoke(nameof(HideBubble), 2f); 
+
+            // Validamos que el estudiante y el LineRenderer existan antes de trazar la línea
+            if (student != null)
+            {
+                LineRenderer lr = bubbleBackground.GetComponent<LineRenderer>();
+                if (lr != null)
+                {
+                    lr.SetPositions(new Vector3[] { 
+                        bubbleBackground.transform.position, 
+                        student.transform.position + (Vector3.up * 3.5f) 
+                    });
+                }
+                else
+                {
+                    Debug.LogWarning("StudentUI: Falta el componente LineRenderer en bubbleBackground.");
+                }
+            }
+        }
+    }
+
+    public void HideBubble()
+    {
+        if (bubbleBackground != null)
+        {
+            bubbleBackground.SetActive(false);
+            bubbleText.GetComponent<TMPro.TextMeshPro>().text = "";
+        }
+    }
+
+    IEnumerator PopUpAnimationCoroutine(GameObject popup)
+    {
+        float duration = 0.1f; 
+        float elapsed = 0f;
+        Vector3 originalScale = popup.transform.localScale;
+        Vector3 targetScale = originalScale * 1.2f; 
+
+        while (elapsed < duration) // Escalado hacia arriba
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            popup.transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, t);
+            yield return null;
+        }
+        // Aseguramos que la escala final sea exactamente la original
+        //popup.transform.localScale = originalScale;
+    }
+
 }

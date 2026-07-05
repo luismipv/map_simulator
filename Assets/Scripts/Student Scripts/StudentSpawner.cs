@@ -28,6 +28,17 @@ public class StudentSpawner : MonoBehaviour
     [Header("Layouts del Salón")]
     public LayoutConfig[] classroomLayouts;
 
+    [Header("3D Perspective")]
+    public StudentAspectManager studentAspectManager;
+
+    void Awake()
+    {
+        if(studentAspectManager == null)
+        {
+            studentAspectManager = GetComponent<StudentAspectManager>();
+        }
+    }
+
     void Start()
     {
         SetStudentCountFromSlider(4);
@@ -96,6 +107,7 @@ public class StudentSpawner : MonoBehaviour
             GameObject newStudentObj = Instantiate(studentPrefab, transform.position, Quaternion.identity);
             Student studentScript = newStudentObj.GetComponent<Student>();
 
+
             chosenSeat.AssignStudent(studentScript);
 
             string generatedName = GenerateRandomName();
@@ -109,6 +121,9 @@ public class StudentSpawner : MonoBehaviour
 
             TMP_Text textUI = newStudentObj.GetComponentInChildren<TMP_Text>();
             if (textUI != null) textUI.text = $"{generatedName}:\n0/100";
+            
+            // 3D Model Aspect Generation
+            studentAspectManager.GenerateStudentRandomAppearance(newStudentObj, studentScript.personalityData.personalityType);
         }
     }
 

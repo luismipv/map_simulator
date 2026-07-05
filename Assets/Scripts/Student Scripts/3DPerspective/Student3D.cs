@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -9,6 +6,10 @@ public class Student3D : Student
     [SerializeField] private Animator animator;
     [SerializeField] private StudentVFX studentVFX;
 
+    [Header("3D Model Parts")]
+    public SkinnedMeshRenderer bodyMesh;
+    public MeshFilter hairMesh;
+    
     private bool _resting = false;
     private float _workingMultiplier = 1.0f;
     private bool _distracted = false;

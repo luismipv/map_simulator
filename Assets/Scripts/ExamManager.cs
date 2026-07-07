@@ -37,49 +37,7 @@ public class ExamManager : MonoBehaviour
         //HandlePartialExams();
     }
 
-  /*  private void HandlePartialExams()
-    {
-        nextExamTimer -= Time.deltaTime;
 
-        // El UIManager hace las matemáticas para oscurecer la viñeta
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateExamUI(nextExamTimer, timeToStartFading, maxTensionAlpha);
-        }
-
-        if (nextExamTimer <= 0f)
-        {
-            StartCoroutine(PartialExamRoutine());
-            nextExamTimer = partialExamInterval; 
-        }
-    }
-
-    private IEnumerator PartialExamRoutine()
-    {
-        if (UIManager.Instance != null) UIManager.Instance.ShowExamWarning(true);
-        Time.timeScale = 0f; // Pausa el juego
-
-        yield return new WaitForSecondsRealtime(2f);
-
-        // Evalúa a todos los alumnos
-        foreach (Student s in gameLogic.allStudents)
-        {
-            if (s.currentState == StudentState.DroppedOut || s.currentState == StudentState.Graduated) continue;
-
-            if (s.learningLevel >= (s.maxLearning / 2f))
-            {
-                s.ModifyStressInstant(-35f); 
-            }
-            else
-            {
-                s.ModifyStressInstant(40f);
-            }
-        }
-
-        if (UIManager.Instance != null) UIManager.Instance.ShowExamWarning(false);
-        Time.timeScale = 1f; // Reanuda el juego
-    }
-*/
     // Método público para que Logic pueda reiniciar el reloj cuando hay cambio de salón
     public void ResetExamTimer()
     {

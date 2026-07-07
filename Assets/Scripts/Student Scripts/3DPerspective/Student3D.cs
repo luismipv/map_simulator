@@ -164,8 +164,6 @@ public class Student3D : Student
         Seat[] todasLasSillas = FindObjectsByType<Seat>(FindObjectsSortMode.None);        
         Seat sillaMasCercana = null;
         float distanciaMinima = float.MaxValue;
-
-        AudioManager.Instance.PostEvent("Student_Drop", this.gameObject); //SONIDO
         
         FindAnyObjectByType<DragSynergyWeb>().StopDragging();
 
@@ -195,6 +193,10 @@ public class Student3D : Student
                 {
                     suSillaVieja.AssignStudent(this);
                     miSillaVieja.AssignStudent(elOtroAlumno);
+                    Debug.Log($"Intercambiando alumnos: {this.studentName} con {elOtroAlumno.studentName}");
+                    
+                    // SONIDO DE INTERCAMBIO
+                    AudioManager.Instance.PostEvent("Student_Change_Seats", this.gameObject); 
                     dragExitoso = true;
                 }
             }
@@ -204,22 +206,28 @@ public class Student3D : Student
                 if (miSillaVieja != null) miSillaVieja.currentStudent = null; 
 
                 sillaMasCercana.AssignStudent(this); 
+                
+                // TU SONIDO DE DROP (Silla vacía)
+                AudioManager.Instance.PostEvent("Student_Drop", this.gameObject); 
                 dragExitoso = true;
             }
         }
 
-        // --- ¡NUEVO! Silenciamos la llamada doble de ChangeState ---
         suppressManagerUpdate = true;
-        if (dragExitoso) ChangeState(lastState); 
+        
+        if (dragExitoso) 
+        {
+            ChangeState(lastState); 
+        }
         else 
         {
             if (currentSeat != null) transform.position = currentSeat.transform.position;
             else transform.position = originalPosition;
             ChangeState(lastState); 
         }
+        
         suppressManagerUpdate = false; 
 
-        // --- Y MANDAMOS LA LLAMADA EXPLICITA CON PERMISO DE PARTÍCULAS ---
         if (SpatialManager.Instance != null) 
         {
             SpatialManager.Instance.UpdateSpatialEffects(true); 

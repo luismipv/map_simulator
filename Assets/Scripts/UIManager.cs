@@ -4,7 +4,6 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    // ¡LA MAGIA DEL SINGLETON! Esto permite que otros scripts lo llamen usando UIManager.Instance
     public static UIManager Instance { get; private set; }
 
     [Header("Menú de Inicio")]
@@ -17,14 +16,17 @@ public class UIManager : MonoBehaviour
     public Slider averageLearningSlider;
     public TextMeshProUGUI averageLearningText;
     
-
     [Header("Flujo del Juego")]
     public Slider timerSlider;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI dropoutsText;
     public GameObject busyIndicatorUI;
 
-    [Header("Pantalla de Resultados de Examen")]
+    [Header("Evaluación Individual (Animada)")]
+    // NUEVA REFERENCIA: Aquí conectaremos el script que armamos hoy
+    public EvaluationScreenManager evaluationScreen; 
+
+    [Header("Pantalla de Resultados de Examen (Resumen Final)")]
     public GameObject examResultsPanel;
     public TextMeshProUGUI examResultsText;
     public TextMeshProUGUI detailedResultsText;
@@ -42,9 +44,14 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
-        // Configuramos el Singleton al inicio
-        if (Instance != null && Instance != this) Destroy(this);
-        else Instance = this;
+        if (Instance != null && Instance != this) 
+        {
+            Destroy(gameObject); // FIX: Ahora destruye el GameObject completo
+        }
+        else 
+        {
+            Instance = this;
+        }
     }
 
     // ==========================================
@@ -80,7 +87,6 @@ public class UIManager : MonoBehaviour
     {
         if (nextExamText != null) 
         {
-            // Nos aseguramos de que el texto vuelva a prenderse al iniciar un nuevo parcial
             nextExamText.gameObject.SetActive(true); 
             nextExamText.text = $"Siguiente Parcial: {Mathf.RoundToInt(timer)}s";
         }
@@ -105,25 +111,17 @@ public class UIManager : MonoBehaviour
         {
              studentSelectionText.text = $"Alumnos matriculados: {count}";
         }
-           
     }
-
-    /*public void ShowExamWarning(bool isExamActive)
-    {
-        if (partialExamWarningUI != null) partialExamWarningUI.SetActive(isExamActive);
-    }*/
 
     public void ShowExamResults(int passed, int failed, int moneyEarned, int totalMoney, ExamPenaltyMode mode, string detailsLog)
     {
         if (gameplayContainer != null) gameplayContainer.SetActive(false);
-        
         if (nextExamText != null) nextExamText.gameObject.SetActive(false);
         if (tensionVignette != null) tensionVignette.alpha = 0f;
         if (partialExamWarningUI != null) partialExamWarningUI.SetActive(false);
 
         if (examResultsPanel != null) examResultsPanel.SetActive(true);
 
-        // Traducimos el modo para la UI
         string modeDescription = "";
         switch (mode)
         {
@@ -142,7 +140,6 @@ public class UIManager : MonoBehaviour
                                    $"Presupuesto Total: ${totalMoney}";
         }
 
-        // ¡Aquí inyectamos la lista alumno por alumno!
         if (detailedResultsText != null)
         {
             detailedResultsText.text = detailsLog;

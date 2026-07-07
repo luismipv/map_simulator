@@ -90,19 +90,26 @@ public class StudentJuice : MonoBehaviour
             state != StudentState.Graduated && 
             state != StudentState.Resting)
         {
+            if (!isShaking)
+            {
+            AudioManager.Instance.PostEvent("Student_About_To_BurnOut", this.gameObject); //SONIDO    
+            studentCore.GetStudentVFX().ActivateSmoke();
+            }
             isShaking = true;
-            
+           // studentCore.IsAboutToBurnOut = true; 
             // ¡MAGIA PURA! Movemos SOLAMENTE el dibujo (el hijo).
             // Como su papá es el Asiento, su "centro" siempre es Vector3.zero
             spriteRenderer.transform.localPosition = originalPosition + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
-            studentCore.GetStudentVFX().ActivateSmoke();
+            //Debug.Log("El alumno se está queamdno");
         }
         else if (isShaking)
         {
             // Regresamos el dibujo a su centro exacto (0,0,0)
             spriteRenderer.transform.localPosition = originalPosition;
             isShaking = false;
+            // studentCore.IsAboutToBurnOut = false;
             //studentCore.GetStudentVFX().DeactivateAllParticles();
+            studentCore.GetStudentVFX().DeactivateSmoke();
         }
     }
 }

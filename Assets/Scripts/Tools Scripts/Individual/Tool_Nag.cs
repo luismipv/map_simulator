@@ -17,6 +17,7 @@ public class ToolNag : TeacherTool
             target.ModifyStressInstant(finalStress); 
             target.ChangeState(StudentState.Working); // Lo regañas y vuelve a trabajar
             target.ShowBubble($"¡Ya me pongo a trabajar!",Color.orange);
+            AudioManager.Instance.PostEvent("Student_Nag"); //SONIDO
             //Debug.Log($"¡Regañaste a {target.studentName}! Estrés: +{finalStress}");
         }
         else if (target.currentState == StudentState.Resting)

@@ -9,6 +9,7 @@ public enum ExamPenaltyMode
     Snowball 
 }
 
+
 public class Logic : MonoBehaviour 
 {
     [Header("Sistema de Exámenes (Modo Pruebas)")]
@@ -184,7 +185,7 @@ public class Logic : MonoBehaviour
     // --- FASE 3: EL EXAMEN (RELÓJ DETENIDO) ---
     // ==========================================
 
-   private void TriggerExamPhase()
+    private void TriggerExamPhase()
     {
         isGameActive = false; 
         isTeacherBusy = true;
@@ -194,9 +195,10 @@ public class Logic : MonoBehaviour
         int passedStudents = 0;
         int failedStudents = 0;
         int moneyEarnedThisRound = 0;
-        string dashboardDetails = ""; 
 
-        // 1. CAMBIO VITAL: Un bucle 'for' inverso para poder borrar alumnos sin romper la lista
+        // ¡NUEVO! Creamos una lista para guardar los datos puros que mandaremos a animar
+        List<StudentEvalData> studentsToAnimate = new List<StudentEvalData>();
+
         for (int i = allStudents.Count - 1; i >= 0; i--)
         {
             Student s = allStudents[i];
@@ -204,53 +206,29 @@ public class Logic : MonoBehaviour
 
             float finalLearning = s.learningLevel;
             float currentStress = s.stressLevel;
-            string studentNote = ""; 
+            bool isGraduatedThisRound = false;
 
-            // APLICAMOS LA LÓGICA DEL INTERRUPTOR
+            // MATEMÁTICAS DEL LOGIC (El cerebro silencioso)
             switch (currentTestMode)
             {
                 case ExamPenaltyMode.PanicAttack:
-                    if (currentStress >= 80f)
-                    {
-                        finalLearning -= 20f; 
-                        studentNote = "<color=red>¡Se quedó en blanco por pánico! (-20 pts)</color>";
-                    }
-                    else studentNote = "<color=green>Mente fría y enfocada</color>";
+                    if (currentStress >= 80f) finalLearning -= 20f; 
                     break;
-
                 case ExamPenaltyMode.MoneyFine:
-                    if (currentStress >= 80f)
-                    {
-                        moneyEarnedThisRound -= 25; 
-                        studentNote = "<color=orange>Queja de padres en dirección (-$25)</color>";
-                    }
-                    else studentNote = "<color=green>Sin quejas</color>";
-                    break;
-
-                case ExamPenaltyMode.Snowball:
-                    int roundedStress = Mathf.RoundToInt(currentStress);
-                    if (currentStress >= 80f) studentNote = $"<color=#FF5555>Al borde del Burnout (Arrastra {roundedStress}% al P{currentPartial + 1})</color>";
-                    else if (currentStress >= 40f) studentNote = $"<color=yellow>Sobreviviendo (Arrastra {roundedStress}% al P{currentPartial + 1})</color>";
-                    else studentNote = $"<color=green>Mente fresca (Arrastra {roundedStress}% al P{currentPartial + 1})</color>";
+                    if (currentStress >= 80f) moneyEarnedThisRound -= 25; 
                     break;
             }
 
             // EL VEREDICTO FINAL
-            bool passedThisExam = false;
             if (finalLearning >= partialLearningQuota || s.currentState == StudentState.Finished)
             {
                 passedStudents++;
                 moneyEarnedThisRound += moneyPerPass;
-                passedThisExam = true;
 
-                // ¡NUEVO! LÓGICA DE GRADUACIÓN
                 if (currentPartial >= totalPartials)
                 {
-                    dashboardDetails += $"• <b>{s.studentName}</b>: ¡SE GRADUÓ CON HONORES! 🎓\n";
+                    isGraduatedThisRound = true;
                     s.ChangeState(StudentState.Graduated);
-                    
-                    // Saltamos a la siguiente iteración porque el alumno acaba de ser destruido
-                    continue; 
                 }
             }
             else
@@ -258,33 +236,37 @@ public class Logic : MonoBehaviour
                 failedStudents++;
             }
 
-            // AGREGAMOS AL ALUMNO AL REPORTE VISUAL (Solo si no se ha graduado)
-            string statusColor = passedThisExam ? "<color=green>APROBADO</color>" : "<color=red>REPROBADO</color>";
-            dashboardDetails += $"• <b>{s.studentName}</b>: {Mathf.RoundToInt(finalLearning)} pts | {statusColor} | {studentNote}\n";
+            // ¡EMPACAMOS LOS DATOS DEL ALUMNO PARA LA ANIMACIÓN!
+            studentsToAnimate.Add(new StudentEvalData {
+                studentName = s.studentName,
+                rawLearning = s.learningLevel, // Ojo: Mandamos el raw, la UI animará la resta
+                rawStress = s.stressLevel,
+                penaltyMode = currentTestMode,
+                isGraduated = isGraduatedThisRound
+            });
 
-            // PREPARAMOS AL ALUMNO PARA EL SIGUIENTE PARCIAL
+            // PREPARAMOS AL ALUMNO
             s.learningLevel = 0f; 
             if (currentTestMode != ExamPenaltyMode.Snowball) s.stressLevel = 0f; 
-            
             s.isExamMode = true; 
         }
 
         currentMoney += moneyEarnedThisRound;
         if (currentMoney < 0) currentMoney = 0; 
 
-        StartCoroutine(ShowResultsWithDelay(passedStudents, failedStudents, moneyEarnedThisRound, currentMoney, currentTestMode, dashboardDetails));
+        StartCoroutine(ShowResultsWithDelay(passedStudents, failedStudents, moneyEarnedThisRound, currentMoney, currentTestMode, studentsToAnimate));
     }
 
-    private IEnumerator ShowResultsWithDelay(int passed, int failed, int money, int totalMoney, ExamPenaltyMode mode, string details)
+    private IEnumerator ShowResultsWithDelay(int passed, int failed, int money, int totalMoney, ExamPenaltyMode mode, List<StudentEvalData> evalData)
     {
-        // Si estamos en el último parcial, le damos 2.5 segundos para que se vea la explosión de graduación
-        // Si es un parcial normal, le damos solo 1 segundo de pausa dramática
         float delayTime = (currentPartial >= totalPartials) ? 2.5f : 1.0f;
-        
         yield return new WaitForSeconds(delayTime);
 
-        // Pasado el tiempo, ahora sí, cubrimos la pantalla con las calificaciones
-        UIManager.Instance.ShowExamResults(passed, failed, money, totalMoney, mode, details);
+        // 1. Mostramos el resumen general de Dinero y Aprobados en tu UIManager
+        UIManager.Instance.ShowExamResults(passed, failed, money, totalMoney, mode, "");
+
+        // 2. ¡Lanzamos el show de barras! (Llamamos al manager que vinculamos antes)
+        UIManager.Instance.evaluationScreen.ShowAllResults(evalData, Mathf.RoundToInt(partialLearningQuota));
     }
     public void StartNextPartial()
     {
@@ -414,9 +396,24 @@ public class Logic : MonoBehaviour
         if (isTeacherBusy || currentModularTool == null || (Time.time < lastToolUsageTime + toolCooldown)) 
             return;
 
-        currentModularTool.ApplyToolEffect(student, this);      
+        AudioManager.Instance.PostEvent("UI_Button_Press", this.gameObject); //SONIDO
+        AudioManager.Instance.PostEvent("UI_Select", this.gameObject); //SONIDO
+        currentModularTool.ApplyToolEffect(student, this); 
+
         
         // Marcamos el tiempo del último uso exitoso
         lastToolUsageTime = Time.time;
     }
+
+
+
+}
+[System.Serializable]
+public struct StudentEvalData
+{
+    public string studentName;
+    public float rawLearning;
+    public float rawStress;
+    public ExamPenaltyMode penaltyMode;
+    public bool isGraduated;
 }

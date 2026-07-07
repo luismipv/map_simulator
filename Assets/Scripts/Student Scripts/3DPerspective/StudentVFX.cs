@@ -20,6 +20,15 @@ public class StudentVFX : MonoBehaviour
         }
     }
 
+    public void DeactivateSmoke()
+    {
+        if (smoke != null)
+        {
+            smoke.gameObject.SetActive(false);
+            smoke.Stop();
+        }
+    }
+
     public void ActivateGraduated()
     {
         if (graduated != null)

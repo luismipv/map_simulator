@@ -57,6 +57,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     [HideInInspector] public float currentRestCooldown = 0f;
     [HideInInspector] public bool isExamMode = false;
 
+
     [Header("Efectos Visuales")]
     public GameObject graduationVFXPrefab;
     private Logic logicManager; 
@@ -109,62 +110,67 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
 
     public virtual void ChangeState(StudentState newState)
+{
+    if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;  
+    
+    currentState = newState;
+    
+    // 1. MATAMOS EL SONIDO GLOBALMENTE AL CAMBIAR DE ESTADO
+    // Si estaba sonando, se calla. Si no estaba sonando, Wwise ignora esta línea.
+    AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
+    
+    // EFECTO CONTAGIO DEL COOL
+    if (currentState == StudentState.Flow && personalityData != null && personalityData.personalityType == StudentPersonality.Cool)
     {
-        if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;  
-        
-        currentState = newState;
-        
-        // EFECTO CONTAGIO DEL COOL
-        if (currentState == StudentState.Flow && personalityData != null && personalityData.personalityType == StudentPersonality.Cool)
+        if (SpatialManager.Instance != null && SpatialManager.Instance.neighborGraph.ContainsKey(this))
         {
-            if (SpatialManager.Instance != null && SpatialManager.Instance.neighborGraph.ContainsKey(this))
+            foreach (Student neighbor in SpatialManager.Instance.neighborGraph[this])
             {
-                foreach (Student neighbor in SpatialManager.Instance.neighborGraph[this])
+                if (neighbor.currentState == StudentState.Working)
                 {
-                    if (neighbor.currentState == StudentState.Working)
-                    {
-                        neighbor.ChangeState(StudentState.Flow);
-                        neighbor.ShowFloatingText("¡Contagiado 😎!", Color.cyan);
-                    }
+                    neighbor.ChangeState(StudentState.Flow);
+                    neighbor.ShowFloatingText("¡Contagiado 😎!", Color.cyan);
                 }
             }
         }
-
-        // CONTROL DE ESTADOS AL CAMBIAR
-        if (currentState == StudentState.Graduated)
-        {
-            ShowBubble("¡Se logró!", Color.yellow);
-            TriggerGraduation();
-        }
-        else if (currentState == StudentState.Finished)
-        {
-            ShowBubble("¡Listo! ¿Quién necesita ayuda?", Color.yellow);
-            learningLevel = maxLearning; 
-            RemoveLearningModifier(ModifierID.Panico);
-        }
-        else if (currentState == StudentState.Flow) 
-        {
-            currentFlowTimer = flowDuration;
-        }
-        else if (currentState == StudentState.Burnout)
-        {
-            currentBurnoutTimer = burnoutTimeLimit;
-            ModifyLearningInstant(-20f); 
-            AudioManager.Instance.PostEvent("Student_BurnedOut", this.gameObject); //SONIDO
-        }
-        else if (currentState == StudentState.Distracted) 
-        {
-            contagionTimer = contagionInterval;
-            RemoveLearningModifier(ModifierID.Panico);
-        }
-        else if (currentState == StudentState.Resting) 
-        {
-            currentRestTimer = mandatoryRestDuration; 
-            RemoveLearningModifier(ModifierID.Panico);
-        }
-
-        OnStateChanged?.Invoke(currentState); 
     }
+
+    // CONTROL DE ESTADOS AL CAMBIAR (Ya sin la basura visual del audio)
+    if (currentState == StudentState.Graduated)
+    {
+        ShowBubble("¡Se logró!", Color.yellow);
+        TriggerGraduation();
+    }
+    else if (currentState == StudentState.Finished)
+    {
+        ShowBubble("¡Listo! ¿Quién necesita ayuda?", Color.yellow);
+        AudioManager.Instance.PostEvent("Student_Finished", this.gameObject); 
+        learningLevel = maxLearning; 
+        RemoveLearningModifier(ModifierID.Panico);
+    }
+    else if (currentState == StudentState.Flow) 
+    {
+        currentFlowTimer = flowDuration;
+    }
+    else if (currentState == StudentState.Burnout)
+    {
+        currentBurnoutTimer = burnoutTimeLimit;
+        ModifyLearningInstant(-20f); 
+        AudioManager.Instance.PostEvent("Student_BurnedOut", this.gameObject); 
+    }
+    else if (currentState == StudentState.Distracted) 
+    {
+        contagionTimer = contagionInterval;
+        RemoveLearningModifier(ModifierID.Panico);
+    }
+    else if (currentState == StudentState.Resting) 
+    {
+        currentRestTimer = mandatoryRestDuration; 
+        RemoveLearningModifier(ModifierID.Panico);
+    }
+
+    OnStateChanged?.Invoke(currentState); 
+}
 
     private void TriggerGraduation()
     {
@@ -290,6 +296,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             {
                 ChangeState(StudentState.Distracted);
                 //dialogBubble.ShowBubble("*Distraído*");
+                AudioManager.Instance.PostEvent("Student_Distracted",this.gameObject); //SONIDO
                 ShowBubble("Distraído!", Color.orange);
             } 
         }
@@ -400,6 +407,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 {
                     suSillaVieja.AssignStudent(this);
                     miSillaVieja.AssignStudent(elOtroAlumno);
+                    AudioManager.Instance.PostEvent("Student_Change_Seats"); //SONIDO
+                    Debug.Log($"¡{studentName} y {elOtroAlumno.studentName} intercambiaron asientos!");
                     dragExitoso = true;
                 }
             }
@@ -407,8 +416,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             {
                 Seat miSillaVieja = this.currentSeat;
                 if (miSillaVieja != null) miSillaVieja.currentStudent = null; 
-
                 sillaMasCercana.AssignStudent(this); 
+                //AudioManager.Instance.PostEvent("Student_Change_Seats", this.gameObject); //SONIDO
                 dragExitoso = true;
             }
         }

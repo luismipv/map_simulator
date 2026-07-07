@@ -1987,7 +1987,6 @@ GameObject:
   - component: {fileID: 6715379750000798122}
   - component: {fileID: 6168811996338973603}
   - component: {fileID: 8820513538458346073}
-  - component: {fileID: 990311267462215035}
   - component: {fileID: 7499859761748272773}
   m_Layer: 0
   m_Name: Dialog Text
@@ -2083,14 +2082,6 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
---- !u!222 &990311267462215035
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6359617202120481037}
-  m_CullTransparentMesh: 1
 --- !u!114 &7499859761748272773
 MonoBehaviour:
   m_ObjectHideFlags: 0

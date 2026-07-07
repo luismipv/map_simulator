@@ -84,7 +84,37 @@ public class AudioManager : MonoBehaviour
             audioSource.pitch = finalPitch;
             audioSource.time = audioEvent.startAtTime;
             
-            audioSource.Play();
+            audioSource.PlayOneShot(clipToPlay,finalVolume);
+        }
+        else
+        {
+            Debug.LogWarning($"[AudioManager] Evento no encontrado: {eventName}");
+        }
+    }
+
+   public void StopEvent(string eventName, GameObject emitter = null)
+    {
+        /*
+        // VERSIÓN WWISE
+        if (emitter != null) AkSoundEngine.PostEvent(eventName, emitter);
+        else AkSoundEngine.PostEvent(eventName, this.gameObject);
+        return; 
+        */
+
+        // VERSIÓN UNITY AUDIO
+        if (eventDictionary.TryGetValue(eventName, out UnityAudioEvent audioEvent))
+        {
+            AudioClip clipToPlay = GetClipFromEvent(audioEvent);
+            if (clipToPlay == null) return;
+
+            GameObject targetEmitter = emitter != null ? emitter : this.gameObject;
+            AudioSource audioSource = targetEmitter.GetComponent<AudioSource>();
+            
+            // EL FIX: Solo lo detenemos si existe y si REALMENTE está reproduciendo este clip
+            if (audioSource != null && audioSource.clip == clipToPlay)
+            {
+                audioSource.Stop();
+            }
         }
         else
         {

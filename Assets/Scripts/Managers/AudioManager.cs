@@ -84,7 +84,7 @@ public class AudioManager : MonoBehaviour
             audioSource.pitch = finalPitch;
             audioSource.time = audioEvent.startAtTime;
             
-            audioSource.PlayOneShot(clipToPlay,finalVolume);
+            audioSource.Play();
         }
         else
         {

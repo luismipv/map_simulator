@@ -126,7 +126,6 @@ public class Student3D : Student
     }
 
     public override void OnBeginDrag(PointerEventData eventData)  { 
-        Debug.Log("OnBeginDrag");
         AudioManager.Instance.PostEvent("Student_PickUp", this.gameObject); //SONIDO
         originalPosition = transform.position; 
         lastState = currentState;
@@ -193,7 +192,7 @@ public class Student3D : Student
                 {
                     suSillaVieja.AssignStudent(this);
                     miSillaVieja.AssignStudent(elOtroAlumno);
-                    Debug.Log($"Intercambiando alumnos: {this.studentName} con {elOtroAlumno.studentName}");
+                    //Debug.Log($"Intercambiando alumnos: {this.studentName} con {elOtroAlumno.studentName}");
                     
                     // SONIDO DE INTERCAMBIO
                     AudioManager.Instance.PostEvent("Student_Change_Seats", this.gameObject); 
@@ -208,7 +207,7 @@ public class Student3D : Student
                 sillaMasCercana.AssignStudent(this); 
                 
                 // TU SONIDO DE DROP (Silla vacía)
-                AudioManager.Instance.PostEvent("Student_Drop", this.gameObject); 
+                AudioManager.Instance.PostEvent("Student_Drop"); 
                 dragExitoso = true;
             }
         }
@@ -223,6 +222,7 @@ public class Student3D : Student
         {
             if (currentSeat != null) transform.position = currentSeat.transform.position;
             else transform.position = originalPosition;
+            AudioManager.Instance.PostEvent("Student_Drop");
             ChangeState(lastState); 
         }
         

@@ -9,7 +9,11 @@ public class ToolRelax : TeacherTool
     public override void ApplyToolEffect(Student target, Logic gameLogic)
     {
         // 1. Verificamos que no esté ya descansando
-        if (target.currentState == StudentState.Resting) return; 
+        if (target.currentState == StudentState.Resting)
+        {
+          target.ShowBubble("Ya estoy descansando 😴", Color.cyan);  
+          return;   
+        } 
         
         // 2. Verificamos el cooldown interno del alumno
         if (target.currentRestCooldown > 0f)
@@ -38,11 +42,11 @@ public class ToolRelax : TeacherTool
         if (gameLogic.homeworkStreak.ContainsKey(target))
         {
             gameLogic.homeworkStreak[target] = 0;
-            Debug.Log($"Rendimiento de tarea de {target.studentName} restablecido al 100%. Estrés inmediato: {finalInstantStress}");
+            //Debug.Log($"Rendimiento de tarea de {target.studentName} restablecido al 100%. Estrés inmediato: {finalInstantStress}");
         }
         else
         {
-            Debug.Log($"{target.studentName} fue enviado a descansar. Estrés inmediato: {finalInstantStress}");
+            //Debug.Log($"{target.studentName} fue enviado a descansar. Estrés inmediato: {finalInstantStress}");
         }
     }
 }

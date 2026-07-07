@@ -7,7 +7,7 @@ public class GlobalToolBreak : GlobalTool
 {
     public override void ApplyGlobalToolEffect(Logic gameLogic, Action onFinished)
     {
-        if (gameLogic.isTeacherBusy) 
+        if (ToolManager.Instance.isTeacherBusy) 
         {
             onFinished?.Invoke(); 
             return;

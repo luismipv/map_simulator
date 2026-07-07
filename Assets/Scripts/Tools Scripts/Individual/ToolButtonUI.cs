@@ -46,7 +46,7 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         if (gameLogic != null && assignedTool != null)
         {
-            gameLogic.SelectTool(assignedTool);
+            ToolManager.Instance.SelectTool(assignedTool);
             AudioManager.Instance.PostEvent("UI_Button_Press", this.gameObject); //SONIDO
         }
     }

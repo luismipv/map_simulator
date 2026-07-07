@@ -111,7 +111,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public virtual void ChangeState(StudentState newState)
 {
-    if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;  
+    if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated || currentState == StudentState.Finished) return;  
     
     currentState = newState;
     
@@ -184,7 +184,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
         if (logicManager != null)
         {
-            logicManager.graduatedStudents++; 
+            //logicManager.graduatedStudents++; 
             if (logicManager.allStudents.Contains(this)) logicManager.allStudents.Remove(this);
         }
 
@@ -356,7 +356,9 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void OnStudentClicked()
     {
         if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;
-        if (logicManager != null) logicManager.ApplyToolToStudent(this);
+        
+        // Ahora llama al ToolManager en lugar del LogicManager
+        if (ToolManager.Instance != null) ToolManager.Instance.ApplyToolToStudent(this);
     }
 
     public virtual void OnBeginDrag(PointerEventData eventData) { originalPosition = transform.position; }

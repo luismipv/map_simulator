@@ -10,16 +10,21 @@ public class ToolTutoring : TeacherTool
 
     public override void ApplyToolEffect(Student target, Logic gameLogic)
     {
-        if (target.currentState == StudentState.Resting) return;
+        if (target.currentState == StudentState.Resting)
+        {
+         target.ShowBubble("Déjeme descansar profe 😴", Color.red);
+         return;
+        }
+            
         gameLogic.StartCoroutine(PrivateTutoringRoutine(target, gameLogic, this));
     }
 
    private IEnumerator PrivateTutoringRoutine(Student student, Logic gameLogic, TeacherTool toolReference)
    {
-        gameLogic.isTeacherBusy = true;
+        ToolManager.Instance.isTeacherBusy = true;
         UIManager.Instance.SetTeacherBusy(true);
 
-        Debug.Log($"Iniciando asesoría privada con {student.studentName}.");
+        //Debug.Log($"Iniciando asesoría privada con {student.studentName}.");
 
         ToolReaction reaction = student.personalityData.GetReactionForTool(toolReference);
         float finalLearningBoost = baseLearningBoost * reaction.learningMod;
@@ -35,7 +40,7 @@ public class ToolTutoring : TeacherTool
         {
             if (student == null || student.currentState == StudentState.Graduated || student.currentState == StudentState.DroppedOut)
             {
-                Debug.Log("Asesoría cancelada tempranamente: El alumno ya no está en clase.");
+                //Debug.Log("Asesoría cancelada tempranamente: El alumno ya no está en clase.");
                 break; 
             }
 
@@ -50,7 +55,7 @@ public class ToolTutoring : TeacherTool
             student.RemoveStressModifier(ModifierID.Tool_Tutoring);
         }
         
-        gameLogic.isTeacherBusy = false;
+        ToolManager.Instance.isTeacherBusy = false;
         UIManager.Instance.SetTeacherBusy(false);
         Debug.Log("Terminó la asesoría. El maestro vuelve a estar libre.");
     }

@@ -87,7 +87,7 @@ SpriteRenderer:
   m_Size: {x: 0.6, y: 0.6}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &810570310221389636
@@ -660,7 +660,7 @@ GameObject:
   - component: {fileID: 3525261378317899130}
   - component: {fileID: 6491660838009716115}
   - component: {fileID: 1921711040863661352}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Dialogos Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -684,7 +684,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 4.19}
+  m_AnchoredPosition: {x: 0, y: 4.82}
   m_SizeDelta: {x: 2155.36, y: 1620}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &3525261378317899130
@@ -1172,7 +1172,7 @@ SpriteRenderer:
   m_Size: {x: 0.6, y: 0.6}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &3945644033827174994
@@ -1988,7 +1988,7 @@ GameObject:
   - component: {fileID: 6168811996338973603}
   - component: {fileID: 8820513538458346073}
   - component: {fileID: 7499859761748272773}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Dialog Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2599,7 +2599,7 @@ GameObject:
   - component: {fileID: 5674598940419470778}
   - component: {fileID: 6075276086521788324}
   - component: {fileID: 249515704703524434}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Dialog Bubble
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -10,7 +10,7 @@ public class GlobalToolJoke : GlobalTool
 
     public override void ApplyGlobalToolEffect(Logic gameLogic, Action onFinished)
     {
-        if (gameLogic.isTeacherBusy) return;
+        if (ToolManager.Instance.isTeacherBusy) return;
         Debug.Log("Lanzando chiste global...");
 
         foreach (Student s in gameLogic.allStudents)

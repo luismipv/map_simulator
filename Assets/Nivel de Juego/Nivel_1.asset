@@ -12,6 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d03174db460864b90b1ccbe8c09af1fb, type: 3}
   m_Name: Nivel_1
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
+  classroomLayout: {fileID: 11400000, guid: 23a90dd185fad465aa64d5251cdeeb2a, type: 2}
+  spawnMode: 0
+  totalRandomStudents: 5
+  fixedStudentRoster:
+  - {fileID: 11400000, guid: 9f0c8b9ae74bb4a6d81e7db69b4dfbca, type: 2}
+  - {fileID: 11400000, guid: 09e8e62c8aa834187bda7af01272a27b, type: 2}
   startingMoney: 0
   moneyPerPass: 50
   maxDropouts: 3

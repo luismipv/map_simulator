@@ -7,7 +7,7 @@ public class GlobalToolSurpriseExam : GlobalTool
 {
     public override void ApplyGlobalToolEffect(Logic gameLogic, Action onFinished)
     {
-        if (gameLogic.isTeacherBusy) return;
+        if (ToolManager.Instance.isTeacherBusy) return;
         gameLogic.StartCoroutine(SurpriseExamRoutine(gameLogic, onFinished));
     }
 

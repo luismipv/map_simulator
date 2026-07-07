@@ -1,0 +1,2156 @@
+fileFormatVersion: 2
+guid: 6d30d4a37bd134d499540418b9341c1f
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 1
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_0
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 4492
+        width: 657
+        height: 203
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ab53e058b3a60914c8f538a1dc05422c
+      internalID: 1450430760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_1
+      rect:
+        serializedVersion: 2
+        x: 732
+        y: 4492
+        width: 664
+        height: 207
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5bfe63b47415702409f046c23397a823
+      internalID: 1861875749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_2
+      rect:
+        serializedVersion: 2
+        x: 1436
+        y: 4490
+        width: 651
+        height: 195
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 40b3b76e3f84af84487423fe6a65d7b9
+      internalID: -1381395275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_3
+      rect:
+        serializedVersion: 2
+        x: 2122
+        y: 4499
+        width: 652
+        height: 196
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f13b970b78f3e5440948833052172948
+      internalID: -874957535
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_4
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 4276
+        width: 457
+        height: 146
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 93380344f20e72e48b06ce7a4bfca23c
+      internalID: 390762886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_5
+      rect:
+        serializedVersion: 2
+        x: 544
+        y: 4276
+        width: 451
+        height: 139
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 173a08c0b19414f4889fbf7139ee2ca7
+      internalID: 1686064317
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_6
+      rect:
+        serializedVersion: 2
+        x: 1030
+        y: 4276
+        width: 145
+        height: 153
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bf0b0c7ae68bfb84a95038770d7d4684
+      internalID: 1827227147
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_7
+      rect:
+        serializedVersion: 2
+        x: 1217
+        y: 4276
+        width: 139
+        height: 147
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: af713f2eaef209147950e9432e944a65
+      internalID: -1948382399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_8
+      rect:
+        serializedVersion: 2
+        x: 1391
+        y: 4309
+        width: 214
+        height: 113
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bff530128080e9d4aa0e44025d5b95e0
+      internalID: 1839048760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_9
+      rect:
+        serializedVersion: 2
+        x: 1643
+        y: 4309
+        width: 214
+        height: 113
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e83b139e1afc99d438c9a7d51ea41635
+      internalID: 1484172393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_10
+      rect:
+        serializedVersion: 2
+        x: 1894
+        y: 4323
+        width: 97
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 70e3852f7c6bfaa448fa05908a246ba6
+      internalID: 1119782752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_11
+      rect:
+        serializedVersion: 2
+        x: 2027
+        y: 4323
+        width: 95
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2ea0f535cca8ceb4d8e4fa8e14415008
+      internalID: -605254698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_12
+      rect:
+        serializedVersion: 2
+        x: 2162
+        y: 4329
+        width: 86
+        height: 89
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c99c6dc0ad7740c4594bc4cf234d51d9
+      internalID: 775938717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_13
+      rect:
+        serializedVersion: 2
+        x: 2295
+        y: 4329
+        width: 86
+        height: 89
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bca8b934bef97c346904b7b9dbd955d7
+      internalID: 1498714599
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_14
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 4145
+        width: 574
+        height: 61
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7409f5e98e95df4498a408fa23a15db1
+      internalID: -55464716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_15
+      rect:
+        serializedVersion: 2
+        x: 672
+        y: 4085
+        width: 56
+        height: 121
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 368f950e052af084b884c96d4eb42734
+      internalID: -1236026236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_16
+      rect:
+        serializedVersion: 2
+        x: 781
+        y: 4129
+        width: 575
+        height: 77
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6a75729e00be67d4b8b288a170f54391
+      internalID: -1778557442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_17
+      rect:
+        serializedVersion: 2
+        x: 1394
+        y: 4129
+        width: 575
+        height: 77
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c766efb8ee7a2045950aea9703bf540
+      internalID: 549940088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_18
+      rect:
+        serializedVersion: 2
+        x: 2006
+        y: 4129
+        width: 575
+        height: 77
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 89b9a0e4213f4c54a86c162b8baf5836
+      internalID: 928357040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_19
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 3880
+        width: 538
+        height: 130
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be8235aa20eb75040ba41f977115cb32
+      internalID: -300311822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_20
+      rect:
+        serializedVersion: 2
+        x: 618
+        y: 3896
+        width: 657
+        height: 114
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b9666526c1bf2e84499b0afcf026b218
+      internalID: 1644285272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_21
+      rect:
+        serializedVersion: 2
+        x: 1310
+        y: 3950
+        width: 616
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 13590f627902a3a4580a02892b4d65b1
+      internalID: -154885495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_22
+      rect:
+        serializedVersion: 2
+        x: 1962
+        y: 3887
+        width: 118
+        height: 123
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 681d0842d0ce25343ae9b3c7d17367c2
+      internalID: -955242263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_23
+      rect:
+        serializedVersion: 2
+        x: 2118
+        y: 3887
+        width: 118
+        height: 123
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f7c428017bd839c4bb096ea0ba422946
+      internalID: -82223192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_24
+      rect:
+        serializedVersion: 2
+        x: 2274
+        y: 3887
+        width: 118
+        height: 123
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 84ec76f91fc6cf34aa798aa4370b273e
+      internalID: -438900976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_25
+      rect:
+        serializedVersion: 2
+        x: 2430
+        y: 3887
+        width: 118
+        height: 123
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0143118623421584c8011f1da9a247b5
+      internalID: -590945820
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_26
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 3615
+        width: 538
+        height: 195
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f12b42b16a805d4cbc3982576404c50
+      internalID: 541146658
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_27
+      rect:
+        serializedVersion: 2
+        x: 618
+        y: 3647
+        width: 417
+        height: 163
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: afa33dd132a3df347b130937dc9fc750
+      internalID: -1287047249
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_28
+      rect:
+        serializedVersion: 2
+        x: 1082
+        y: 3424
+        width: 372
+        height: 374
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 58055230e2806be42a20998bf1817dc7
+      internalID: 31107090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_29
+      rect:
+        serializedVersion: 2
+        x: 1531
+        y: 3584
+        width: 154
+        height: 210
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: db97b8df83a295542899803fbc0815ac
+      internalID: 187175336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_30
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 3634
+        width: 300
+        height: 160
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: abee078a844a3584882daf02590bd169
+      internalID: 471968423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_31
+      rect:
+        serializedVersion: 2
+        x: 2095
+        y: 3752
+        width: 435
+        height: 44
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 30c140a3ee3af3745b1649f867fe0a67
+      internalID: -764439306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_32
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 2644
+        width: 938
+        height: 691
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5269cb7f7bd401e47a246f1c0ce43d47
+      internalID: -351453083
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_33
+      rect:
+        serializedVersion: 2
+        x: 1017
+        y: 2763
+        width: 818
+        height: 614
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 843dec1f0e94b684bbb70292c03d4165
+      internalID: 1288380795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_34
+      rect:
+        serializedVersion: 2
+        x: 1862
+        y: 2988
+        width: 416
+        height: 363
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 874d7006ac12ada4185a34132d23d77d
+      internalID: -625022595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_35
+      rect:
+        serializedVersion: 2
+        x: 2323
+        y: 3037
+        width: 479
+        height: 305
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d2043c0441bcb0641a32361d3ca371e4
+      internalID: 924283643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_36
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 2136
+        width: 617
+        height: 452
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f618017dc4596b64ab84139a406b3be9
+      internalID: 1822145345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_37
+      rect:
+        serializedVersion: 2
+        x: 697
+        y: 2136
+        width: 617
+        height: 438
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: df2860daab19f4948bd860d9db09dac9
+      internalID: 774228622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_38
+      rect:
+        serializedVersion: 2
+        x: 1349
+        y: 2136
+        width: 617
+        height: 438
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c5470131e08d276429d4241f71ed4d07
+      internalID: 182667935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_39
+      rect:
+        serializedVersion: 2
+        x: 2001
+        y: 2136
+        width: 617
+        height: 473
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6633a28c978321a49abbf4a1a6b07900
+      internalID: -2059804368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_40
+      rect:
+        serializedVersion: 2
+        x: 2653
+        y: 2136
+        width: 617
+        height: 438
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1ee27d349dda088469247ab95323ded2
+      internalID: 1987987647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_41
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 1633
+        width: 612
+        height: 433
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 22b764abe04c3e3498a3801c1c28f7c9
+      internalID: -1720121720
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_42
+      rect:
+        serializedVersion: 2
+        x: 697
+        y: 1627
+        width: 617
+        height: 439
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 50e93da8ba17c5249806907672c82ee3
+      internalID: -949538744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_43
+      rect:
+        serializedVersion: 2
+        x: 55
+        y: 1459
+        width: 91
+        height: 90
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b1e484e3836d7434a91696d136e1b3da
+      internalID: 844051918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_44
+      rect:
+        serializedVersion: 2
+        x: 225
+        y: 1470
+        width: 18
+        height: 68
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 379657bf1544a2c469d32deacc113c40
+      internalID: -1668962764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_45
+      rect:
+        serializedVersion: 2
+        x: 253
+        y: 1470
+        width: 18
+        height: 68
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 28d6d01424fcbc94da3ab4e53ec42228
+      internalID: -862430414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_46
+      rect:
+        serializedVersion: 2
+        x: 371
+        y: 1473
+        width: 56
+        height: 62
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c5b62c75a6ef724c9501746b23bfb4c
+      internalID: 2080314546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_47
+      rect:
+        serializedVersion: 2
+        x: 511
+        y: 1473
+        width: 68
+        height: 62
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8e28079a83bd94a4494c53f1fc24dda1
+      internalID: -1896736101
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_48
+      rect:
+        serializedVersion: 2
+        x: 656
+        y: 1473
+        width: 72
+        height: 65
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 48a9b43f9e835ee4986dd329eec349a7
+      internalID: -986962914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_49
+      rect:
+        serializedVersion: 2
+        x: 809
+        y: 1468
+        width: 63
+        height: 70
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61616c5155e887644ac79c64982555fe
+      internalID: -887793434
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_50
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 1463
+        width: 51
+        height: 79
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 737045667cfce5e42a934dc6047d819b
+      internalID: -782810906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_51
+      rect:
+        serializedVersion: 2
+        x: 1107
+        y: 1470
+        width: 56
+        height: 70
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d508ed32ad20fb94f8bd03404976b920
+      internalID: 790087804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_52
+      rect:
+        serializedVersion: 2
+        x: 1247
+        y: 1473
+        width: 74
+        height: 69
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 06edb7ef9417e8d48baccf72e3bccb3d
+      internalID: -1700809609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_53
+      rect:
+        serializedVersion: 2
+        x: 1396
+        y: 1473
+        width: 72
+        height: 69
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e9abfefd829dc434592aa2af7e9ee876
+      internalID: 1019304064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_54
+      rect:
+        serializedVersion: 2
+        x: 1545
+        y: 1473
+        width: 67
+        height: 62
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1fe08fae5e333384a9490493384cc690
+      internalID: 1313629945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_55
+      rect:
+        serializedVersion: 2
+        x: 1696
+        y: 1473
+        width: 68
+        height: 62
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cd6fd0be65f3426488052e2aa005e90b
+      internalID: 1567303032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_56
+      rect:
+        serializedVersion: 2
+        x: 1845
+        y: 1473
+        width: 63
+        height: 67
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5360f3a953b5cb54988f1c27fb46bd17
+      internalID: 1648450214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_57
+      rect:
+        serializedVersion: 2
+        x: 1992
+        y: 1468
+        width: 63
+        height: 67
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d52b24669452dd4d8bcef7a07011682
+      internalID: -897059921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_58
+      rect:
+        serializedVersion: 2
+        x: 2141
+        y: 1475
+        width: 61
+        height: 58
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0da498ce6fc298e45abcb3fffa8d8b44
+      internalID: 179451936
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_59
+      rect:
+        serializedVersion: 2
+        x: 2283
+        y: 1466
+        width: 75
+        height: 76
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2d7f93a3f01e1454e8e4feb36117c5fe
+      internalID: -429242571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_60
+      rect:
+        serializedVersion: 2
+        x: 2430
+        y: 1473
+        width: 77
+        height: 67
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 00bbdd84aeeec5848985422ab03c42ad
+      internalID: -859532487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_61
+      rect:
+        serializedVersion: 2
+        x: 2582
+        y: 1470
+        width: 67
+        height: 68
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 77ae40b90f449e545aaf0ecc2950139c
+      internalID: -43775040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_62
+      rect:
+        serializedVersion: 2
+        x: 2730
+        y: 1470
+        width: 68
+        height: 68
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 16c8428a8d7ee90429a3c2e8954f537e
+      internalID: 220698910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_63
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 1172
+        width: 657
+        height: 203
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5363b0da4fa89324b89bdaf806ceb50e
+      internalID: 2035838434
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_64
+      rect:
+        serializedVersion: 2
+        x: 737
+        y: 1172
+        width: 658
+        height: 203
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ed3c1393ef191384c96e9d310a844d65
+      internalID: 510920788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_65
+      rect:
+        serializedVersion: 2
+        x: 1431
+        y: 1172
+        width: 656
+        height: 203
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 94919d467207b2b4c9f613ca03ad70e2
+      internalID: -1732895026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_66
+      rect:
+        serializedVersion: 2
+        x: 2134
+        y: 1270
+        width: 84
+        height: 95
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9403a8e7725f2bf4fb055b01e37e1ee7
+      internalID: -1333075473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_67
+      rect:
+        serializedVersion: 2
+        x: 2283
+        y: 1270
+        width: 83
+        height: 95
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60487851f6685394fb2d1a1208507f5d
+      internalID: -1596012566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_68
+      rect:
+        serializedVersion: 2
+        x: 2430
+        y: 1270
+        width: 84
+        height: 95
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4ef88717333ac0b459504e6657a8b943
+      internalID: 1424074979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_69
+      rect:
+        serializedVersion: 2
+        x: 2566
+        y: 1212
+        width: 417
+        height: 169
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 547946f71cb67ce4fa7ce0eac8e6d7c3
+      internalID: 448185263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_70
+      rect:
+        serializedVersion: 2
+        x: 3019
+        y: 1300
+        width: 184
+        height: 77
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 393c4dfdf8b45324099c82bbfe804bec
+      internalID: 2130771975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_71
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 844
+        width: 456
+        height: 263
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 767fdb09f7f435145ab2e7ced2a36c0c
+      internalID: -1477572944
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_72
+      rect:
+        serializedVersion: 2
+        x: 534
+        y: 844
+        width: 457
+        height: 263
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7e3a8d905d68624993dbd52831250e9
+      internalID: -859299517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_73
+      rect:
+        serializedVersion: 2
+        x: 1028
+        y: 844
+        width: 456
+        height: 263
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: babe9bd92322e3b4d8460e05345be3e5
+      internalID: -541888345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_74
+      rect:
+        serializedVersion: 2
+        x: 1519
+        y: 844
+        width: 457
+        height: 263
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 77844abe7a70063449f557ea048a4da6
+      internalID: -401371960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_75
+      rect:
+        serializedVersion: 2
+        x: 2011
+        y: 844
+        width: 456
+        height: 263
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f689a2703b687bf41a531bbc6fefa630
+      internalID: -1963782325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_76
+      rect:
+        serializedVersion: 2
+        x: 2503
+        y: 844
+        width: 455
+        height: 263
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2f9664ff5afc6524a9cc4a14ec195635
+      internalID: -1096959829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_77
+      rect:
+        serializedVersion: 2
+        x: 3012
+        y: 995
+        width: 95
+        height: 98
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 574578dc6f7450c47b7d2465260bf834
+      internalID: 180174238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_78
+      rect:
+        serializedVersion: 2
+        x: 3173
+        y: 993
+        width: 102
+        height: 102
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 629343524ac8b7f48b1875baaf320703
+      internalID: -2047531320
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_79
+      rect:
+        serializedVersion: 2
+        x: 55
+        y: 662
+        width: 107
+        height: 107
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f9494b565b72af48a718802021a7a21
+      internalID: -1277807770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_80
+      rect:
+        serializedVersion: 2
+        x: 222
+        y: 458
+        width: 293
+        height: 309
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d6f9d2f7c39aef4c8fe3070f2525c72
+      internalID: 1632791700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_81
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 176
+        width: 361
+        height: 200
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7be08a6897dc4c44bafa9ad3f323cb0e
+      internalID: -951521646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_82
+      rect:
+        serializedVersion: 2
+        x: 493
+        y: 178
+        width: 363
+        height: 198
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 06fe5a539a6baca41bc4ea9364d02d27
+      internalID: 1274829810
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_83
+      rect:
+        serializedVersion: 2
+        x: 926
+        y: 211
+        width: 242
+        height: 163
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ac56f3f366b8694e8032a90509b9c71
+      internalID: 574279681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_84
+      rect:
+        serializedVersion: 2
+        x: 1238
+        y: 208
+        width: 172
+        height: 152
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aaa396af56bfd5d4c9ddf8f2c86ed41f
+      internalID: -235083945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_85
+      rect:
+        serializedVersion: 2
+        x: 1482
+        y: 208
+        width: 172
+        height: 152
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 539eb31b1d059dc44b0f406159e62eeb
+      internalID: -630421423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_86
+      rect:
+        serializedVersion: 2
+        x: 1725
+        y: 208
+        width: 174
+        height: 152
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 10dcaed3cb1c19b42a50384f5d073e07
+      internalID: 69760646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_87
+      rect:
+        serializedVersion: 2
+        x: 1973
+        y: 78
+        width: 194
+        height: 303
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2d8c9149607bfd348b35a18b6e49e890
+      internalID: -395043374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 270f83d8c3efa42469332ce2a0ea194e
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":1,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      professor_ui_sheet@2x_0: 1450430760
+      professor_ui_sheet@2x_1: 1861875749
+      professor_ui_sheet@2x_10: 1119782752
+      professor_ui_sheet@2x_11: -605254698
+      professor_ui_sheet@2x_12: 775938717
+      professor_ui_sheet@2x_13: 1498714599
+      professor_ui_sheet@2x_14: -55464716
+      professor_ui_sheet@2x_15: -1236026236
+      professor_ui_sheet@2x_16: -1778557442
+      professor_ui_sheet@2x_17: 549940088
+      professor_ui_sheet@2x_18: 928357040
+      professor_ui_sheet@2x_19: -300311822
+      professor_ui_sheet@2x_2: -1381395275
+      professor_ui_sheet@2x_20: 1644285272
+      professor_ui_sheet@2x_21: -154885495
+      professor_ui_sheet@2x_22: -955242263
+      professor_ui_sheet@2x_23: -82223192
+      professor_ui_sheet@2x_24: -438900976
+      professor_ui_sheet@2x_25: -590945820
+      professor_ui_sheet@2x_26: 541146658
+      professor_ui_sheet@2x_27: -1287047249
+      professor_ui_sheet@2x_28: 31107090
+      professor_ui_sheet@2x_29: 187175336
+      professor_ui_sheet@2x_3: -874957535
+      professor_ui_sheet@2x_30: 471968423
+      professor_ui_sheet@2x_31: -764439306
+      professor_ui_sheet@2x_32: -351453083
+      professor_ui_sheet@2x_33: 1288380795
+      professor_ui_sheet@2x_34: -625022595
+      professor_ui_sheet@2x_35: 924283643
+      professor_ui_sheet@2x_36: 1822145345
+      professor_ui_sheet@2x_37: 774228622
+      professor_ui_sheet@2x_38: 182667935
+      professor_ui_sheet@2x_39: -2059804368
+      professor_ui_sheet@2x_4: 390762886
+      professor_ui_sheet@2x_40: 1987987647
+      professor_ui_sheet@2x_41: -1720121720
+      professor_ui_sheet@2x_42: -949538744
+      professor_ui_sheet@2x_43: 844051918
+      professor_ui_sheet@2x_44: -1668962764
+      professor_ui_sheet@2x_45: -862430414
+      professor_ui_sheet@2x_46: 2080314546
+      professor_ui_sheet@2x_47: -1896736101
+      professor_ui_sheet@2x_48: -986962914
+      professor_ui_sheet@2x_49: -887793434
+      professor_ui_sheet@2x_5: 1686064317
+      professor_ui_sheet@2x_50: -782810906
+      professor_ui_sheet@2x_51: 790087804
+      professor_ui_sheet@2x_52: -1700809609
+      professor_ui_sheet@2x_53: 1019304064
+      professor_ui_sheet@2x_54: 1313629945
+      professor_ui_sheet@2x_55: 1567303032
+      professor_ui_sheet@2x_56: 1648450214
+      professor_ui_sheet@2x_57: -897059921
+      professor_ui_sheet@2x_58: 179451936
+      professor_ui_sheet@2x_59: -429242571
+      professor_ui_sheet@2x_6: 1827227147
+      professor_ui_sheet@2x_60: -859532487
+      professor_ui_sheet@2x_61: -43775040
+      professor_ui_sheet@2x_62: 220698910
+      professor_ui_sheet@2x_63: 2035838434
+      professor_ui_sheet@2x_64: 510920788
+      professor_ui_sheet@2x_65: -1732895026
+      professor_ui_sheet@2x_66: -1333075473
+      professor_ui_sheet@2x_67: -1596012566
+      professor_ui_sheet@2x_68: 1424074979
+      professor_ui_sheet@2x_69: 448185263
+      professor_ui_sheet@2x_7: -1948382399
+      professor_ui_sheet@2x_70: 2130771975
+      professor_ui_sheet@2x_71: -1477572944
+      professor_ui_sheet@2x_72: -859299517
+      professor_ui_sheet@2x_73: -541888345
+      professor_ui_sheet@2x_74: -401371960
+      professor_ui_sheet@2x_75: -1963782325
+      professor_ui_sheet@2x_76: -1096959829
+      professor_ui_sheet@2x_77: 180174238
+      professor_ui_sheet@2x_78: -2047531320
+      professor_ui_sheet@2x_79: -1277807770
+      professor_ui_sheet@2x_8: 1839048760
+      professor_ui_sheet@2x_80: 1632791700
+      professor_ui_sheet@2x_81: -951521646
+      professor_ui_sheet@2x_82: 1274829810
+      professor_ui_sheet@2x_83: 574279681
+      professor_ui_sheet@2x_84: -235083945
+      professor_ui_sheet@2x_85: -630421423
+      professor_ui_sheet@2x_86: 69760646
+      professor_ui_sheet@2x_87: -395043374
+      professor_ui_sheet@2x_9: 1484172393
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

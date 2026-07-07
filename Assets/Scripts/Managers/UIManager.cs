@@ -69,8 +69,14 @@ public class UIManager : MonoBehaviour
 
     public void UpdateTimer(float currentTime, float maxTime)
     {
-        if (timerText != null) timerText.text = $"Tiempo Restante: {Mathf.RoundToInt(currentTime)}s"; 
+        if (timerText != null) 
+        {
+            int minutes = Mathf.FloorToInt(currentTime / 60f);
+            int seconds = Mathf.FloorToInt(currentTime % 60f);
+            timerText.text = $"{minutes:D2}:{seconds:D2}";
+        }
         if (timerSlider != null) timerSlider.value = currentTime / maxTime; 
+   
     }
 
     public void UpdateDropouts(int currentDropouts, int maxDropouts)

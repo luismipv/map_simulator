@@ -15,4 +15,4 @@ MonoBehaviour:
   layoutName: "Sal\xF3n Nuevo"
   layoutPrefab: {fileID: 6839533007988571479, guid: 4ad7dca08a02544cc9773c59feb3d8f3, type: 3}
   idealCameraPosition: {x: 28, y: 15, z: -7.5}
-  idealCameraSize: 14
+  idealCameraSize: 13.33

@@ -8,16 +8,16 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [Header("Asigna la herramienta aquí")]
     public TeacherTool assignedTool; // ¡Aquí arrastras tu Scriptable Object!
 
-    [Header("Referencias Visuales")] // ¡NUEVO!
+    [Header("Referencias Visuales")] 
     public TextMeshProUGUI buttonText;
 
     private Image buttonImage;
     private Button buttonComponent;
-    private Logic gameLogic;
+    
+    // ¡ELIMINAMOS la referencia a 'Logic' porque ese script ya no existe!
 
     void Start()
     {
-        gameLogic = Object.FindAnyObjectByType<Logic>();
         buttonImage = GetComponent<Image>();
         buttonComponent = GetComponent<Button>();
 
@@ -44,10 +44,15 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     private void SelectThisTool()
     {
-        if (gameLogic != null && assignedTool != null)
+        // Ahora nos comunicamos directamente con el nuevo jefe: ToolManager
+        if (ToolManager.Instance != null && assignedTool != null)
         {
             ToolManager.Instance.SelectTool(assignedTool);
-            AudioManager.Instance.PostEvent("UI_Button_Press", this.gameObject); //SONIDO
+            
+            if (AudioManager.Instance != null) 
+            {
+                AudioManager.Instance.PostEvent("UI_Button_Press", this.gameObject); //SONIDO
+            }
         }
     }
 
@@ -59,7 +64,6 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         if (assignedTool != null)
         {
-            //Debug.Log($"Mouse encima de: {assignedTool.toolName} -> Desc: {assignedTool.toolDescription}");
             // AQUÍ: Más adelante llamaremos a tu panel de Tooltip UI para mostrar la descripción
         }
     }
@@ -67,10 +71,9 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void OnPointerExit(PointerEventData eventData)
     {
         // AQUÍ: Más adelante ocultaremos el panel de Tooltip UI
-        //Debug.Log("El mouse salió del botón.");
     }
 
-        // ==================================================
+    // ==================================================
     // --- ACTUALIZACIÓN VISUAL DEL BOTÓN ---
     // ==================================================
     public void UpdateVisualState(TeacherTool activeTool, Color normalColor, Color selectedColor)
@@ -82,7 +85,7 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
 
-      // ==================================================
+    // ==================================================
     // --- MAGIA DEL EDITOR (SE EJECUTA SIN DARLE PLAY) ---
     // ==================================================
     private void OnValidate()

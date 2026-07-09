@@ -107,5 +107,7 @@ public class StudentVFX : MonoBehaviour
             finished.gameObject.SetActive(false);
         if (fire != null)
             fire.gameObject.SetActive(false);
+        if (flow != null)
+            flow.gameObject.SetActive(false);
     }
 }

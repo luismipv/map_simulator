@@ -145,23 +145,27 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         ShowBubble("¡Listo! ¿Quién necesita ayuda?", Color.yellow);
         AudioManager.Instance.PostEvent("Student_Finished", this.gameObject); 
+        TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentTutor);
         learningLevel = maxLearning; 
         RemoveLearningModifier(ModifierID.Panico);
     }
     else if (currentState == StudentState.Flow) 
     {
         currentFlowTimer = flowDuration;
+        TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentFlow);
     }
     else if (currentState == StudentState.Burnout)
     {
         currentBurnoutTimer = burnoutTimeLimit;
         ModifyLearningInstant(-20f); 
         AudioManager.Instance.PostEvent("Student_BurnedOut", this.gameObject); 
+        TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentBurnout);
     }
     else if (currentState == StudentState.Distracted) 
     {
         contagionTimer = contagionInterval;
         RemoveLearningModifier(ModifierID.Panico);
+        TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentDistracted);
     }
     else if (currentState == StudentState.Resting) 
     {
@@ -201,27 +205,33 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             AddStressModifier(ModifierID.FaltaPoco, logicManager.currentSemesterMultiplier);
         }
 
+        float pacingMultiplier = 1f;
+        if (logicManager != null && logicManager.currentLevel != null)
+        {
+            pacingMultiplier = logicManager.currentLevel.learningSpeedMultiplier;
+        }
+
         switch (currentState)
         {
             case StudentState.Resting:
-                stressLevel -= restingRecoveryRate * Time.deltaTime;
+                stressLevel -= restingRecoveryRate * pacingMultiplier * Time.deltaTime;
                 learningLevel -= (restingRecoveryRate * 0.05f) * Time.deltaTime;
                 currentRestTimer -= Time.deltaTime;
-                if (currentRestTimer <= 0f) ChangeState(StudentState.Working);
+                if (currentRestTimer <= 0f || stressLevel <= 0f) ChangeState(StudentState.Working);
                 break;
             
             case StudentState.Working:
-                stressLevel += (workingStressRate * GetTotalStressMultiplier()) * Time.deltaTime;
-                learningLevel += (workingLearningRate * GetTotalLearningMultiplier()) * Time.deltaTime; 
+                stressLevel += (workingStressRate * GetTotalStressMultiplier() * pacingMultiplier) * Time.deltaTime;
+                learningLevel += (workingLearningRate * GetTotalLearningMultiplier() * pacingMultiplier) * Time.deltaTime; 
                 break;
 
             case StudentState.Flow:
-                stressLevel += (flowStressRate * GetTotalStressMultiplier()) * Time.deltaTime;
-                learningLevel += (flowLearningRate * GetTotalLearningMultiplier()) * Time.deltaTime; 
+                stressLevel += (flowStressRate * GetTotalStressMultiplier() * pacingMultiplier) * Time.deltaTime;
+                learningLevel += (flowLearningRate * GetTotalLearningMultiplier() * pacingMultiplier) * Time.deltaTime; 
                 break;
 
             case StudentState.Burnout:
-                learningLevel -= (flowLearningRate * 0.5f) * Time.deltaTime; 
+                learningLevel -= (flowLearningRate * 0.5f) * pacingMultiplier * Time.deltaTime; 
                 currentBurnoutTimer -= Time.deltaTime;
                 if (currentBurnoutTimer <= 0f) ChangeState(StudentState.DroppedOut);
                 break;
@@ -232,7 +242,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 break;
 
             case StudentState.Distracted:
-                stressLevel -= (restingRecoveryRate * 0.1f) * Time.deltaTime; 
+                stressLevel -= (restingRecoveryRate * 0.1f) * pacingMultiplier * Time.deltaTime; 
                 contagionTimer -= Time.deltaTime;
                 if (contagionTimer <= 0f)
                 {
@@ -265,44 +275,40 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         if (stressLevel >= maxStress && currentState != StudentState.Burnout) { ChangeState(StudentState.Burnout); return; }
         
-        // --- BALANCEO CÓDIGO SEGURO: EL FLOJO (SLACKER) ---
-        if (personalityData != null && personalityData.personalityType == StudentPersonality.Slacker)
+        // 1. Leemos si el nivel permite distracciones
+        bool distraccionesPermitidas = true;
+        if (logicManager != null && logicManager.currentLevel != null)
         {
-            if (currentState == StudentState.Working)
-            {
-                // Si está muy relajado, se distrae (Balanceado al 8% de probabilidad)
-                if (stressLevel < 40f)
-                {
-                    if (UnityEngine.Random.value < 0.08f * Time.deltaTime)
-                    {
-                        ChangeState(StudentState.Distracted);
-                    }
-                }
-                // ACELERÓN DE PÁNICO: Estrés crítico = Aprende al doble usando el Enum
-                else if (stressLevel >= 80f)
-                {
-                    AddLearningModifier(ModifierID.Panico, 2.0f);
-                }
-                // Si regresa al rango intermedio, limpiamos el pánico
-                else
-                {
-                    RemoveLearningModifier(ModifierID.Panico);
-                }
-            }
+            distraccionesPermitidas = logicManager.currentLevel.enableDistractions;
         }
-        else if (currentState == StudentState.Resting && stressLevel <= 5f)
+
+        // 2. ¡EL ESTUDIANTE LE PREGUNTA A SU PERSONALIDAD QUÉ HACER!
+        if (personalityData != null)
         {
-            if (UnityEngine.Random.value < 0.35f * Time.deltaTime)
+            personalityData.EvaluateSpecialBehaviors(this, distraccionesPermitidas);
+        }
+
+        // 3. Reglas Generales que aplican para TODOS
+        if (currentState == StudentState.Resting && stressLevel <= 5f && distraccionesPermitidas)
+        {
+            // Calculamos la probabilidad basándonos en la variable de la personalidad
+            float chanceBase = (personalityData != null) ? personalityData.distractionProbability : 5f;
+            float probabilidadConvertida = chanceBase / 100f; 
+
+            if (UnityEngine.Random.value < probabilidadConvertida * Time.deltaTime)
             {
                 ChangeState(StudentState.Distracted);
-                //dialogBubble.ShowBubble("*Distraído*");
-                AudioManager.Instance.PostEvent("Student_Distracted",this.gameObject); //SONIDO
-                ShowBubble("Distraído!", Color.orange);
+                if (AudioManager.Instance != null) AudioManager.Instance.PostEvent("Student_Distracted", this.gameObject); 
+                ShowBubble("Ya me aburrí...", Color.orange);
             } 
         }
 
+
+
         if (currentState == StudentState.Working && learningLevel > 50f && stressLevel >= 60f && stressLevel < 75f) 
+        {
             ChangeState(StudentState.Flow);
+        }
     }
 
     // --- INTERFAZ PÚBLICA SEGURA PARA COMPONENTES Y HERRAMIENTAS EXTEALAS ---

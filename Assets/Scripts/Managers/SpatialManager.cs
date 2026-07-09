@@ -34,6 +34,32 @@ public class SpatialManager : MonoBehaviour
     public void UpdateSpatialEffects(bool spawnParticles = false)
     {
         Student[] todosLosAlumnos = FindObjectsByType<Student>(FindObjectsSortMode.None);
+        
+        // --- ¡NUEVO CANDADO TUTORIAL! ---
+        bool efectosHabilitados = true;
+        if (Logic.Instance != null && Logic.Instance.currentLevel != null)
+        {
+            efectosHabilitados = Logic.Instance.currentLevel.enableSpatialEffects;
+        }
+
+        // Si los efectos están apagados (ej. Tutorial 1), limpiamos a todos y abortamos.
+        if (!efectosHabilitados)
+        {
+            neighborGraph.Clear(); // Vaciamos el radar
+            foreach (Student s in todosLosAlumnos)
+            {
+                if (s != null)
+                {
+                    s.RemoveLearningModifier(ModifierID.Entorno);
+                    s.RemoveLearningModifier(ModifierID.Sinergia);
+                    s.RemoveStressModifier(ModifierID.Sinergia);
+                    s.RemoveLearningModifier(ModifierID.Tutor);
+                }
+            }
+            return; // ¡Salimos de la función sin calcular distancias!
+        }
+        // ---------------------------------
+
         HashSet<string> parejasActuales = new HashSet<string>();
 
         Dictionary<Student, float> tempEntornoLearning = new Dictionary<Student, float>();
@@ -53,6 +79,7 @@ public class SpatialManager : MonoBehaviour
             neighborGraph[s] = new List<Student>(); 
         }
 
+        // ... El resto de tu función original (los dos for-loops, los if de zFilaFrente, etc.) se queda exactamente igual.
         for (int i = 0; i < todosLosAlumnos.Length; i++)
         {
             Student s = todosLosAlumnos[i];

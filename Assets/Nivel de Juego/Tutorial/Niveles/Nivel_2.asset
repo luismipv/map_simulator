@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d03174db460864b90b1ccbe8c09af1fb, type: 3}
+  m_Name: Nivel_2
+  m_EditorClassIdentifier: Assembly-CSharp::LevelData
+  classroomLayout: {fileID: 11400000, guid: d21d8cf50f3df491683ac0b40c3f980b, type: 2}
+  spawnMode: 1
+  totalRandomStudents: 5
+  fixedStudentRoster:
+  - {fileID: 11400000, guid: f4fb6cb99368c4913a31505024f23104, type: 2}
+  enableTimer: 0
+  enableDistractions: 1
+  enableSynergies: 0
+  enableSpatialEffects: 0
+  isTutorialLevel: 1
+  nextLevel: {fileID: 11400000, guid: 1e84753b5163d40bab3b07f994fe7abf, type: 2}
+  learningSpeedMultiplier: 3
+  tutorialSequences:
+  - noteName: Inicio de Clase
+    triggerType: 0
+    steps:
+    - {fileID: 11400000, guid: d2933311fac56418f86ba6e4e7ee1a43, type: 2}
+    - {fileID: 11400000, guid: 3a73520b3ee4545478222b7357607b3f, type: 2}
+    - {fileID: 11400000, guid: e17f0707a6f154e0e878559eb02a713f, type: 2}
+    - {fileID: 11400000, guid: 6747258a8d9704954b59e065d641a8eb, type: 2}
+    triggerOnlyOnce: 1
+    hasTriggered: 1
+  - noteName: "Distracci\xF3n"
+    triggerType: 4
+    steps:
+    - {fileID: 11400000, guid: 60ddc0663a03740059b9230c0201d752, type: 2}
+    - {fileID: 11400000, guid: 8f571f9ff28d24a87bd04549ce94039a, type: 2}
+    triggerOnlyOnce: 1
+    hasTriggered: 1
+  allowedTools:
+  - {fileID: 11400000, guid: 918485bc529094ce99d8f236287dea9e, type: 2}
+  - {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
+  startingMoney: 0
+  moneyPerPass: 50
+  maxDropouts: 3
+  enableMoneyFines: 0
+  totalPartials: 1
+  initialLearningQuota: 60
+  quotaIncreasePerPartial: 50
+  maxGlobalTimer: 120
+  minGlobalTimer: 70
+  timeReductionPerPartial: 30
+  maxEndSemesterMultiplier: 1

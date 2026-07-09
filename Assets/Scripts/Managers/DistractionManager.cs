@@ -52,6 +52,7 @@ public class DistractionManager : MonoBehaviour
                 source.ShowFloatingText($"¡El chisme pegó! {source.studentName} distrajo a su vecino {target.studentName}",Color.white);
                 target.ShowBubble("Cuenta!", Color.orange);
                 AudioManager.Instance.PostEvent("Student_Distraction_Successful", target.gameObject); //SONIDO
+                TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentDistractedByOtherStudent);
                 //Debug.Log($"¡El chisme pegó! {source.studentName} distrajo a su vecino {target.studentName}");
             }
             else

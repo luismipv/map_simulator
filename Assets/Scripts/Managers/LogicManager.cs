@@ -64,6 +64,8 @@ public class Logic: MonoBehaviour
 
     private void HandleTimer()
     {
+        if (!currentLevel.enableTimer) return;
+
         globalTimer -= Time.deltaTime;
         UIManager.Instance.UpdateTimer(globalTimer, currentMaxTimer);
         UIManager.Instance.UpdateExamUI(globalTimer, 30f, 0.8f);
@@ -133,12 +135,19 @@ public class Logic: MonoBehaviour
 
     public void StartNextPartial()
     {
+        // 1. ¡NUEVO!: APAGAMOS EL PANEL ANTES QUE NADA PARA QUE NO ESTORBE
+        if (UIManager.Instance != null && UIManager.Instance.examResultsPanel != null)
+        {
+            UIManager.Instance.examResultsPanel.SetActive(false);
+        }
+
         currentPartial++;
 
+        // 2. Revisamos si ya terminamos el nivel
         if (currentPartial > currentLevel.totalPartials)
         {
             EndGame(); 
-            return;
+            return; // Como ya apagamos el panel arriba, este return es 100% seguro
         }
 
         partialLearningQuota += currentLevel.quotaIncreasePerPartial; 
@@ -171,7 +180,6 @@ public class Logic: MonoBehaviour
         // Liberamos al maestro
         if (ToolManager.Instance != null) ToolManager.Instance.SetTeacherBusy(false);
 
-        UIManager.Instance.examResultsPanel.SetActive(false);
         UIManager.Instance.gameplayContainer.SetActive(true);
     }
 
@@ -179,11 +187,53 @@ public class Logic: MonoBehaviour
     {
         isGameActive = false;
         Time.timeScale = 0f; 
+        
+        // --- ¡NUEVO!: CHEQUEO DE CADENA DE TUTORIAL ---
+        if (currentLevel != null && currentLevel.isTutorialLevel && currentLevel.nextLevel != null)
+        {
+            // El jugador sobrevivió el nivel tutorial y hay uno siguiente en la cadena.
+            // Cargamos el siguiente nivel.
+            CargarSiguienteNivelTutorial(currentLevel.nextLevel);
+            return; // Salimos para NO mostrar la pantalla de resultados normal.
+        }
+
+        // --- FLUJO NORMAL (Si no es tutorial, o es el último tutorial) ---
         int survivedStudents = totalStudentsThisRound - currentDropouts;
         bool perfectSemester = (currentDropouts == 0);
         
         OnGameOver?.Invoke(true); 
         UIManager.Instance.ShowEndScreen(false, perfectSemester, survivedStudents, currentDropouts, currentLevel.maxDropouts, totalStudentsThisRound);
+    }
+
+    // --- NUEVA FUNCIÓN PARA GESTIONAR EL SALTO ---
+    private void CargarSiguienteNivelTutorial(LevelData nextLevelData)
+    {
+        // 1. Actualizamos el "Cerebro" al nuevo nivel
+        currentLevel = nextLevelData;
+        
+        // 2. Reiniciamos los contadores internos
+        currentPartial = 1;
+        partialLearningQuota = currentLevel.initialLearningQuota;
+        currentMaxTimer = currentLevel.maxGlobalTimer;
+        globalTimer = currentMaxTimer;
+        currentMoney = currentLevel.startingMoney;
+        currentDropouts = 0;
+        
+        // 3. Limpiamos la escena de alumnos viejos
+        foreach (Student s in allStudents)
+        {
+            if (s != null) Destroy(s.gameObject);
+        }
+        allStudents.Clear();
+        homeworkStreak.Clear();
+
+        // 4. Devolvemos el tiempo a la normalidad
+        Time.timeScale = 1f;
+
+        // 5. Arrancamos el nuevo nivel como si acabáramos de darle a "Start"
+        StartGameWithMode();
+        
+        // Opcional: Podrías reproducir un sonido de "Nivel Completado" o poner un fundido a negro aquí.
     }
 
     private void TriggerGameOver()
@@ -203,14 +253,18 @@ public class Logic: MonoBehaviour
     }
 
     public void StartGameWithMode() 
-    {
+    {        
         if (spawner != null) spawner.SpawnStudents(currentLevel);
 
         allStudents = new List<Student>(UnityEngine.Object.FindObjectsByType<Student>(FindObjectsSortMode.None));
         totalStudentsThisRound = allStudents.Count;
+
+        if (ToolManager.Instance != null) ToolManager.Instance.SetTeacherBusy(false);
         
         UIManager.Instance.startMenuPanel.SetActive(false);
         UIManager.Instance.gameplayContainer.SetActive(true);
+        AudioManager.Instance.PostEvent("UI_Button_Press", this.gameObject);
+        TutorialManager.Instance.ReportTrigger(TutorialTrigger.StartOfClass);
         isGameActive = true;
         
         OnGameStarted?.Invoke(); 

@@ -34,6 +34,9 @@ public class StudentPersonalitySO : ScriptableObject
     public float stressRateMod = 1f;
     public float recoveryRateMod = 1f;
 
+    [Header("Probabilidades de Distracción")]
+   [Range(0f, 100f)] public float distractionProbability = 8f;
+
     [Header("Aparición")]
     public int spawnWeight = 10; // 10 será el valor por defecto
 
@@ -69,5 +72,10 @@ public class StudentPersonalitySO : ScriptableObject
             }
         }
         return new GlobalToolReaction { globalTool = globalToolToCheck, stressMod = 1f, learningMod = 1f , successChance = 100f};
+    }
+
+    public virtual void EvaluateSpecialBehaviors(Student student, bool distractionsEnabled)
+    {
+        // Por defecto (Personalidad Normal), no hacen nada raro en el Update.
     }
 }

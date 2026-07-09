@@ -86,6 +86,7 @@ public class Student3D : Student
             case StudentState.Flow:
                 WorkingMultiplier = 1.5f;
                 studentVFX.ActivateFlow();
+                //TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentFlow);
                 break;
             case StudentState.Burnout:
                 Working();
@@ -196,6 +197,8 @@ public class Student3D : Student
                     
                     // SONIDO DE INTERCAMBIO
                     AudioManager.Instance.PostEvent("Student_Change_Seats", this.gameObject); 
+                    TutorialManager.Instance.ReportTrigger(TutorialTrigger.SeatChanged);
+
                     dragExitoso = true;
                 }
             }
@@ -208,6 +211,7 @@ public class Student3D : Student
                 
                 // TU SONIDO DE DROP (Silla vacía)
                 AudioManager.Instance.PostEvent("Student_Drop"); 
+                TutorialManager.Instance.ReportTrigger(TutorialTrigger.SeatChanged);
                 dragExitoso = true;
             }
         }

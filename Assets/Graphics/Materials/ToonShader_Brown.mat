@@ -20,7 +20,7 @@ Material:
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties: 
+  m_LockedProperties: _Max
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -42,11 +42,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Max: 6.77
-    - _Min: 2.4
+    - _Max: 11.82
+    - _Min: 3.07
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Shades: 4.27
+    - _Shades: 0.38
     m_Colors:
     - _Base_Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

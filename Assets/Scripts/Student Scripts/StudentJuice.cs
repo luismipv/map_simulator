@@ -94,6 +94,7 @@ public class StudentJuice : MonoBehaviour
             {
             AudioManager.Instance.PostEvent("Student_About_To_BurnOut", this.gameObject); //SONIDO    
             studentCore.GetStudentVFX().ActivateSmoke();
+            TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentAboutToBurnout);
             }
             isShaking = true;
            // studentCore.IsAboutToBurnOut = true; 

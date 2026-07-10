@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
     [Header("Flujo del Juego")]
     public Slider timerSlider;
     public TextMeshProUGUI timerText;
+    public GameObject timerContainer;
     public TextMeshProUGUI dropoutsText;
     public GameObject busyIndicatorUI;
 

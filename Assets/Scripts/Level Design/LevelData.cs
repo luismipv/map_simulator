@@ -35,7 +35,7 @@ public class LevelData : ScriptableObject
     public LevelData nextLevel;
 
     [Tooltip("Multiplicador de velocidad. 1 = Normal, 2 = Doble de rápido, 3 = Triple. ¡Ideal para que el tutorial sea ágil!")]
-    [Range(1f, 3f)]
+    [Range(1f, 6f)]
     public float learningSpeedMultiplier = 1f;
 
     // ==========================================
@@ -58,6 +58,12 @@ public class LevelData : ScriptableObject
     [Header("Mazo de Herramientas")]
     [Tooltip("Las herramientas que el maestro puede usar en este nivel")]
     public List<TeacherTool> allowedTools; 
+
+
+    // --- ¡LA NUEVA LISTA! ---
+    [Header("Mazo de Herramientas Globales")]
+    [Tooltip("Las herramientas para toda la clase (Ej. Chiste, Examen Sorpresa)")]
+    public List<GlobalTool> allowedGlobalTools;
 
     // ==========================================
     // --- REGLAS GENERALES ---

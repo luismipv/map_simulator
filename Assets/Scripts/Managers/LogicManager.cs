@@ -260,6 +260,13 @@ public class Logic: MonoBehaviour
         totalStudentsThisRound = allStudents.Count;
 
         if (ToolManager.Instance != null) ToolManager.Instance.SetTeacherBusy(false);
+
+        // --- ¡EL INTERRUPTOR DEL RELOJ! ---
+        if (UIManager.Instance != null && UIManager.Instance.timerContainer != null)
+        {
+            UIManager.Instance.timerContainer.SetActive(currentLevel.enableTimer);
+        }
+        // ----------------------------------
         
         UIManager.Instance.startMenuPanel.SetActive(false);
         UIManager.Instance.gameplayContainer.SetActive(true);

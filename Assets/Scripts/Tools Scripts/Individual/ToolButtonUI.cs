@@ -11,8 +11,19 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [Header("Referencias Visuales")] 
     public TextMeshProUGUI buttonText;
 
+    [Header("Configuración de Color")]
+    [Tooltip("El color normal de este botón específico")]
+    public Color baseColor = Color.white; 
+    
+    [Tooltip("Qué tanto aumentará la saturación al seleccionarse (0 a 1)")]
+    [Range(0f, 1f)] public float saturationBoost = 0.5f;
+    
+    [Tooltip("Qué tanto se oscurecerá al seleccionarse (0 a 1)")]
+    [Range(0f, 1f)] public float darknessBoost = 0.7f;
+
     private Image buttonImage;
     private Button buttonComponent;
+    private Color selectedColor; // Lo calculamos en secreto
     
     // ¡ELIMINAMOS la referencia a 'Logic' porque ese script ya no existe!
 
@@ -20,6 +31,16 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         buttonImage = GetComponent<Image>();
         buttonComponent = GetComponent<Button>();
+
+        // --- MAGIA MATEMÁTICA PARA EL COLOR SELECCIONADO ---
+        Color.RGBToHSV(baseColor, out float hue, out float saturation, out float value);
+        
+        // Aumentamos saturación (máximo 1) y bajamos brillo (mínimo 0)
+        float newSaturation = Mathf.Clamp01(saturation + saturationBoost);
+        float newValue = Mathf.Clamp01(value - darknessBoost);
+        
+        // Convertimos de vuelta a RGB y lo guardamos
+        selectedColor = Color.HSVToRGB(hue, newSaturation, newValue);
 
         // Autoconfiguración estilo Mario Maker:
         if (assignedTool != null)
@@ -39,6 +60,12 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
             {
                 buttonComponent.onClick.AddListener(SelectThisTool);
             }
+        }
+
+        // Pintamos el botón con su color normal al iniciar
+        if (buttonImage != null)
+        {
+            buttonImage.color = baseColor;
         }
     }
 
@@ -76,12 +103,14 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     // ==================================================
     // --- ACTUALIZACIÓN VISUAL DEL BOTÓN ---
     // ==================================================
-    public void UpdateVisualState(TeacherTool activeTool, Color normalColor, Color selectedColor)
+    
+    // ¡NUEVO! Ya no recibe colores del Manager, el botón sabe exactamente de qué color pintarse
+    public void UpdateVisualState(TeacherTool activeTool)
     {
         if (buttonImage != null)
         {
-            // Si la herramienta de este botón es la que está activa, se pinta verde. Si no, blanco.
-            buttonImage.color = (assignedTool == activeTool) ? selectedColor : normalColor;
+            // Si la herramienta de este botón es la que está activa, usa la versión saturada y oscura
+            buttonImage.color = (assignedTool == activeTool) ? selectedColor : baseColor;
         }
     }
 

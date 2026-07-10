@@ -71,7 +71,7 @@ public class StudentSpawner : MonoBehaviour
                 rosterToSpawn.Add(GetRandomPersonalityByWeight());
             }
         }
-        else // SpawnMode.ListaFija
+        else // SpawnMode.FixedList
         {
             rosterToSpawn.AddRange(levelData.fixedStudentRoster);
         }
@@ -81,10 +81,23 @@ public class StudentSpawner : MonoBehaviour
 
         for (int i = 0; i < studentsToSpawn; i++)
         {
-            // Silla aleatoria
-            int randomIndex = Random.Range(0, availableSeats.Count);
-            Seat chosenSeat = availableSeats[randomIndex];
-            availableSeats.RemoveAt(randomIndex);
+            Seat chosenSeat;
+
+            // --- ¡LA MAGIA DEL ORDEN! ---
+            if (levelData.spawnMode == SpawnMode.RandomWithWeights)
+            {
+                // Silla aleatoria
+                int randomIndex = Random.Range(0, availableSeats.Count);
+                chosenSeat = availableSeats[randomIndex];
+                availableSeats.RemoveAt(randomIndex);
+            }
+            else
+            {
+                // Orden estricto: Siempre tomamos la primera silla de la lista y la removemos
+                chosenSeat = availableSeats[0];
+                availableSeats.RemoveAt(0);
+            }
+            // ----------------------------
 
             // Crear alumno
             GameObject newStudentObj = Instantiate(studentPrefab, transform.position, Quaternion.identity);

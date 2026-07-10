@@ -7,8 +7,8 @@ public class ToolManager : MonoBehaviour
 
     [Header("Herramientas del Maestro")]
     public TeacherTool currentModularTool;
-    public Color colorNormal = Color.white;       
-    public Color colorSeleccionado = Color.green;
+    //public Color colorNormal = Color.white;       
+    //public Color colorSeleccionado = Color.green;
     public bool isTeacherBusy = false;
     public float toolCooldown = 0.2f; 
     private float lastToolUsageTime = 0f;
@@ -64,12 +64,12 @@ public class ToolManager : MonoBehaviour
     {
         currentModularTool = newTool;
         
-        // También lo ponemos aquí por seguridad
         ToolButtonUI[] allButtons = UnityEngine.Object.FindObjectsByType<ToolButtonUI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         
         foreach (ToolButtonUI btn in allButtons)
         {
-            //btn.UpdateVisualState(currentModularTool, colorNormal, colorSeleccionado);
+            // Ahora solo le mandamos la herramienta, el botón decide su color
+            btn.UpdateVisualState(currentModularTool);
         }
     }
 

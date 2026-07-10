@@ -1,0 +1,214 @@
+{
+  "items": [
+    {
+      "name": "postit_yellow",
+      "left": 80,
+      "bottom": 88,
+      "right": 88,
+      "top": 80
+    },
+    {
+      "name": "postit_pink",
+      "left": 80,
+      "bottom": 88,
+      "right": 88,
+      "top": 80
+    },
+    {
+      "name": "postit_mint",
+      "left": 80,
+      "bottom": 88,
+      "right": 88,
+      "top": 80
+    },
+    {
+      "name": "postit_sky",
+      "left": 80,
+      "bottom": 88,
+      "right": 88,
+      "top": 80
+    },
+    {
+      "name": "postit_orange",
+      "left": 80,
+      "bottom": 88,
+      "right": 88,
+      "top": 80
+    },
+    {
+      "name": "postit_purple",
+      "left": 80,
+      "bottom": 88,
+      "right": 88,
+      "top": 80
+    },
+    {
+      "name": "sticker_yellow",
+      "left": 92,
+      "bottom": 96,
+      "right": 96,
+      "top": 92
+    },
+    {
+      "name": "sticker_pink",
+      "left": 92,
+      "bottom": 96,
+      "right": 96,
+      "top": 92
+    },
+    {
+      "name": "sticker_mint",
+      "left": 92,
+      "bottom": 96,
+      "right": 96,
+      "top": 92
+    },
+    {
+      "name": "sticker_sky",
+      "left": 92,
+      "bottom": 96,
+      "right": 96,
+      "top": 92
+    },
+    {
+      "name": "sticker_orange",
+      "left": 92,
+      "bottom": 96,
+      "right": 96,
+      "top": 92
+    },
+    {
+      "name": "sticker_purple",
+      "left": 92,
+      "bottom": 96,
+      "right": 96,
+      "top": 92
+    },
+    {
+      "name": "card_paper",
+      "left": 56,
+      "bottom": 60,
+      "right": 64,
+      "top": 56
+    },
+    {
+      "name": "card_manila",
+      "left": 56,
+      "bottom": 60,
+      "right": 64,
+      "top": 56
+    },
+    {
+      "name": "card_pressed",
+      "left": 56,
+      "bottom": 60,
+      "right": 64,
+      "top": 56
+    },
+    {
+      "name": "folder_body",
+      "left": 60,
+      "bottom": 64,
+      "right": 68,
+      "top": 60
+    },
+    {
+      "name": "folder_tab",
+      "left": 60,
+      "bottom": 12,
+      "right": 60,
+      "top": 12
+    },
+    {
+      "name": "panel_dots_blank",
+      "left": 52,
+      "bottom": 56,
+      "right": 60,
+      "top": 52
+    },
+    {
+      "name": "panel_grid_blank",
+      "left": 52,
+      "bottom": 56,
+      "right": 60,
+      "top": 52
+    },
+    {
+      "name": "panel_stripes_blank",
+      "left": 52,
+      "bottom": 56,
+      "right": 60,
+      "top": 52
+    },
+    {
+      "name": "btn_sky_blank",
+      "left": 52,
+      "bottom": 60,
+      "right": 64,
+      "top": 52
+    },
+    {
+      "name": "btn_mint_blank",
+      "left": 52,
+      "bottom": 60,
+      "right": 64,
+      "top": 52
+    },
+    {
+      "name": "btn_pink_blank",
+      "left": 52,
+      "bottom": 60,
+      "right": 64,
+      "top": 52
+    },
+    {
+      "name": "btn_lemon_blank",
+      "left": 52,
+      "bottom": 60,
+      "right": 64,
+      "top": 52
+    },
+    {
+      "name": "btn_paper_blank",
+      "left": 52,
+      "bottom": 60,
+      "right": 64,
+      "top": 52
+    },
+    {
+      "name": "btn_paper_pressed",
+      "left": 52,
+      "bottom": 60,
+      "right": 64,
+      "top": 52
+    },
+    {
+      "name": "bar_track",
+      "left": 40,
+      "bottom": 40,
+      "right": 44,
+      "top": 40
+    },
+    {
+      "name": "bar_fill_green",
+      "left": 28,
+      "bottom": 26,
+      "right": 28,
+      "top": 26
+    },
+    {
+      "name": "bar_fill_red",
+      "left": 28,
+      "bottom": 26,
+      "right": 28,
+      "top": 26
+    },
+    {
+      "name": "bar_fill_yellow",
+      "left": 28,
+      "bottom": 26,
+      "right": 28,
+      "top": 26
+    }
+  ]
+}

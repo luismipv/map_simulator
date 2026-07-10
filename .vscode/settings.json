@@ -67,6 +67,6 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "MAP Simulator.slnx",
+    "dotnet.defaultSolution": "map_simulator.sln",
     "dotrush.roslyn.projectOrSolutionFiles": []
 }

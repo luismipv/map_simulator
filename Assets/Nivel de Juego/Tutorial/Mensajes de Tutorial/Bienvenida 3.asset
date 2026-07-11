@@ -15,3 +15,13 @@ MonoBehaviour:
   dialogueText: "Cuidado con su estr\xE9s! Dale un descanso."
   pausesGame: 1
   lockAllTools: 1
+  actionOnDisplay: 0
+  targetSeat: 0
+  forcedBubbleText: 
+  forcedBubbleColor: {r: 1, g: 1, b: 1, a: 1}
+  showArrow: 1
+  pointToStudent: 0
+  uiButtonName: Descanso
+  arrowAngle: -90
+  delayBeforeShowing: 0
+  autoAdvanceDuration: 0

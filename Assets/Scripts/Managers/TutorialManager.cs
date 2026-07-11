@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using TMPro;
 
 public enum TutorialTrigger 
@@ -28,6 +29,7 @@ public class TutorialManager : MonoBehaviour
     private int currentStepIndex = 0;
     private List<TutorialStepSO> currentSequence;
     private bool firstExamTriggered = false; // Para evitar que se repita en el parcial 2 y 3
+    private Coroutine currentStepCoroutine;
 
     void Awake()
     {
@@ -97,26 +99,111 @@ public class TutorialManager : MonoBehaviour
     }
 
     private void ShowCurrentStep()
+{
+    if (currentStepIndex >= currentSequence.Count)
     {
-        // Si ya nos pasamos del último paso, cerramos el tutorial
-        if (currentStepIndex >= currentSequence.Count)
-        {
-            EndSequence();
-            return;
-        }
+        EndSequence();
+        return;
+    }
 
-        TutorialStepSO step = currentSequence[currentStepIndex];
+    if (currentStepCoroutine != null) StopCoroutine(currentStepCoroutine);
+    
+    TutorialStepSO step = currentSequence[currentStepIndex];
+    currentStepCoroutine = StartCoroutine(ProcessStepSequence(step));
+}
+
+// 2. El Motor de Tiempo (Corrutina)
+private IEnumerator ProcessStepSequence(TutorialStepSO step)
+{
+    // DELAY
+    if (step.delayBeforeShowing > 0f)
+    {
+        if (tutorialUIContainer != null) tutorialUIContainer.SetActive(false);
+        ArrowPointer.Instance?.HideArrow();
         
-        // 1. Mostrar el texto
-        if (dialogueTextUI != null) dialogueTextUI.text = step.dialogueText;
+        yield return new WaitForSecondsRealtime(step.delayBeforeShowing);
+    }
 
-        // 2. ¿Pausar el tiempo?
-        Time.timeScale = step.pausesGame ? 0f : 1f;
-
-        // 3. Secuestrar las manos del maestro
-        if (ToolManager.Instance != null)
+    // ARROW SYSTEM
+    if (ArrowPointer.Instance != null)
+    {
+        if (step.showArrow)
         {
-            ToolManager.Instance.SetTeacherBusy(step.lockAllTools);
+            if (step.pointToStudent && Logic.Instance.allStudents.Count > step.targetSeat)
+            {
+                ArrowPointer.Instance.PointTo3D(Logic.Instance.allStudents[step.targetSeat].transform, step.arrowAngle);
+            }
+            else
+            {
+                GameObject uiButton = GameObject.Find(step.uiButtonName);
+                if (uiButton != null) ArrowPointer.Instance.PointToUI(uiButton.GetComponent<RectTransform>(), step.arrowAngle);
+            }
+        }
+        else ArrowPointer.Instance.HideArrow();
+    }
+
+    // GAME STATE & TOOLS
+    Time.timeScale = step.pausesGame ? 0f : 1f;
+    if (ToolManager.Instance != null) ToolManager.Instance.SetTeacherBusy(step.lockAllTools);
+
+    // CINEMATIC ACTION
+    if (step.actionOnDisplay != TutorialAction.None) ExecuteTutorialAction(step);
+
+    // UI VISIBILITY
+    if (string.IsNullOrWhiteSpace(step.dialogueText))
+    {
+        if (tutorialUIContainer != null) tutorialUIContainer.SetActive(false);
+    }
+    else
+    {
+        if (tutorialUIContainer != null) tutorialUIContainer.SetActive(true);
+        if (dialogueTextUI != null) dialogueTextUI.text = step.dialogueText;
+    }
+
+    // AUTO-ADVANCE DURATION
+    if (step.autoAdvanceDuration > 0f)
+    {
+        yield return new WaitForSecondsRealtime(step.autoAdvanceDuration);
+        AdvanceToNextStep(); 
+    }
+}
+
+// 3. La Función para Avanzar
+public void AdvanceToNextStep()
+{
+    currentStepIndex++;
+    ShowCurrentStep();
+}    private void ExecuteTutorialAction(TutorialStepSO step)
+    {
+        if (Logic.Instance == null || Logic.Instance.allStudents == null) return;
+
+        if (step.targetSeat < Logic.Instance.allStudents.Count)
+        {
+            Student alumnoBase = Logic.Instance.allStudents[step.targetSeat];
+            TutorialStudent titere = alumnoBase as TutorialStudent;
+
+            if (titere != null)
+            {
+                switch (step.actionOnDisplay)
+                {
+                    case TutorialAction.ForceDistraction:
+                        titere.ForceDistraction();
+                        break;
+                    case TutorialAction.ForceStress:
+                        titere.ForceBurnoutWarning();
+                        break;
+                    case TutorialAction.ReleasePuppets:
+                        foreach(Student s in Logic.Instance.allStudents)
+                        {
+                            if(s is TutorialStudent t) t.ReleasePuppet();
+                        }
+                        break;
+                    case TutorialAction.ForceDialog:
+                        // ¡AQUÍ ESTÁ TU NUEVO MÉTODO CONECTADO AL INSPECTOR!
+                        titere.ForceDialog(step.forcedBubbleText, step.forcedBubbleColor);
+                        break;
+                }
+            }
         }
     }
 

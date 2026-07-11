@@ -1,18 +1,31 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "PasoTutorial_", menuName = "MAP Simulator/Paso de Tutorial")]
+// Tradujimos el Enum
+public enum TutorialAction { None, ForceDistraction, ForceStress, ReleasePuppets, ForceDialog } 
+
+[CreateAssetMenu(fileName = "TutorialStep_", menuName = "MAP Simulator/Tutorial Step")]
 public class TutorialStepSO : ScriptableObject
 {
-    [Header("Diálogo")]
     [TextArea(3, 5)]
-    [Tooltip("El texto que aparecerá en la ventana de UI")]
     public string dialogueText;
+    public bool pausesGame;
+    public bool lockAllTools;
 
-    [Header("Control de Flujo")]
-    [Tooltip("Si está activo, el tiempo (Time.timeScale) se detendrá mientras se lee esto")]
-    public bool pausesGame = true;
+    [Header("Cinematic Actions")]
+    public TutorialAction actionOnDisplay = TutorialAction.None;
+    public int targetSeat = 0; 
     
-    [Header("Restricciones del Maestro")]
-    [Tooltip("Si está activo, el maestro no podrá usar las herramientas que tenga en su mazo")]
-    public bool lockAllTools = true;
+    [Header("Force Dialog Settings")]
+    public string forcedBubbleText;
+    public Color forcedBubbleColor = Color.white;
+
+    [Header("Guide Arrow System")]
+    public bool showArrow;
+    public bool pointToStudent;
+    public string uiButtonName;
+    public float arrowAngle = 180f; 
+
+    [Header("Time Control (Ignores Pause)")]
+    public float delayBeforeShowing = 0f;
+    public float autoAdvanceDuration = 0f;
 }

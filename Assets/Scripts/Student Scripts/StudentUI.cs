@@ -32,6 +32,8 @@ public class StudentUI : MonoBehaviour
     public GameObject bubbleBackground;
     public GameObject student;
 
+    private Coroutine hideBubbleCoroutine;
+
 
 
     protected struct FloatingTextData
@@ -218,25 +220,24 @@ public class StudentUI : MonoBehaviour
 
     public void ShowBubble(string message, Color color)
     {
-        // Validamos solo lo que la burbuja necesita
         if (bubbleText != null && bubbleBackground != null)
         {
             bubbleBackground.SetActive(true);
             StartCoroutine(PopUpAnimationCoroutine(bubbleBackground));
-            // Asignamos el texto y el color (usando el parámetro en vez del color fijo, si lo deseas)
+            
             TMPro.TextMeshPro textComponent = bubbleText.GetComponent<TMPro.TextMeshPro>();
             if (textComponent != null)
             {
                 textComponent.text = message;
-                textComponent.color = color; // o Color.yellow si prefieres forzarlo siempre
+                textComponent.color = color; 
             }
-            
 
-            // Reiniciamos el contador por si llega un mensaje nuevo antes de que se oculte el anterior
-            CancelInvoke(nameof(HideBubble));
-            Invoke(nameof(HideBubble), 2f); 
+            // --- REEMPLAZO DEL INVOKE ---
+            // Si ya había un temporizador corriendo para ocultarla, lo cancelamos
+            if (hideBubbleCoroutine != null) StopCoroutine(hideBubbleCoroutine);
+            // Iniciamos el nuevo temporizador inmune a la pausa
+            hideBubbleCoroutine = StartCoroutine(HideBubbleRoutine(2f)); 
 
-            // Validamos que el estudiante y el LineRenderer existan antes de trazar la línea
             if (student != null)
             {
                 LineRenderer lr = bubbleBackground.GetComponent<LineRenderer>();
@@ -247,20 +248,23 @@ public class StudentUI : MonoBehaviour
                         student.transform.position + (Vector3.up * 3.5f) 
                     });
                 }
-                else
-                {
-                    Debug.LogWarning("StudentUI: Falta el componente LineRenderer en bubbleBackground.");
-                }
             }
         }
     }
 
+    // El nuevo temporizador
+    private IEnumerator HideBubbleRoutine(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        HideBubble();
+    }
+
     public void HideBubble()
     {
-        if (bubbleBackground != null)
+        // Solo intentamos desinflarla si realmente está prendida
+        if (bubbleBackground != null && bubbleBackground.activeInHierarchy)
         {
-            bubbleBackground.SetActive(false);
-            bubbleText.GetComponent<TMPro.TextMeshPro>().text = "";
+            StartCoroutine(PopDownAnimationCoroutine(bubbleBackground));
         }
     }
 
@@ -268,18 +272,49 @@ public class StudentUI : MonoBehaviour
     {
         float duration = 0.1f; 
         float elapsed = 0f;
-        Vector3 originalScale = popup.transform.localScale;
-        Vector3 targetScale = originalScale * 1.2f; 
+        
+        // Es más seguro usar un tamaño fijo objetivo en lugar de leer el actual, 
+        // por si la corrutina empieza cuando la burbuja apenas va a la mitad.
+        Vector3 targetScale = Vector3.one; 
 
-        while (elapsed < duration) // Escalado hacia arriba
+        while (elapsed < duration) 
         {
-            elapsed += Time.deltaTime;
+            // ¡EL SALVAVIDAS! Usamos unscaledDeltaTime
+            elapsed += Time.unscaledDeltaTime; 
+            
             float t = Mathf.Clamp01(elapsed / duration);
-            popup.transform.localScale = Vector3.Lerp(Vector3.zero, originalScale, t);
+            popup.transform.localScale = Vector3.Lerp(Vector3.zero, targetScale, t);
             yield return null;
         }
-        // Aseguramos que la escala final sea exactamente la original
-        //popup.transform.localScale = originalScale;
+        
+        popup.transform.localScale = targetScale;
+    }
+
+    private IEnumerator PopDownAnimationCoroutine(GameObject popup)
+    {
+        float duration = 0.1f; 
+        float elapsed = 0f;
+        Vector3 startScale = popup.transform.localScale; // Tomamos el tamaño en el que esté
+        
+        // Limpiamos el texto de inmediato para que la burbuja baje vacía (se ve más limpio)
+        if (bubbleText != null)
+        {
+            bubbleText.GetComponent<TMPro.TextMeshPro>().text = "";
+        }
+
+        while (elapsed < duration) 
+        {
+            // ¡Seguimos usando el reloj a prueba de pausas!
+            elapsed += Time.unscaledDeltaTime; 
+            
+            float t = Mathf.Clamp01(elapsed / duration);
+            // Ahora vamos de su tamaño actual hacia cero
+            popup.transform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
+            yield return null;
+        }
+        
+        // Una vez que es invisible (escala 0), por fin apagamos el GameObject
+        popup.SetActive(false);
     }
 
 }

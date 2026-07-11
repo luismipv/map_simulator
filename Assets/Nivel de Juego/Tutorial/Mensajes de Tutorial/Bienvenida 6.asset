@@ -15,3 +15,11 @@ MonoBehaviour:
   dialogueText: "\xA1Uff se estres\xF3! Dale un descanso."
   pausesGame: 1
   lockAllTools: 1
+  accionAlMostrar: 0
+  asientoObjetivo: 0
+  textoBurbujaForzado: 
+  colorBurbujaForzado: {r: 1, g: 1, b: 1, a: 1}
+  mostrarFlecha: 0
+  apuntarAEstudiante: 1
+  nombreBotonUI: 
+  anguloFlecha: 180

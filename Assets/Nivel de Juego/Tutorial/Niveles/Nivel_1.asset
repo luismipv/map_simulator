@@ -22,20 +22,24 @@ MonoBehaviour:
   enableSynergies: 0
   enableSpatialEffects: 0
   isTutorialLevel: 1
+  tutorialStudentPrefabOverride: {fileID: 1433359620011395308, guid: 130cd775d51404fc1b18f719071a01ed, type: 3}
   nextLevel: {fileID: 11400000, guid: a5ab165915cd44595ad3f19cf847ace6, type: 2}
-  learningSpeedMultiplier: 3
+  learningSpeedMultiplier: 6
   tutorialSequences:
   - noteName: 1.Bienvenida
     triggerType: 0
     steps:
     - {fileID: 11400000, guid: bec1ad2d1670e437387cefeef4757bc4, type: 2}
     - {fileID: 11400000, guid: ce42a3724a6cc4ac88116e3bf5695902, type: 2}
+    - {fileID: 11400000, guid: e03bf986ffb4b410d824a9eeca05737b, type: 2}
     triggerOnlyOnce: 1
     hasTriggered: 1
   - noteName: 2.Burnout
     triggerType: 6
     steps:
     - {fileID: 11400000, guid: 59b7f56bbc2d94cbe8c557039714d497, type: 2}
+    - {fileID: 11400000, guid: aef3b13925f8e427a8e7b146dc0e4ce5, type: 2}
+    - {fileID: 11400000, guid: b71c7b01fef9a4dd9a3b87e2b265810d, type: 2}
     triggerOnlyOnce: 1
     hasTriggered: 1
   - noteName: 3.Estado de Flow
@@ -43,19 +47,29 @@ MonoBehaviour:
     steps:
     - {fileID: 11400000, guid: 77ec092fee9af4c17a3705cc7cf82af5, type: 2}
     - {fileID: 11400000, guid: 5cf6ac830b1e44157ad1651c1f2e6f2c, type: 2}
+    - {fileID: 11400000, guid: e998aac4e555d4341b02bdf6ef84a00b, type: 2}
+    triggerOnlyOnce: 1
+    hasTriggered: 0
+  - noteName: 4.Burnout
+    triggerType: 2
+    steps:
+    - {fileID: 11400000, guid: 9d3ac1e38f6e44228a86b2dca5515aca, type: 2}
+    - {fileID: 11400000, guid: d80ec5b5f349e4770901d707239579e7, type: 2}
     triggerOnlyOnce: 1
     hasTriggered: 1
   - noteName: 4.Burnout
     triggerType: 2
     steps:
     - {fileID: 11400000, guid: 9d3ac1e38f6e44228a86b2dca5515aca, type: 2}
+    - {fileID: 11400000, guid: d80ec5b5f349e4770901d707239579e7, type: 2}
     triggerOnlyOnce: 1
-    hasTriggered: 0
+    hasTriggered: 1
   allowedTools:
   - {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
+  allowedGlobalTools: []
   startingMoney: 0
   moneyPerPass: 50
-  maxDropouts: 3
+  maxDropouts: 1
   enableMoneyFines: 0
   totalPartials: 1
   initialLearningQuota: 100

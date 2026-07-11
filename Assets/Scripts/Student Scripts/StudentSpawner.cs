@@ -78,6 +78,8 @@ public class StudentSpawner : MonoBehaviour
 
         // 5. ¡A SPAWNEAR! (Límite: No más alumnos que sillas)
         int studentsToSpawn = Mathf.Min(rosterToSpawn.Count, availableSeats.Count);
+        //Si es tutorial, usamos el prefab especial si está asignado
+        GameObject prefabToUse = (levelData.tutorialStudentPrefabOverride != null) ? levelData.tutorialStudentPrefabOverride : studentPrefab;
 
         for (int i = 0; i < studentsToSpawn; i++)
         {
@@ -100,7 +102,7 @@ public class StudentSpawner : MonoBehaviour
             // ----------------------------
 
             // Crear alumno
-            GameObject newStudentObj = Instantiate(studentPrefab, transform.position, Quaternion.identity);
+            GameObject newStudentObj = Instantiate(prefabToUse, transform.position, Quaternion.identity);
             Student studentScript = newStudentObj.GetComponent<Student>();
 
             chosenSeat.AssignStudent(studentScript);

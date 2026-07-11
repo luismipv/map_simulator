@@ -15,3 +15,11 @@ MonoBehaviour:
   dialogueText: "El objetivo es que tus alumnos aprendan! D\xE9jalo aprender."
   pausesGame: 1
   lockAllTools: 1
+  accionAlMostrar: 0
+  asientoObjetivo: 0
+  textoBurbujaForzado: 
+  colorBurbujaForzado: {r: 1, g: 1, b: 1, a: 1}
+  mostrarFlecha: 0
+  apuntarAEstudiante: 0
+  nombreBotonUI: Descanso
+  anguloFlecha: 180

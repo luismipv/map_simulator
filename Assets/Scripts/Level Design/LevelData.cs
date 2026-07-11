@@ -31,6 +31,9 @@ public class LevelData : ScriptableObject
     [Tooltip("Si está apagado, este será un Nivel Normal y no habrá textos de guía")]
     public bool isTutorialLevel = false;
 
+    [Tooltip("Si este nivel es un tutorial, arrastra aquí tu Prefab del TutorialStudent. Si está vacío, usará el normal.")]
+    public GameObject tutorialStudentPrefabOverride;
+
     [Tooltip("Si es tutorial, arrastra aquí el siguiente nivel (Ej. Nivel_Tutorial_2). Si se deja vacío, terminará normalmente.")]
     public LevelData nextLevel;
 

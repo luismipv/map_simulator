@@ -266,7 +266,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         learningLevel = Mathf.Clamp(learningLevel, 0f, maxLearning);
     }
 
-    private void CheckAutomaticTransitions()
+    protected virtual void CheckAutomaticTransitions()
     {
         if (learningLevel >= maxLearning && currentState != StudentState.Finished && currentState != StudentState.Graduated) 
         { 

@@ -53,10 +53,10 @@ public class ToolManager : MonoBehaviour
             }
         }
 
-        if (currentLevel.allowedTools.Count > 0)
+    /*    if (currentLevel.allowedTools.Count > 0)
         {
             SelectTool(currentLevel.allowedTools[0]);
-        }
+        } */
     }
 
     // --- FUNCIONES CLÁSICAS DEL MANAGER ---

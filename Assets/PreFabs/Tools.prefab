@@ -272,3 +272,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ToolButtonUI
   assignedTool: {fileID: 11400000, guid: 43f2748fd64634d89ae875bf151b8254, type: 2}
   buttonText: {fileID: 5598648366878068518}
+  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  saturationBoost: 0.5
+  darknessBoost: 0.7

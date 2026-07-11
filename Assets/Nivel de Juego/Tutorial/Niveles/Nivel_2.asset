@@ -22,6 +22,7 @@ MonoBehaviour:
   enableSynergies: 0
   enableSpatialEffects: 0
   isTutorialLevel: 1
+  tutorialStudentPrefabOverride: {fileID: 0}
   nextLevel: {fileID: 11400000, guid: 1e84753b5163d40bab3b07f994fe7abf, type: 2}
   learningSpeedMultiplier: 3
   tutorialSequences:
@@ -32,6 +33,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 3a73520b3ee4545478222b7357607b3f, type: 2}
     - {fileID: 11400000, guid: e17f0707a6f154e0e878559eb02a713f, type: 2}
     - {fileID: 11400000, guid: 6747258a8d9704954b59e065d641a8eb, type: 2}
+    - {fileID: 11400000, guid: 2179066aabba64788b30fd601445b422, type: 2}
     triggerOnlyOnce: 1
     hasTriggered: 1
   - noteName: "Distracci\xF3n"
@@ -44,6 +46,7 @@ MonoBehaviour:
   allowedTools:
   - {fileID: 11400000, guid: 918485bc529094ce99d8f236287dea9e, type: 2}
   - {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
+  allowedGlobalTools: []
   startingMoney: 0
   moneyPerPass: 50
   maxDropouts: 3

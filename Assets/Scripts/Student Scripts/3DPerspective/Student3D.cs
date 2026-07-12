@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Student3D : Student
 {
@@ -37,6 +38,10 @@ public class Student3D : Student
 
     [Header("Efecto de Arrastre")]
     public float alturaDeVuelo = 1.5f;
+
+    [Header("Métricas Visuales")]
+    public Image stressBar;
+    public Image learningBar;
 
     public StudentVFX GetStudentVFX() {
         return this.studentVFX;
@@ -124,6 +129,16 @@ public class Student3D : Student
         {
             SpatialManager.Instance.UpdateSpatialEffects(false);
         }
+    }
+
+    protected override void HandleStateLogic()
+    {
+        base.HandleStateLogic();
+        if(stressBar != null && learningBar != null){
+            stressBar.fillAmount = stressLevel / maxStress;
+            learningBar.fillAmount = learningLevel / maxLearning;
+        }
+   
     }
 
     public override void OnBeginDrag(PointerEventData eventData)  { 

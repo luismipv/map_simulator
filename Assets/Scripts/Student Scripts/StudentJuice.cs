@@ -1,11 +1,19 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StudentJuice : MonoBehaviour
 {
     private Student3D studentCore;
 
     [Header("Visuales")]
-    public SpriteRenderer spriteRenderer; 
+    public Image statusImageParent;
+    public Image statusBackgroundContainer;
+    public Image statusIconImage;
+    public Image learningBarImage;
+    public Image stressBarImage;
+
+    [Space(10)]
+
     public Color restingColor = Color.green;
     public Color workingColor = Color.white;
     public Color flowColor = Color.cyan;
@@ -14,6 +22,15 @@ public class StudentJuice : MonoBehaviour
     public Color distractedColor = new Color(1f, 0.5f, 0f);
     public Color finishedColor = Color.gold;
     public Color hoverColor = Color.yellow;
+
+    [Header("Icons")]
+    public Sprite restingIcon;
+    public Sprite workingIcon;
+    public Sprite flowIcon;
+    public Sprite burnoutIcon;
+    public Sprite droppedOutIcon;
+    public Sprite distractedIcon;
+    public Sprite finishedIcon;
 
     [Header("Shake Effect")]
     public float burnoutWarningThreshold = 85f; 
@@ -27,10 +44,10 @@ public class StudentJuice : MonoBehaviour
    private void Awake()
     {
         studentCore = GetComponent<Student3D>();
-        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (statusImageParent == null) statusImageParent = GetComponentInChildren<Image>();
         
         // Le pedimos la posición AL SPRITE, no al padre.
-        originalPosition = spriteRenderer.transform.localPosition; 
+        originalPosition = statusImageParent.transform.localPosition; 
     }
 
     private void OnEnable()
@@ -53,32 +70,40 @@ public class StudentJuice : MonoBehaviour
 
     private void UpdateColor(StudentState newState)
     {
-        if (newState == StudentState.Graduated && spriteRenderer != null)
+        if (newState == StudentState.Graduated && statusImageParent != null)
         {
-            spriteRenderer.enabled = false;
+            statusImageParent.enabled = false;
+            statusIconImage.color = finishedColor;
             return;
         }
 
         switch (newState)
         {
-            case StudentState.Resting: colorOriginalDeEstado = restingColor; break;
-            case StudentState.Working: colorOriginalDeEstado = workingColor; break;
-            case StudentState.Flow: colorOriginalDeEstado = flowColor; break;
-            case StudentState.Burnout: colorOriginalDeEstado = burnoutColor; break;
-            case StudentState.DroppedOut: colorOriginalDeEstado = droppedOutColor; break;
-            case StudentState.Distracted: colorOriginalDeEstado = distractedColor; break;
-            case StudentState.Finished: colorOriginalDeEstado = finishedColor; break;
+            case StudentState.Resting: colorOriginalDeEstado = restingColor; statusIconImage.sprite = restingIcon; break;
+            case StudentState.Working: colorOriginalDeEstado = workingColor; statusIconImage.sprite = workingIcon; break;
+            case StudentState.Flow: colorOriginalDeEstado = flowColor; statusIconImage.sprite = flowIcon; break;
+            case StudentState.Burnout: colorOriginalDeEstado = burnoutColor; statusIconImage.sprite = burnoutIcon; break;
+            case StudentState.DroppedOut: colorOriginalDeEstado = droppedOutColor; statusIconImage.sprite = droppedOutIcon; break;
+            case StudentState.Distracted: colorOriginalDeEstado = distractedColor; statusIconImage.sprite = distractedIcon; break;
+            case StudentState.Finished: colorOriginalDeEstado = finishedColor; statusIconImage.sprite = finishedIcon; break;
         }
 
-        if (!isHovered && spriteRenderer != null) spriteRenderer.color = colorOriginalDeEstado;
+        if (statusImageParent != null && (StudentState.Distracted == newState || StudentState.Burnout == newState)){ 
+            statusImageParent.color = colorOriginalDeEstado;
+        }else {
+            statusImageParent.color = Color.white;
+        }
+        if (statusIconImage != null){
+            statusIconImage.color = colorOriginalDeEstado;
+        }
     }
 
     private void HandleHover(bool hovering)
     {
         isHovered = hovering;
-        if (spriteRenderer != null)
+        if (statusBackgroundContainer != null)
         {
-            spriteRenderer.color = hovering ? hoverColor : colorOriginalDeEstado;
+            statusBackgroundContainer.color = hovering ? hoverColor : Color.white;
         }
     }
 
@@ -100,13 +125,13 @@ public class StudentJuice : MonoBehaviour
            // studentCore.IsAboutToBurnOut = true; 
             // ¡MAGIA PURA! Movemos SOLAMENTE el dibujo (el hijo).
             // Como su papá es el Asiento, su "centro" siempre es Vector3.zero
-            spriteRenderer.transform.localPosition = originalPosition + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
+            statusImageParent.transform.localPosition = originalPosition + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
             //Debug.Log("El alumno se está queamdno");
         }
         else if (isShaking)
         {
             // Regresamos el dibujo a su centro exacto (0,0,0)
-            spriteRenderer.transform.localPosition = originalPosition;
+            statusImageParent.transform.localPosition = originalPosition;
             isShaking = false;
             // studentCore.IsAboutToBurnOut = false;
             //studentCore.GetStudentVFX().DeactivateAllParticles();

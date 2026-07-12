@@ -195,7 +195,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         Destroy(gameObject);
     }
 
-    private void HandleStateLogic()
+    protected virtual void HandleStateLogic()
     {
         if (isExamMode) return;
 

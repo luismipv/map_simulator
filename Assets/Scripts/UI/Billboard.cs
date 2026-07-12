@@ -8,6 +8,8 @@ public class Billboard : MonoBehaviour
     {
         // Encontramos la cámara principal al iniciar
         cam = Camera.main;
+        Canvas canvas = GetComponent<Canvas>();
+        if (canvas != null) canvas.worldCamera = cam;
     }
 
     // Usamos LateUpdate en lugar de Update. 

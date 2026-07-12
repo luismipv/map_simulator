@@ -254,19 +254,20 @@ public class Logic: MonoBehaviour
 
     public void StartGameWithMode() 
     {        
-        if (spawner != null) spawner.SpawnStudents(currentLevel);
+        // ¡Recibimos la lista exacta de los que acaban de nacer, sin fantasmas!
+        if (spawner != null) 
+        {
+            allStudents = spawner.SpawnStudents(currentLevel);
+        }
 
-        allStudents = new List<Student>(UnityEngine.Object.FindObjectsByType<Student>(FindObjectsSortMode.None));
         totalStudentsThisRound = allStudents.Count;
 
         if (ToolManager.Instance != null) ToolManager.Instance.SetTeacherBusy(false);
 
-        // --- ¡EL INTERRUPTOR DEL RELOJ! ---
         if (UIManager.Instance != null && UIManager.Instance.timerContainer != null)
         {
             UIManager.Instance.timerContainer.SetActive(currentLevel.enableTimer);
         }
-        // ----------------------------------
         
         UIManager.Instance.startMenuPanel.SetActive(false);
         UIManager.Instance.gameplayContainer.SetActive(true);

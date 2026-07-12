@@ -6,40 +6,53 @@ public enum SpawnMode { RandomWithWeights, FixedList }
 [CreateAssetMenu(fileName = "Nivel_", menuName = "MAP Simulator/Nivel de Juego")]
 public class LevelData : ScriptableObject
 {
-    [Header("Configuración del Salón")]
+    [Header("=== 1. IDENTIDAD DEL NIVEL ===")]
     [Tooltip("Arrastra aquí el ScriptableObject del Layout (Ej. Salón Pasillo)")]
     public LayoutData classroomLayout; 
+    public bool isTutorialLevel = false;
+    [Tooltip("Si es tutorial, arrastra aquí el siguiente nivel (Ej. Nivel_Tutorial_2).")]
+    public LevelData nextLevel;
 
-    [Header("Alumnos a Generar")]
+    [Space(15)]
+    [Header("=== 2. ALUMNOS Y GENERACIÓN ===")]
     public SpawnMode spawnMode = SpawnMode.RandomWithWeights;
     public int totalRandomStudents = 5; 
     public List<StudentPersonalitySO> fixedStudentRoster;
+    [Tooltip("Si este nivel es un tutorial, arrastra aquí tu Prefab del TutorialStudent.")]
+    public GameObject tutorialStudentPrefabOverride;
 
-    // ==========================================
-    // --- INTERRUPTORES DE MECÁNICAS ---
-    // ==========================================
-    [Header("Mecánicas Activas (Tutorial)")]
+    [Space(15)]
+    [Header("=== 3. ECONOMÍA Y DIFICULTAD ===")]
+    public int startingMoney = 0;
+    public int moneyPerPass = 50;
+    public int maxDropouts = 3;
+    public bool enableMoneyFines = false;
+
+    [Space(15)]
+    [Header("=== 4. PROGRESIÓN Y TIEMPOS ===")]
+    public int totalPartials = 3;
+    public float initialLearningQuota = 100f; 
+    public float quotaIncreasePerPartial = 50f;
+    public float minGlobalTimer = 70f;
+    public float maxGlobalTimer = 120f; 
+    public float timeReductionPerPartial = 30f;
+    public float maxEndSemesterMultiplier = 2f; 
+    [Tooltip("Multiplicador de velocidad. 1 = Normal, 2 = Doble, etc.")]
+    [Range(1f, 6f)] public float learningSpeedMultiplier = 1f;
+
+    [Space(15)]
+    [Header("=== 5. INTERRUPTORES DE MECÁNICAS ===")]
     public bool enableTimer = true;
     public bool enableDistractions = true;
     public bool enableSynergies = true;
     public bool enableSpatialEffects = true;
 
-    // ==========================================
-    // --- MODO TUTORIAL ---
-    // ==========================================
-    [Header("Modo Tutorial")]
-    [Tooltip("Si está apagado, este será un Nivel Normal y no habrá textos de guía")]
-    public bool isTutorialLevel = false;
-
-    [Tooltip("Si este nivel es un tutorial, arrastra aquí tu Prefab del TutorialStudent. Si está vacío, usará el normal.")]
-    public GameObject tutorialStudentPrefabOverride;
-
-    [Tooltip("Si es tutorial, arrastra aquí el siguiente nivel (Ej. Nivel_Tutorial_2). Si se deja vacío, terminará normalmente.")]
-    public LevelData nextLevel;
-
-    [Tooltip("Multiplicador de velocidad. 1 = Normal, 2 = Doble de rápido, 3 = Triple. ¡Ideal para que el tutorial sea ágil!")]
-    [Range(1f, 6f)]
-    public float learningSpeedMultiplier = 1f;
+    [Space(15)]
+    [Header("=== 6. MAZO DEL JUGADOR (LISTAS) ===")]
+    [Tooltip("Las herramientas que el maestro puede usar en este nivel")]
+    public List<TeacherTool> allowedTools; 
+    [Tooltip("Las herramientas para toda la clase (Ej. Chiste, Examen Sorpresa)")]
+    public List<GlobalTool> allowedGlobalTools;
 
     // ==========================================
     // --- SISTEMA DINÁMICO DE TUTORIAL ---
@@ -47,44 +60,15 @@ public class LevelData : ScriptableObject
     [System.Serializable]
     public class TutorialSequence
     {
-        public string noteName; // Solo para que se vea ordenado en el Inspector
-        public TutorialTrigger triggerType; // ¿Qué detona este tutorial?
-        public List<TutorialStepSO> steps; // Las tarjetas a mostrar
-        public bool triggerOnlyOnce = true; // ¿Solo sale la primera vez?
-        [HideInInspector] public bool hasTriggered = false; // Candado interno
+        public string noteName; 
+        public TutorialTrigger triggerType; 
+        public List<TutorialStepSO> steps; 
+        public bool triggerOnlyOnce = true; 
+        [HideInInspector] public bool hasTriggered = false; 
     }
 
-    [Header("Eventos del Tutorial")]
+    [Space(15)]
+    [Header("=== 7. EVENTOS DEL TUTORIAL (LISTAS) ===")]
     [Tooltip("Agrega aquí las secuencias de tutorial y qué acción las detona.")]
     public List<TutorialSequence> tutorialSequences = new List<TutorialSequence>();
-
-    [Header("Mazo de Herramientas")]
-    [Tooltip("Las herramientas que el maestro puede usar en este nivel")]
-    public List<TeacherTool> allowedTools; 
-
-
-    // --- ¡LA NUEVA LISTA! ---
-    [Header("Mazo de Herramientas Globales")]
-    [Tooltip("Las herramientas para toda la clase (Ej. Chiste, Examen Sorpresa)")]
-    public List<GlobalTool> allowedGlobalTools;
-
-    // ==========================================
-    // --- REGLAS GENERALES ---
-    // ==========================================
-    [Header("Economía y Reglas")]
-    public int startingMoney = 0;
-    public int moneyPerPass = 50;
-    public int maxDropouts = 3;
-    public bool enableMoneyFines = false;
-
-    [Header("Semestre")]
-    public int totalPartials = 3;
-    public float initialLearningQuota = 100f; 
-    public float quotaIncreasePerPartial = 50f;
-
-    [Header("Tiempos")]
-    public float maxGlobalTimer = 120f; 
-    public float minGlobalTimer = 70f;
-    public float timeReductionPerPartial = 30f;
-    public float maxEndSemesterMultiplier = 2f; 
 }

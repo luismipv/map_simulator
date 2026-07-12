@@ -25,19 +25,26 @@ public class StudentSpawner : MonoBehaviour
             studentAspectManager = GetComponent<StudentAspectManager>();
     }
 
-    // ¡EL NUEVO MÉTODO MAESTRO!
-    public void SpawnStudents(LevelData levelData)
+    // ¡EL MÉTODO MAESTRO COMPLETO!
+    public List<Student> SpawnStudents(LevelData levelData)
     {
-       if (currentLayoutInstance != null) Destroy(currentLayoutInstance);
+        // 0. Paracaídas por si el nivel llega vacío
+        if (levelData == null)
+        {
+            Debug.LogError("¡LevelData llegó vacío al Spawner!");
+            return new List<Student>();
+        }
+
+        if (currentLayoutInstance != null) Destroy(currentLayoutInstance);
         
-        // 1. LEEMOS EL PAQUETE COMPLETO DEL LAYOUT
+        List<Student> spawnedStudents = new List<Student>();
+
+        // 1. LEEMOS EL PAQUETE COMPLETO DEL LAYOUT Y CONSTRUIMOS EL SALÓN
         if (levelData.classroomLayout != null && levelData.classroomLayout.layoutPrefab != null)
         {
-            // Construimos el salón
             currentLayoutInstance = Instantiate(levelData.classroomLayout.layoutPrefab, Vector3.zero, Quaternion.identity);
             seatsContainer = currentLayoutInstance.transform;
 
-            // Ajustamos la cámara
             if (CameraController.Instance != null)
             {
                 CameraController.Instance.SetCameraTarget(
@@ -48,12 +55,11 @@ public class StudentSpawner : MonoBehaviour
         }
         else
         {
-            Debug.LogError("¡Falta asignar el LayoutData en tu Nivel!");
-            return;
+            Debug.LogError("¡Falta asignar el LayoutData en tu Nivel! No se pueden instanciar alumnos.");
+            return spawnedStudents; // Salimos a salvo sin crashear
         }
         
-
-        // 3. RECOLECTAR LAS SILLAS DEL NUEVO SALÓN
+        // 2. RECOLECTAR LAS SILLAS DEL NUEVO SALÓN
         Seat[] allSeats = seatsContainer.GetComponentsInChildren<Seat>();
         List<Seat> availableSeats = new List<Seat>();
         foreach (Seat s in allSeats)
@@ -61,7 +67,7 @@ public class StudentSpawner : MonoBehaviour
             if (s.currentStudent == null) availableSeats.Add(s);
         }
 
-        // 4. DEFINIR LA LISTA DE ALUMNOS (RANDOM VS FIJA)
+        // 3. DEFINIR LA LISTA DE ALUMNOS (RANDOM VS FIJA)
         List<StudentPersonalitySO> rosterToSpawn = new List<StudentPersonalitySO>();
 
         if (levelData.spawnMode == SpawnMode.RandomWithWeights)
@@ -73,33 +79,30 @@ public class StudentSpawner : MonoBehaviour
         }
         else // SpawnMode.FixedList
         {
-            rosterToSpawn.AddRange(levelData.fixedStudentRoster);
+            if (levelData.fixedStudentRoster != null)
+                rosterToSpawn.AddRange(levelData.fixedStudentRoster);
         }
 
-        // 5. ¡A SPAWNEAR! (Límite: No más alumnos que sillas)
+        // 4. ¡A SPAWNEAR!
         int studentsToSpawn = Mathf.Min(rosterToSpawn.Count, availableSeats.Count);
-        //Si es tutorial, usamos el prefab especial si está asignado
         GameObject prefabToUse = (levelData.tutorialStudentPrefabOverride != null) ? levelData.tutorialStudentPrefabOverride : studentPrefab;
 
         for (int i = 0; i < studentsToSpawn; i++)
         {
             Seat chosenSeat;
 
-            // --- ¡LA MAGIA DEL ORDEN! ---
+            // Orden o Aleatorio
             if (levelData.spawnMode == SpawnMode.RandomWithWeights)
             {
-                // Silla aleatoria
                 int randomIndex = Random.Range(0, availableSeats.Count);
                 chosenSeat = availableSeats[randomIndex];
                 availableSeats.RemoveAt(randomIndex);
             }
             else
             {
-                // Orden estricto: Siempre tomamos la primera silla de la lista y la removemos
                 chosenSeat = availableSeats[0];
                 availableSeats.RemoveAt(0);
             }
-            // ----------------------------
 
             // Crear alumno
             GameObject newStudentObj = Instantiate(prefabToUse, transform.position, Quaternion.identity);
@@ -110,16 +113,20 @@ public class StudentSpawner : MonoBehaviour
             string generatedName = GenerateRandomName();
             newStudentObj.name = generatedName;
             studentScript.studentName = generatedName;
-
-            // ASIGNAR PERSONALIDAD SEGÚN LA LISTA QUE ARMAMOS
             studentScript.personalityData = rosterToSpawn[i];
 
             TMP_Text textUI = newStudentObj.GetComponentInChildren<TMP_Text>();
             if (textUI != null) textUI.text = $"{generatedName}:\n0/100";
             
             // 3D Model
-            studentAspectManager.GenerateStudentRandomAppearance(newStudentObj, studentScript.personalityData.personalityType);
+            if (studentAspectManager != null)
+                studentAspectManager.GenerateStudentRandomAppearance(newStudentObj, studentScript.personalityData.personalityType);
+
+            // ¡GUARDAMOS AL ALUMNO EN LA LISTA ANTES DE SEGUIR!
+            spawnedStudents.Add(studentScript);
         }
+        
+        return spawnedStudents;
     }
 
     private StudentPersonalitySO GetRandomPersonalityByWeight()
@@ -136,7 +143,8 @@ public class StudentSpawner : MonoBehaviour
             if (randomValue < currentWeightSum) return p; 
         }
         
-        return availablePersonalities[0]; 
+        if (availablePersonalities.Length > 0) return availablePersonalities[0];
+        return null;
     }
 
     string GenerateRandomName()

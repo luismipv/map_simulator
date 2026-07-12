@@ -50,7 +50,7 @@ public class TutorialStudent : Student3D
         if (currentState != StudentState.Distracted)
         {
             ChangeState(StudentState.Distracted);
-            ShowBubble("¡Me obligaron a distraerme!", Color.orange);
+            //ShowBubble("¡Me obligaron a distraerme!", Color.orange);
             
             if (AudioManager.Instance != null) 
                 AudioManager.Instance.PostEvent("Student_Distracted", this.gameObject); 
@@ -61,8 +61,8 @@ public class TutorialStudent : Student3D
     public void ForceBurnoutWarning()
     {
         // Le subimos el estrés al 95% de golpe para que el jugador se asuste y actúe
-        stressLevel = maxStress * 0.95f;
-        ShowBubble("¡A punto de explotar!", Color.red);
+        stressLevel = maxStress * 0.85f;
+        //ShowBubble("¡A punto de explotar!", Color.red);
         
         // Aquí podrías incluso forzar el estado de Burnout si quieres:
         // ChangeState(StudentState.Burnout);

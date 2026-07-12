@@ -33,6 +33,7 @@ public class StudentUI : MonoBehaviour
     public GameObject student;
 
     private Coroutine hideBubbleCoroutine;
+    private Coroutine animacionActual;
 
 
 
@@ -223,7 +224,11 @@ public class StudentUI : MonoBehaviour
         if (bubbleText != null && bubbleBackground != null)
         {
             bubbleBackground.SetActive(true);
-            StartCoroutine(PopUpAnimationCoroutine(bubbleBackground));
+            
+            // 1. Detenemos cualquier animación (por si se estaba desinflando)
+            if (animacionActual != null) StopCoroutine(animacionActual);
+            // 2. Iniciamos el inflado y lo guardamos en la variable
+            animacionActual = StartCoroutine(PopUpAnimationCoroutine(bubbleBackground));
             
             TMPro.TextMeshPro textComponent = bubbleText.GetComponent<TMPro.TextMeshPro>();
             if (textComponent != null)
@@ -232,10 +237,7 @@ public class StudentUI : MonoBehaviour
                 textComponent.color = color; 
             }
 
-            // --- REEMPLAZO DEL INVOKE ---
-            // Si ya había un temporizador corriendo para ocultarla, lo cancelamos
             if (hideBubbleCoroutine != null) StopCoroutine(hideBubbleCoroutine);
-            // Iniciamos el nuevo temporizador inmune a la pausa
             hideBubbleCoroutine = StartCoroutine(HideBubbleRoutine(2f)); 
 
             if (student != null)
@@ -261,10 +263,12 @@ public class StudentUI : MonoBehaviour
 
     public void HideBubble()
     {
-        // Solo intentamos desinflarla si realmente está prendida
         if (bubbleBackground != null && bubbleBackground.activeInHierarchy)
         {
-            StartCoroutine(PopDownAnimationCoroutine(bubbleBackground));
+            // 1. Detenemos cualquier animación (por si se estaba inflando)
+            if (animacionActual != null) StopCoroutine(animacionActual);
+            // 2. Iniciamos el desinflado y lo guardamos en la variable
+            animacionActual = StartCoroutine(PopDownAnimationCoroutine(bubbleBackground));
         }
     }
 

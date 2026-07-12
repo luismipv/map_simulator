@@ -50,10 +50,20 @@ public class TutorialManager : MonoBehaviour
     {
         Logic.OnGameStarted -= HandleGameStarted;
         ExamManager.OnExamPhaseStarted -= HandleExamStarted;
+
+        // ¡NUEVO: Matamos cualquier reloj del tutorial que siga corriendo al cambiar de nivel!
+        if (currentStepCoroutine != null)
+        {
+            StopCoroutine(currentStepCoroutine);
+            currentStepCoroutine = null;
+        }
     }
 
     private void HandleGameStarted()
     {
+        // ¡NUEVO: LA CURA CONTRA EL TIEMPO CONGELADO!
+        Time.timeScale = 1f;
+
         // 1. Reiniciamos el candado del examen 
         firstExamTriggered = false; 
         
@@ -99,87 +109,98 @@ public class TutorialManager : MonoBehaviour
     }
 
     private void ShowCurrentStep()
-{
-    if (currentStepIndex >= currentSequence.Count)
     {
-        EndSequence();
-        return;
-    }
-
-    if (currentStepCoroutine != null) StopCoroutine(currentStepCoroutine);
-    
-    TutorialStepSO step = currentSequence[currentStepIndex];
-    currentStepCoroutine = StartCoroutine(ProcessStepSequence(step));
-}
-
-// 2. El Motor de Tiempo (Corrutina)
-private IEnumerator ProcessStepSequence(TutorialStepSO step)
-{
-    // DELAY
-    if (step.delayBeforeShowing > 0f)
-    {
-        if (tutorialUIContainer != null) tutorialUIContainer.SetActive(false);
-        ArrowPointer.Instance?.HideArrow();
-        
-        yield return new WaitForSecondsRealtime(step.delayBeforeShowing);
-    }
-
-    // ARROW SYSTEM
-    if (ArrowPointer.Instance != null)
-    {
-        if (step.showArrow)
+        if (currentStepIndex >= currentSequence.Count)
         {
-            if (step.pointToStudent && Logic.Instance.allStudents.Count > step.targetSeat)
-            {
-                ArrowPointer.Instance.PointTo3D(Logic.Instance.allStudents[step.targetSeat].transform, step.arrowAngle);
-            }
-            else
-            {
-                GameObject uiButton = GameObject.Find(step.uiButtonName);
-                if (uiButton != null) ArrowPointer.Instance.PointToUI(uiButton.GetComponent<RectTransform>(), step.arrowAngle);
-            }
+            EndSequence();
+            return;
         }
-        else ArrowPointer.Instance.HideArrow();
+
+        if (currentStepCoroutine != null) StopCoroutine(currentStepCoroutine);
+        
+        TutorialStepSO step = currentSequence[currentStepIndex];
+        currentStepCoroutine = StartCoroutine(ProcessStepSequence(step));
     }
 
-    // GAME STATE & TOOLS
-    Time.timeScale = step.pausesGame ? 0f : 1f;
-    if (ToolManager.Instance != null) ToolManager.Instance.SetTeacherBusy(step.lockAllTools);
-
-    // CINEMATIC ACTION
-    if (step.actionOnDisplay != TutorialAction.None) ExecuteTutorialAction(step);
-
-    // UI VISIBILITY
-    if (string.IsNullOrWhiteSpace(step.dialogueText))
+    // 2. El Motor de Tiempo (Corrutina)
+    private IEnumerator ProcessStepSequence(TutorialStepSO step)
     {
-        if (tutorialUIContainer != null) tutorialUIContainer.SetActive(false);
-    }
-    else
-    {
-        if (tutorialUIContainer != null) tutorialUIContainer.SetActive(true);
-        if (dialogueTextUI != null) dialogueTextUI.text = step.dialogueText;
+        // DELAY
+        if (step.delayBeforeShowing > 0f)
+        {
+            if (tutorialUIContainer != null) tutorialUIContainer.SetActive(false);
+            ArrowPointer.Instance?.HideArrow();
+            
+            yield return new WaitForSecondsRealtime(step.delayBeforeShowing);
+        }
+
+        // ARROW SYSTEM
+        if (ArrowPointer.Instance != null)
+        {
+            if (step.showArrow)
+            {
+                if (step.pointToStudent && Logic.Instance.allStudents.Count > step.targetSeat)
+                {
+                    // ¡NUEVO: El Null Check Salvador para la flecha!
+                    Student alumnoDestino = Logic.Instance.allStudents[step.targetSeat];
+                    if (alumnoDestino != null)
+                    {
+                        ArrowPointer.Instance.PointTo3D(alumnoDestino.transform, step.arrowAngle);
+                    }
+                }
+                else
+                {
+                    GameObject uiButton = GameObject.Find(step.uiButtonName);
+                    if (uiButton != null) ArrowPointer.Instance.PointToUI(uiButton.GetComponent<RectTransform>(), step.arrowAngle);
+                }
+            }
+            else ArrowPointer.Instance.HideArrow();
+        }
+
+        // GAME STATE & TOOLS
+        Time.timeScale = step.pausesGame ? 0f : 1f;
+        if (ToolManager.Instance != null) ToolManager.Instance.SetTeacherBusy(step.lockAllTools);
+
+        // CINEMATIC ACTION
+        if (step.actionOnDisplay != TutorialAction.None) ExecuteTutorialAction(step);
+
+        // UI VISIBILITY
+        if (string.IsNullOrWhiteSpace(step.dialogueText))
+        {
+            if (tutorialUIContainer != null) tutorialUIContainer.SetActive(false);
+        }
+        else
+        {
+            if (tutorialUIContainer != null) tutorialUIContainer.SetActive(true);
+            if (dialogueTextUI != null) dialogueTextUI.text = step.dialogueText;
+        }
+
+        // AUTO-ADVANCE DURATION
+        if (step.autoAdvanceDuration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(step.autoAdvanceDuration);
+            AdvanceToNextStep(); 
+        }
     }
 
-    // AUTO-ADVANCE DURATION
-    if (step.autoAdvanceDuration > 0f)
+    // 3. La Función para Avanzar
+    public void AdvanceToNextStep()
     {
-        yield return new WaitForSecondsRealtime(step.autoAdvanceDuration);
-        AdvanceToNextStep(); 
-    }
-}
-
-// 3. La Función para Avanzar
-public void AdvanceToNextStep()
-{
-    currentStepIndex++;
-    ShowCurrentStep();
-}    private void ExecuteTutorialAction(TutorialStepSO step)
+        currentStepIndex++;
+        ShowCurrentStep();
+    }    
+    
+    private void ExecuteTutorialAction(TutorialStepSO step)
     {
         if (Logic.Instance == null || Logic.Instance.allStudents == null) return;
 
         if (step.targetSeat < Logic.Instance.allStudents.Count)
         {
             Student alumnoBase = Logic.Instance.allStudents[step.targetSeat];
+            
+            // ¡NUEVO: El Null Check Salvador para la acción!
+            if (alumnoBase == null) return;
+
             TutorialStudent titere = alumnoBase as TutorialStudent;
 
             if (titere != null)
@@ -188,6 +209,7 @@ public void AdvanceToNextStep()
                 {
                     case TutorialAction.ForceDistraction:
                         titere.ForceDistraction();
+                        Debug.Log($"[TutorialManager] Acción: ForceDistraction en el alumno {titere.name}");
                         break;
                     case TutorialAction.ForceStress:
                         titere.ForceBurnoutWarning();
@@ -199,7 +221,6 @@ public void AdvanceToNextStep()
                         }
                         break;
                     case TutorialAction.ForceDialog:
-                        // ¡AQUÍ ESTÁ TU NUEVO MÉTODO CONECTADO AL INSPECTOR!
                         titere.ForceDialog(step.forcedBubbleText, step.forcedBubbleColor);
                         break;
                 }

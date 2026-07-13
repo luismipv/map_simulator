@@ -22,7 +22,7 @@ MonoBehaviour:
   tutorialStudentPrefabOverride: {fileID: 1433359620011395308, guid: 130cd775d51404fc1b18f719071a01ed, type: 3}
   startingMoney: 0
   moneyPerPass: 50
-  maxDropouts: 3
+  maxDropouts: 1
   enableMoneyFines: 0
   totalPartials: 1
   initialLearningQuota: 60
@@ -56,5 +56,7 @@ MonoBehaviour:
     steps:
     - {fileID: 11400000, guid: 11b8017b8cc554fe98af0f4dfec08017, type: 2}
     - {fileID: 11400000, guid: 96bba06d7db7e40b598d7cca470b5d81, type: 2}
+    - {fileID: 11400000, guid: ecd20ebab2526443ba33946dc4ec3a60, type: 2}
+    - {fileID: 11400000, guid: 94c86729813e641ff91980fa8ecccac5, type: 2}
     triggerOnlyOnce: 1
     hasTriggered: 1

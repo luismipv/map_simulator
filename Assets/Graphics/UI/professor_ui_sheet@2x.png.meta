@@ -106,6 +106,32 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -884,12 +910,12 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 2323
-        y: 3037
+        y: 3043
         width: 479
-        height: 305
+        height: 299
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 148, y: 74, z: 105, w: 70}
       customData: 
       outline: []
       physicsShape: []
@@ -2045,6 +2071,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: professor_ui_sheet@2x_88
+      rect:
+        serializedVersion: 2
+        x: 2611
+        y: 2701
+        width: 26
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bec699f6221da43909d99aff7db1d66b
+      internalID: 1668633842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -2148,6 +2196,7 @@ TextureImporter:
       professor_ui_sheet@2x_85: -630421423
       professor_ui_sheet@2x_86: 69760646
       professor_ui_sheet@2x_87: -395043374
+      professor_ui_sheet@2x_88: 1668633842
       professor_ui_sheet@2x_9: 1484172393
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0

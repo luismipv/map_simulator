@@ -346,6 +346,31 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         else ShowFloatingText(" " + amount +"🧠", Color.red);
     }
 
+    public void ModifyBothStatsInstant(float stressAmount, float learningAmount)
+{
+    // 1. Modificar valores matemáticos
+    stressLevel = Mathf.Clamp(stressLevel + stressAmount, 0f, maxStress);
+    learningLevel = Mathf.Clamp(learningLevel + learningAmount, 0f, maxLearning);
+
+    // 2. Construir un solo texto combinado
+    string combinedText = "";
+
+    // Lógica para el texto de aprendizaje
+    if (learningAmount > 0) 
+        combinedText += $"<color=#00FF00>+{learningAmount}🧠 </color>" + "\n";
+    else if (learningAmount < 0) combinedText += $"<color=#FF0000>{learningAmount}🧠 </color>" + "\n";
+
+    // Lógica para el texto de estrés
+    if (stressAmount > 0) combinedText += $"<color=#FF0000>+{stressAmount}💢 </color>" + "\n";
+    else if (stressAmount < 0) combinedText += $"<color=#00FF00>{stressAmount}💢 </color>" + "\n";
+
+    // 3. Enviar un solo Floating Text
+    if (!string.IsNullOrEmpty(combinedText))
+    {
+        ShowFloatingText(combinedText, Color.white); 
+    }
+}
+
     public void RequestJokeFeedback(bool likedIt) { OnJokeFeedbackEvent?.Invoke(likedIt); }
 
     public void OnPointerEnter(PointerEventData eventData)

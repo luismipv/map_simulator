@@ -31,6 +31,17 @@ public class StudentUI : MonoBehaviour
     public GameObject bubbleText;
     public GameObject bubbleBackground;
     public GameObject student;
+    public float bubbleXOffset = 2f;
+    public float bubbleYOffset = 4.5f;
+
+    [Tooltip("Ancho máximo del texto antes de saltar a la siguiente línea")]
+    public float maxBubbleWidth = 350f; // <-- ¡Aquí está la nueva variable!
+
+    [Header("Márgenes de Libreta (Código)")]
+    [Tooltip("Espacio extra a los lados y arriba del texto")]
+    public Vector2 paddingLibreta = new Vector2(40f, 30f); 
+    [Tooltip("Pixeles extra en la parte de abajo para proteger la colita")]
+    public float alturaColita = 35f;
 
     private Coroutine hideBubbleCoroutine;
     private Coroutine animacionActual;
@@ -224,33 +235,43 @@ public class StudentUI : MonoBehaviour
         if (bubbleText != null && bubbleBackground != null)
         {
             bubbleBackground.SetActive(true);
+            bubbleBackground.transform.localPosition = new Vector3(bubbleXOffset, bubbleYOffset, 0f);
             
-            // 1. Detenemos cualquier animación (por si se estaba desinflando)
             if (animacionActual != null) StopCoroutine(animacionActual);
-            // 2. Iniciamos el inflado y lo guardamos en la variable
             animacionActual = StartCoroutine(PopUpAnimationCoroutine(bubbleBackground));
             
-            TMPro.TextMeshPro textComponent = bubbleText.GetComponent<TMPro.TextMeshPro>();
+            TMP_Text textComponent = bubbleText.GetComponent<TMP_Text>();
+            
             if (textComponent != null)
             {
                 textComponent.text = message;
                 textComponent.color = color; 
+                
+                // 1. Calculamos el tamaño ideal del texto limitando su ancho al máximo que definiste en el Inspector
+                Vector2 textSize = textComponent.GetPreferredValues(message, maxBubbleWidth, Mathf.Infinity);
+
+                // 2. AJUSTAMOS EL FONDO (Tamaño ideal del texto + Márgenes + Espacio para la colita)
+                RectTransform bgRect = bubbleBackground.GetComponent<RectTransform>();
+                bgRect.sizeDelta = new Vector2(textSize.x + paddingLibreta.x, textSize.y + paddingLibreta.y + alturaColita);
+
+                // 3. LE DAMOS AL TEXTO SU TAMAÑO EXACTO PARA QUE HAGA WRAP CORRECTAMENTE
+                RectTransform textRect = bubbleText.GetComponent<RectTransform>();
+                textRect.sizeDelta = textSize; 
+                
+                // 4. Centramos el texto y lo desplazamos hacia arriba para esquivar la colita del globo
+                textRect.anchorMin = new Vector2(0.5f, 0.5f);
+                textRect.anchorMax = new Vector2(0.5f, 0.5f);
+                textRect.pivot = new Vector2(0.5f, 0.5f);
+                textRect.anchoredPosition = new Vector2(0f, alturaColita / 2f);
+            }
+            else
+            {
+                // Un pequeño grito de auxilio en la consola por si acaso
+                Debug.LogError("¡OJO! No se encontró el componente TMP_Text en bubbleText.");
             }
 
             if (hideBubbleCoroutine != null) StopCoroutine(hideBubbleCoroutine);
             hideBubbleCoroutine = StartCoroutine(HideBubbleRoutine(2f)); 
-
-            if (student != null)
-            {
-                LineRenderer lr = bubbleBackground.GetComponent<LineRenderer>();
-                if (lr != null)
-                {
-                    lr.SetPositions(new Vector3[] { 
-                        bubbleBackground.transform.position, 
-                        student.transform.position + (Vector3.up * 3.5f) 
-                    });
-                }
-            }
         }
     }
 

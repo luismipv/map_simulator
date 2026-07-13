@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-public class Logic: MonoBehaviour 
+public class Logic : MonoBehaviour 
 {
     public static Logic Instance { get; private set; }
 
@@ -188,11 +188,10 @@ public class Logic: MonoBehaviour
         isGameActive = false;
         Time.timeScale = 0f; 
         
-        // --- ¡NUEVO!: CHEQUEO DE CADENA DE TUTORIAL ---
+        // --- CHEQUEO DE CADENA DE TUTORIAL ---
         if (currentLevel != null && currentLevel.isTutorialLevel && currentLevel.nextLevel != null)
         {
             // El jugador sobrevivió el nivel tutorial y hay uno siguiente en la cadena.
-            // Cargamos el siguiente nivel.
             CargarSiguienteNivelTutorial(currentLevel.nextLevel);
             return; // Salimos para NO mostrar la pantalla de resultados normal.
         }
@@ -205,11 +204,17 @@ public class Logic: MonoBehaviour
         UIManager.Instance.ShowEndScreen(false, perfectSemester, survivedStudents, currentDropouts, currentLevel.maxDropouts, totalStudentsThisRound);
     }
 
-    // --- NUEVA FUNCIÓN PARA GESTIONAR EL SALTO ---
-    private void CargarSiguienteNivelTutorial(LevelData nextLevelData)
+    // --- CARGA UNIVERSAL DE NIVELES ---
+    public void LoadSpecificLevel(LevelData levelToLoad)
     {
+        if (levelToLoad == null)
+        {
+            Debug.LogError("Intentaste cargar un nivel, pero el LevelData es null.");
+            return;
+        }
+
         // 1. Actualizamos el "Cerebro" al nuevo nivel
-        currentLevel = nextLevelData;
+        currentLevel = levelToLoad;
         
         // 2. Reiniciamos los contadores internos
         currentPartial = 1;
@@ -227,11 +232,24 @@ public class Logic: MonoBehaviour
         allStudents.Clear();
         homeworkStreak.Clear();
 
-        // 4. Devolvemos el tiempo a la normalidad
+        // 4. Restauramos el tiempo (crucial si venimos de un GameOver o pausa)
         Time.timeScale = 1f;
 
-        // 5. Arrancamos el nuevo nivel como si acabáramos de darle a "Start"
+        // 5. Apagamos paneles que puedan estorbar de la partida anterior
+        if (UIManager.Instance != null)
+        {
+            if (UIManager.Instance.examResultsPanel != null) UIManager.Instance.examResultsPanel.SetActive(false);
+        }
+
+        // 6. Arrancamos el nuevo nivel
         StartGameWithMode();
+    }
+
+    // --- REFACTORIZADO PARA USAR LA NUEVA FUNCIÓN ---
+    private void CargarSiguienteNivelTutorial(LevelData nextLevelData)
+    {
+        // Ahora simplemente reutilizamos la lógica universal
+        LoadSpecificLevel(nextLevelData);
         
         // Opcional: Podrías reproducir un sonido de "Nivel Completado" o poner un fundido a negro aquí.
     }

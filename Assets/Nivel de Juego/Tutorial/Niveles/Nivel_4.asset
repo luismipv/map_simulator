@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Nivel_4
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   classroomLayout: {fileID: 11400000, guid: 99a7ea08d4ef94d41ace771498656c49, type: 2}
+  isTutorialLevel: 1
+  nextLevel: {fileID: 0}
   spawnMode: 1
   totalRandomStudents: 5
   fixedStudentRoster:
@@ -20,18 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9f0c8b9ae74bb4a6d81e7db69b4dfbca, type: 2}
   - {fileID: 11400000, guid: f4fb6cb99368c4913a31505024f23104, type: 2}
   - {fileID: 11400000, guid: 09e8e62c8aa834187bda7af01272a27b, type: 2}
-  enableTimer: 1
-  enableDistractions: 1
-  enableSynergies: 1
-  enableSpatialEffects: 1
-  isTutorialLevel: 1
-  nextLevel: {fileID: 0}
-  learningSpeedMultiplier: 1
-  tutorialSequences: []
-  allowedTools:
-  - {fileID: 11400000, guid: 43f2748fd64634d89ae875bf151b8254, type: 2}
-  - {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
-  - {fileID: 11400000, guid: 918485bc529094ce99d8f236287dea9e, type: 2}
+  tutorialStudentPrefabOverride: {fileID: 1433359620011395308, guid: 130cd775d51404fc1b18f719071a01ed, type: 3}
   startingMoney: 0
   moneyPerPass: 50
   maxDropouts: 3
@@ -39,7 +30,28 @@ MonoBehaviour:
   totalPartials: 1
   initialLearningQuota: 100
   quotaIncreasePerPartial: 50
-  maxGlobalTimer: 120
   minGlobalTimer: 70
+  maxGlobalTimer: 120
   timeReductionPerPartial: 30
   maxEndSemesterMultiplier: 2
+  learningSpeedMultiplier: 1
+  enableTimer: 1
+  enableDistractions: 1
+  enableSynergies: 1
+  enableSpatialEffects: 1
+  allowedTools:
+  - {fileID: 11400000, guid: 43f2748fd64634d89ae875bf151b8254, type: 2}
+  - {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
+  - {fileID: 11400000, guid: 918485bc529094ce99d8f236287dea9e, type: 2}
+  allowedGlobalTools: []
+  tutorialSequences:
+  - noteName: Start
+    triggerType: 0
+    steps:
+    - {fileID: 11400000, guid: ca71688e2642f468a87c907a81302543, type: 2}
+    - {fileID: 11400000, guid: 0f13402ff46b94810936cc5f2483a002, type: 2}
+    - {fileID: 11400000, guid: 8217a86bee4a644f08c949a08b42f0da, type: 2}
+    - {fileID: 11400000, guid: 00b2d2eb75eae4973adc027ad73fcdcf, type: 2}
+    - {fileID: 11400000, guid: 03b30dcdb4c584e35ba5676e9f6eb1ad, type: 2}
+    triggerOnlyOnce: 0
+    hasTriggered: 0

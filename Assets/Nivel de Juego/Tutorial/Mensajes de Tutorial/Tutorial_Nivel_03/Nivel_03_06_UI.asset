@@ -10,8 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1dbcc7fd369a34a30a2b5badb19683f2, type: 3}
-  m_Name: Nivel 3 - Dialogo 3
+  m_Name: Nivel_03_06_UI
   m_EditorClassIdentifier: Assembly-CSharp::TutorialStepSO
-  dialogueText: "\xA1Excelente! F\xEDjate en los textos flotantes. "
+  dialogueText: "Algunas personalidades les beneficia d\xF3nde est\xE1n sentados."
+  delayBeforeShowing: 0
+  autoAdvanceDuration: 0
   pausesGame: 1
-  lockAllTools: 1
+  lockAllTools: 0
+  showArrow: 0
+  pointToStudent: 0
+  uiButtonName: 
+  arrowAngle: 0
+  actionOnDisplay: 0
+  targetSeat: 2
+  forcedBubbleText: 
+  forcedBubbleColor: {r: 0, g: 0, b: 0, a: 1}

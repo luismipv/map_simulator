@@ -35,8 +35,9 @@ public class ToolHomework : TeacherTool
         float finalStress = 20f * stressMultiplier * reaction.stressMod;
 
         // 4. Aplicamos los efectos al alumno
-        target.ModifyStressInstant(finalStress);
-        target.ModifyLearningInstant(finalLearning);
+        //target.ModifyStressInstant(finalStress); Cambiamos el metodo para que no tuviera el bug de mostrar doble texto.
+        //target.ModifyLearningInstant(finalLearning);
+        target.ModifyBothStatsInstant(finalStress, finalLearning);
         
         // 5. Aumentamos su racha para la próxima vez
         gameLogic.homeworkStreak[target]++; 

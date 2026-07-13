@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class StudentJuice : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class StudentJuice : MonoBehaviour
     public Image statusIconImage;
     public Image learningBarImage;
     public Image stressBarImage;
+    public Image warningImage;
 
     [Space(10)]
 
@@ -40,7 +42,13 @@ public class StudentJuice : MonoBehaviour
     private bool isShaking = false;             
     private Color colorOriginalDeEstado; 
     private bool isHovered = false;
+    private Coroutine activeFlashCoroutine;
 
+
+   private void Start()
+    {
+        warningImage.enabled = false;
+    }
    private void Awake()
     {
         studentCore = GetComponent<Student3D>();
@@ -79,9 +87,9 @@ public class StudentJuice : MonoBehaviour
 
         switch (newState)
         {
-            case StudentState.Resting: colorOriginalDeEstado = restingColor; statusIconImage.sprite = restingIcon; break;
+            case StudentState.Resting: colorOriginalDeEstado = restingColor; statusIconImage.sprite = restingIcon; warningImage.enabled = false; break;
             case StudentState.Working: colorOriginalDeEstado = workingColor; statusIconImage.sprite = workingIcon; break;
-            case StudentState.Flow: colorOriginalDeEstado = flowColor; statusIconImage.sprite = flowIcon; break;
+            case StudentState.Flow: colorOriginalDeEstado = flowColor; statusIconImage.sprite = flowIcon; statusIconImage.color = colorOriginalDeEstado; break;
             case StudentState.Burnout: colorOriginalDeEstado = burnoutColor; statusIconImage.sprite = burnoutIcon; break;
             case StudentState.DroppedOut: colorOriginalDeEstado = droppedOutColor; statusIconImage.sprite = droppedOutIcon; break;
             case StudentState.Distracted: colorOriginalDeEstado = distractedColor; statusIconImage.sprite = distractedIcon; break;
@@ -107,35 +115,63 @@ public class StudentJuice : MonoBehaviour
         }
     }
 
-        private void HandleShakeEffect(float currentStress, StudentState state)
+    private void HandleShakeEffect(float currentStress, StudentState state)
+{
+    if (currentStress >= burnoutWarningThreshold && 
+        state != StudentState.Burnout && 
+        state != StudentState.DroppedOut && 
+        state != StudentState.Graduated && 
+        state != StudentState.Resting)
     {
-        if (currentStress >= burnoutWarningThreshold && 
-            state != StudentState.Burnout && 
-            state != StudentState.DroppedOut && 
-            state != StudentState.Graduated && 
-            state != StudentState.Resting)
+        if (!isShaking)
         {
-            if (!isShaking)
-            {
-            AudioManager.Instance.PostEvent("Student_About_To_BurnOut", this.gameObject); //SONIDO    
+            AudioManager.Instance.PostEvent("Student_About_To_BurnOut", this.gameObject);
+            
+            // Detenemos cualquier parpadeo anterior por seguridad
+            if (activeFlashCoroutine != null) StopCoroutine(activeFlashCoroutine);
+            
+            // Guardamos la nueva corrutina en la variable
+            activeFlashCoroutine = StartCoroutine(FlashCoroutine(warningImage)); 
+            
             studentCore.GetStudentVFX().ActivateSmoke();
             TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentAboutToBurnout);
-            }
-            isShaking = true;
-           // studentCore.IsAboutToBurnOut = true; 
-            // ¡MAGIA PURA! Movemos SOLAMENTE el dibujo (el hijo).
-            // Como su papá es el Asiento, su "centro" siempre es Vector3.zero
-            statusImageParent.transform.localPosition = originalPosition + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
-            //Debug.Log("El alumno se está queamdno");
         }
-        else if (isShaking)
-        {
-            // Regresamos el dibujo a su centro exacto (0,0,0)
-            statusImageParent.transform.localPosition = originalPosition;
-            isShaking = false;
-            // studentCore.IsAboutToBurnOut = false;
-            //studentCore.GetStudentVFX().DeactivateAllParticles();
-            studentCore.GetStudentVFX().DeactivateSmoke();
-        }
+        isShaking = true;
+        statusImageParent.transform.localPosition = originalPosition + (Vector3)(UnityEngine.Random.insideUnitCircle * shakeIntensity);
     }
+    else if (isShaking)
+    {
+        statusImageParent.transform.localPosition = originalPosition;
+        isShaking = false;
+        studentCore.GetStudentVFX().DeactivateSmoke();
+        
+        // ¡Aquí detenemos la corrutina forzosamente!
+        if (activeFlashCoroutine != null)
+        {
+            StopCoroutine(activeFlashCoroutine);
+            activeFlashCoroutine = null;
+        }
+        
+        warningImage.enabled = false; 
+    }
+}
+    
+    private IEnumerator FlashCoroutine(Image warningImg)
+{
+    // El ciclo se repetirá infinitamente mientras siga trabajando
+    while (studentCore.currentState == StudentState.Working)
+    {
+        warningImg.enabled = true;
+        yield return new WaitForSeconds(0.5f);
+        
+        // Si el estado cambia a mitad de la espera, salimos
+        if (studentCore.currentState != StudentState.Working) break;
+
+        warningImg.enabled = false;
+        yield return new WaitForSeconds(0.1f);
+    }
+
+    // Nos aseguramos de apagar la imagen cuando el ciclo se rompa
+    warningImg.enabled = false;
+}
 }

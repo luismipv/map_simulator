@@ -16,7 +16,7 @@ MonoBehaviour:
   delayBeforeShowing: 0
   autoAdvanceDuration: 1
   pausesGame: 0
-  lockAllTools: 0
+  lockAllTools: 1
   showArrow: 0
   pointToStudent: 0
   uiButtonName: 

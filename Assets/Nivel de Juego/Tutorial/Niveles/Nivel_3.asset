@@ -13,25 +13,42 @@ MonoBehaviour:
   m_Name: Nivel_3
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   classroomLayout: {fileID: 11400000, guid: 7ef32b5fc2eba4fb29182373559be62c, type: 2}
+  isTutorialLevel: 1
+  nextLevel: {fileID: 11400000, guid: accbd03fa074a4645946b3d37770d0b1, type: 2}
   spawnMode: 1
   totalRandomStudents: 5
   fixedStudentRoster:
   - {fileID: 11400000, guid: f4fb6cb99368c4913a31505024f23104, type: 2}
   - {fileID: 11400000, guid: 9f0c8b9ae74bb4a6d81e7db69b4dfbca, type: 2}
   - {fileID: 11400000, guid: 09e8e62c8aa834187bda7af01272a27b, type: 2}
+  tutorialStudentPrefabOverride: {fileID: 1433359620011395308, guid: 130cd775d51404fc1b18f719071a01ed, type: 3}
+  startingMoney: 0
+  moneyPerPass: 50
+  maxDropouts: 3
+  enableMoneyFines: 0
+  totalPartials: 1
+  initialLearningQuota: 100
+  quotaIncreasePerPartial: 50
+  minGlobalTimer: 70
+  maxGlobalTimer: 120
+  timeReductionPerPartial: 30
+  maxEndSemesterMultiplier: 2
+  learningSpeedMultiplier: 3
   enableTimer: 0
   enableDistractions: 1
   enableSynergies: 1
   enableSpatialEffects: 1
-  isTutorialLevel: 1
-  nextLevel: {fileID: 11400000, guid: accbd03fa074a4645946b3d37770d0b1, type: 2}
-  learningSpeedMultiplier: 3
+  allowedTools:
+  - {fileID: 11400000, guid: 918485bc529094ce99d8f236287dea9e, type: 2}
+  - {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
+  allowedGlobalTools: []
   tutorialSequences:
   - noteName: Inicio
     triggerType: 0
     steps:
-    - {fileID: 11400000, guid: 139e74a43bb3c40d180a843ded54273e, type: 2}
-    - {fileID: 11400000, guid: 42b9a19fcd1f74653870ef4d65fff1f9, type: 2}
+    - {fileID: 11400000, guid: a8980e26061ba4c3ab8f4c51bf79351f, type: 2}
+    - {fileID: 11400000, guid: 0fd2c86b1c3d64022b99413f91ddd91f, type: 2}
+    - {fileID: 11400000, guid: e6ebd479ea2794070af6da9c2e737e37, type: 2}
     triggerOnlyOnce: 1
     hasTriggered: 1
   - noteName: Alumnos Que Distraen
@@ -44,9 +61,13 @@ MonoBehaviour:
   - noteName: Seat Changed
     triggerType: 8
     steps:
-    - {fileID: 11400000, guid: 28d4018a4f5a9480b9f42d5295364517, type: 2}
-    - {fileID: 11400000, guid: 719c0cbac27d341289e774e27c2d30bc, type: 2}
-    - {fileID: 11400000, guid: a229fdbc13f7c4440b6e7d0e87563d1a, type: 2}
+    - {fileID: 11400000, guid: 6a2910988059c496b94b298a836e3840, type: 2}
+    - {fileID: 11400000, guid: 03e08db3ac8354eae95b96bc2ff58d65, type: 2}
+    - {fileID: 11400000, guid: 5d8205857f91e4a519191640ae898a8a, type: 2}
+    - {fileID: 11400000, guid: 1f538e76085624509893b698b1d00cd8, type: 2}
+    - {fileID: 11400000, guid: 709a9e2f391464ac697815daaaca930b, type: 2}
+    - {fileID: 11400000, guid: 2d5e9d4d76b7e4ceab9fc378269d628b, type: 2}
+    - {fileID: 11400000, guid: e8b6bd4db3f5f43fea51b4a080e96828, type: 2}
     triggerOnlyOnce: 1
     hasTriggered: 1
   - noteName: Graduados
@@ -57,17 +78,3 @@ MonoBehaviour:
     - {fileID: 11400000, guid: a914e06b86e4c454fb66eb6c2a57e34b, type: 2}
     triggerOnlyOnce: 1
     hasTriggered: 1
-  allowedTools:
-  - {fileID: 11400000, guid: 918485bc529094ce99d8f236287dea9e, type: 2}
-  - {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
-  startingMoney: 0
-  moneyPerPass: 50
-  maxDropouts: 3
-  enableMoneyFines: 0
-  totalPartials: 1
-  initialLearningQuota: 100
-  quotaIncreasePerPartial: 50
-  maxGlobalTimer: 120
-  minGlobalTimer: 70
-  timeReductionPerPartial: 30
-  maxEndSemesterMultiplier: 2

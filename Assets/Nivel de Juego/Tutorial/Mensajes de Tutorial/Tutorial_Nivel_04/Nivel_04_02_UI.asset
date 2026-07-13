@@ -10,8 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1dbcc7fd369a34a30a2b5badb19683f2, type: 3}
-  m_Name: Nivel 3 - Dialogo 5
+  m_Name: Nivel_04_02_UI
   m_EditorClassIdentifier: Assembly-CSharp::TutorialStepSO
-  dialogueText: "Y con qui\xE9n est\xE1n sentados."
+  dialogueText: Experimenta con las combinaciones!
+  delayBeforeShowing: 0
+  autoAdvanceDuration: 0
   pausesGame: 1
-  lockAllTools: 1
+  lockAllTools: 0
+  showArrow: 0
+  pointToStudent: 0
+  uiButtonName: 
+  arrowAngle: 180
+  actionOnDisplay: 0
+  targetSeat: 0
+  forcedBubbleText: 
+  forcedBubbleColor: {r: 1, g: 1, b: 1, a: 1}

@@ -10,8 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1dbcc7fd369a34a30a2b5badb19683f2, type: 3}
-  m_Name: Nivel 3 - Dialogo 6
+  m_Name: Nivel_04_05_UI
   m_EditorClassIdentifier: Assembly-CSharp::TutorialStepSO
-  dialogueText: "Mira c\xF3mo reaccionan."
-  pausesGame: 1
-  lockAllTools: 1
+  dialogueText: 
+  delayBeforeShowing: 0
+  autoAdvanceDuration: 0
+  pausesGame: 0
+  lockAllTools: 0
+  showArrow: 0
+  pointToStudent: 0
+  uiButtonName: Tarea
+  arrowAngle: -90
+  actionOnDisplay: 4
+  targetSeat: 0
+  forcedBubbleText: Pero no se mame, profesor...
+  forcedBubbleColor: {r: 0, g: 0, b: 0, a: 1}

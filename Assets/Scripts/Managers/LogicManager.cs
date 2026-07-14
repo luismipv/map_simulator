@@ -38,7 +38,10 @@ public class Logic : MonoBehaviour
 
     void Start()
     {
-        isGameActive = false; 
+        isGameActive = false;
+
+        if (LevelState.Instance != null && LevelState.Instance.SelectedLevelData != null)
+            currentLevel = LevelState.Instance.SelectedLevelData;
         
         if (currentLevel != null)
         {

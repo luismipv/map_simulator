@@ -77,6 +77,14 @@ public class Student3D : Student
         BurnedOut = false;
     }
 
+    private void Rest()
+    {
+        Resting = true;
+        WorkingMultiplier = 1.0f;
+        Distracted = false;
+        BurnedOut = false;
+    }
+
     public override void ChangeState(StudentState newState){
         StudentState currState = currentState;
         base.ChangeState(newState); 
@@ -99,8 +107,9 @@ public class Student3D : Student
                 studentVFX.ActivateFire();
                 break;
             case StudentState.Resting:
-                Working();
+                //Working();
                 Resting = true;
+                studentVFX.ActivateRecover();
                 break;
             case StudentState.DroppedOut:
                 Working();

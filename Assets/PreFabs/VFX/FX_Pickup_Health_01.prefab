@@ -9856,14 +9856,14 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7537171788128407754}
   serializedVersion: 8
-  lengthInSec: 5
+  lengthInSec: 2
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 3
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -9931,7 +9931,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 5
+      scalar: 1.82
       minScalar: 0.5
       maxCurve:
         serializedVersion: 2
@@ -10002,7 +10002,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.4068966, g: 1, b: 0, a: 1}
+      maxColor: {r: 0.4078431, g: 1, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 0.51724136, b: 0, a: 1}
@@ -10102,7 +10102,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 1
-      minScalar: 0
+      minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10155,7 +10155,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 1
-      minScalar: 0
+      minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10349,7 +10349,7 @@ ParticleSystem:
     gravitySource: 0
     maxNumParticles: 50
     customEmitterVelocity: {x: 0, y: 0, z: 0}
-    size3D: 0
+    size3D: 1
     rotation3D: 1
     gravityModifier:
       serializedVersion: 2
@@ -10777,7 +10777,7 @@ ParticleSystem:
       repeatInterval: 0.01
       probability: 1
   SizeModule:
-    enabled: 0
+    enabled: 1
     curve:
       serializedVersion: 2
       minMaxState: 1
@@ -10800,6 +10800,15 @@ ParticleSystem:
           value: 0.9378797
           inSlope: 0.03639077
           outSlope: 0.03639077
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 0.9567194
+          value: 0.25325477
+          inSlope: -5.815252
+          outSlope: -5.815252
           tangentMode: 0
           weightedMode: 0
           inWeight: 0.33333334
@@ -10852,15 +10861,24 @@ ParticleSystem:
           time: 0
           value: 0
           inSlope: 0
-          outSlope: 1
+          outSlope: 0
           tangentMode: 0
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 1
+          time: 0.73631287
           value: 1
-          inSlope: 1
+          inSlope: -1.1236149
+          outSlope: -1.1236149
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.22314528
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 0.09230763
+          inSlope: 0
           outSlope: 0
           tangentMode: 0
           weightedMode: 0
@@ -10905,16 +10923,25 @@ ParticleSystem:
           time: 0
           value: 0
           inSlope: 0
-          outSlope: 1
+          outSlope: 0
           tangentMode: 0
           weightedMode: 0
           inWeight: 0.33333334
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 1
+          time: 0.72521895
           value: 1
+          inSlope: -1.2723552
+          outSlope: -1.2723552
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.20007372
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 0.015384674
           inSlope: 1
-          outSlope: 0
+          outSlope: 1
           tangentMode: 0
           weightedMode: 0
           inWeight: 0.33333334
@@ -14604,7 +14631,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4a4c6ca3fe554bc79cc18b900a32c956, type: 2}
+  - {fileID: 2100000, guid: 6868e43bc3fc4b878e4ac5ae684a2efa, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

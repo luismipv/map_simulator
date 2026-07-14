@@ -10,6 +10,7 @@ public class StudentVFX : MonoBehaviour
     public ParticleSystem finished;
     public ParticleSystem fire;
     public ParticleSystem flow;
+    public ParticleSystem recover;
 
     public void ActivateSmoke()
     {
@@ -109,5 +110,25 @@ public class StudentVFX : MonoBehaviour
             fire.gameObject.SetActive(false);
         if (flow != null)
             flow.gameObject.SetActive(false);
+        if (recover != null)
+            recover.gameObject.SetActive(false);
+    }
+
+    public void ActivateRecover()
+    {
+        if (recover != null)
+        {
+            recover.gameObject.SetActive(true);
+            recover.Play();
+        }
+    }
+
+    public void DeactivateRecover()
+    {
+        if (recover != null)
+        {
+            recover.gameObject.SetActive(false);
+            recover.Stop();
+        }
     }
 }

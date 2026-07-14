@@ -5,27 +5,43 @@ using System.Collections.Generic;
 [CustomEditor(typeof(AudioManager))]
 public class AudioManagerEditor : Editor
 {
-    private AudioSource previewSource;
+    private GameObject previewGO;
+    private List<AudioSource> previewSources = new List<AudioSource>();
     private Dictionary<string, bool> foldoutStates = new Dictionary<string, bool>();
+    
+    // NUEVO: Para guardar si las carpetas están abiertas o cerradas
+    private Dictionary<string, bool> folderStates = new Dictionary<string, bool>(); 
 
     private void OnEnable()
     {
-        GameObject previewGO = EditorUtility.CreateGameObjectWithHideFlags("AudioPreview", HideFlags.HideAndDontSave, typeof(AudioSource));
-        previewSource = previewGO.GetComponent<AudioSource>();
+        previewGO = EditorUtility.CreateGameObjectWithHideFlags("AudioPreview", HideFlags.HideAndDontSave, typeof(GameObject));
+        EditorApplication.update += OnEditorUpdate;
     }
 
     private void OnDisable()
     {
-        if (previewSource != null)
+        if (previewGO != null) DestroyImmediate(previewGO);
+        EditorApplication.update -= OnEditorUpdate;
+    }
+
+    private void OnEditorUpdate()
+    {
+        bool isAnyPlaying = false;
+        for (int i = 0; i < previewSources.Count; i++)
         {
-            DestroyImmediate(previewSource.gameObject);
+            if (previewSources[i] != null && previewSources[i].isPlaying)
+            {
+                isAnyPlaying = true;
+                break;
+            }
         }
+
+        if (isAnyPlaying) Repaint();
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-
         SerializedProperty listProp = serializedObject.FindProperty("fallbackAudioEvents");
         
         EditorGUILayout.Space(5);
@@ -34,154 +50,204 @@ public class AudioManagerEditor : Editor
         if (listProp.isExpanded)
         {
             EditorGUI.indentLevel++;
-            
-            // ELIMINADO: El campo de Size para evitar accidentes.
 
+            // ==========================================
+            // LÓGICA DE CARPETAS
+            // ==========================================
+            // 1. Recopilar todas las categorías únicas que existen en la lista
+            List<string> uniqueCategories = new List<string>();
             for (int i = 0; i < listProp.arraySize; i++)
             {
-                SerializedProperty elementProp = listProp.GetArrayElementAtIndex(i);
-                SerializedProperty nameProp = elementProp.FindPropertyRelative("eventName");
-                SerializedProperty typeProp = elementProp.FindPropertyRelative("eventType");
+                SerializedProperty catProp = listProp.GetArrayElementAtIndex(i).FindPropertyRelative("category");
+                string catName = string.IsNullOrEmpty(catProp.stringValue) ? "General" : catProp.stringValue;
+                if (!uniqueCategories.Contains(catName)) uniqueCategories.Add(catName);
+            }
 
-                string eventNameString = string.IsNullOrEmpty(nameProp.stringValue) ? $"Element {i}" : nameProp.stringValue;
-                string typeLabel = ((AudioEventType)typeProp.enumValueIndex).ToString();
-                string foldoutKey = elementProp.propertyPath;
+            // Ordenamos alfabéticamente para que se vea más limpio (opcional)
+            uniqueCategories.Sort();
 
-                if (!foldoutStates.ContainsKey(foldoutKey)) foldoutStates[foldoutKey] = false;
+            // 2. Dibujar cada carpeta
+            foreach (string category in uniqueCategories)
+            {
+                if (!folderStates.ContainsKey(category)) folderStates[category] = true;
 
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.Space(5);
                 
-                EditorGUILayout.BeginHorizontal();
-                
-                foldoutStates[foldoutKey] = EditorGUILayout.Foldout(foldoutStates[foldoutKey], $"{eventNameString} ({typeLabel})", true);
-                
-                GUILayout.FlexibleSpace();
-                
-                // Botón PLAY
-                GUI.backgroundColor = new Color(1f, 0.6f, 0.2f); 
-                if (GUILayout.Button("PLAY", GUILayout.Width(55), GUILayout.Height(18)))
-                {
-                    PlayPreview(elementProp);
-                }
-                
-                // Botón STOP
+                // Le damos un color ligeramente distinto a la carpeta para que resalte
+                GUI.backgroundColor = new Color(0.85f, 0.85f, 0.85f);
+                EditorGUILayout.BeginVertical("window");
                 GUI.backgroundColor = Color.white;
-                if (GUILayout.Button("STOP", GUILayout.Width(55), GUILayout.Height(18)))
-                {
-                    previewSource.Stop();
-                }
 
-                // Botón ELIMINAR (X)
-                GUI.backgroundColor = new Color(0.9f, 0.3f, 0.3f); 
-                if (GUILayout.Button("X", GUILayout.Width(25), GUILayout.Height(18)))
-                {
-                    listProp.DeleteArrayElementAtIndex(i);
-                    GUI.backgroundColor = Color.white;
-                    break; // Rompemos el ciclo para evitar errores de GUI al modificar la lista mientras se dibuja
-                }
-                GUI.backgroundColor = Color.white;
-                
-                EditorGUILayout.EndHorizontal();
+                folderStates[category] = EditorGUILayout.Foldout(folderStates[category], $"📁 {category}", true, EditorStyles.foldoutHeader);
 
-                if (foldoutStates[foldoutKey])
+                if (folderStates[category])
                 {
                     EditorGUI.indentLevel++;
-                    EditorGUILayout.Space(2);
-                    
-                    EditorGUILayout.PropertyField(nameProp, new GUIContent("Event Name"));
-                    EditorGUILayout.PropertyField(typeProp, new GUIContent("Event Type"));
+                    EditorGUILayout.Space(5);
 
-                    AudioEventType currentType = (AudioEventType)typeProp.enumValueIndex;
-                    if (currentType == AudioEventType.SimpleClip)
+                    // 3. Dibujar los eventos que pertenecen a esta carpeta
+                    for (int i = 0; i < listProp.arraySize; i++)
                     {
-                        EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("clip"), new GUIContent("Clip"));
-                    }
-                    else
-                    {
-                        EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("clipList"), new GUIContent("Clip List"), true);
-                    }
+                        SerializedProperty elementProp = listProp.GetArrayElementAtIndex(i);
+                        SerializedProperty catProp = elementProp.FindPropertyRelative("category");
+                        string currentCat = string.IsNullOrEmpty(catProp.stringValue) ? "General" : catProp.stringValue;
 
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("volume"), new GUIContent("Volume"));
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("isLooping"), new GUIContent("Looping"));
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("randomPitchRange"), new GUIContent("Rand. Pitch Range"));
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("randomVolumeRange"), new GUIContent("Rand. Vol. Range"));
-                    EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("startAtTime"), new GUIContent("Start At Time"));
+                        // Si no es de esta carpeta, lo saltamos y seguimos buscando
+                        if (currentCat != category) continue;
 
-                    // ==========================================
-                    // NUEVO: VISUALIZADOR DE FORMA DE ONDA
-                    // ==========================================
-                    AudioClip previewClip = null;
-                    if (currentType == AudioEventType.SimpleClip)
-                    {
-                        previewClip = (AudioClip)elementProp.FindPropertyRelative("clip").objectReferenceValue;
-                    }
-                    else
-                    {
-                        // En contenedores, previsualizamos el primer clip de la lista para darnos una idea
-                        SerializedProperty cliplistProp = elementProp.FindPropertyRelative("clipList");
-                        if (cliplistProp.arraySize > 0)
-                        {
-                            previewClip = (AudioClip)cliplistProp.GetArrayElementAtIndex(0).objectReferenceValue;
-                        }
-                    }
+                        SerializedProperty nameProp = elementProp.FindPropertyRelative("eventName");
+                        SerializedProperty typeProp = elementProp.FindPropertyRelative("eventType");
 
-                    if (previewClip != null)
-                    {
-                        GUILayout.Space(10);
-                        // Unity genera una textura del waveform en segundo plano
-                        Texture2D waveformTexture = AssetPreview.GetAssetPreview(previewClip);
+                        string eventNameString = string.IsNullOrEmpty(nameProp.stringValue) ? $"Element {i}" : nameProp.stringValue;
+                        string typeLabel = ((AudioEventType)typeProp.enumValueIndex).ToString();
+                        string foldoutKey = elementProp.propertyPath;
+
+                        if (!foldoutStates.ContainsKey(foldoutKey)) foldoutStates[foldoutKey] = false;
+
+                        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                        EditorGUILayout.BeginHorizontal();
                         
-                        if (waveformTexture != null)
+                        foldoutStates[foldoutKey] = EditorGUILayout.Foldout(foldoutStates[foldoutKey], $"{eventNameString} ({typeLabel})", true);
+                        
+                        GUILayout.FlexibleSpace();
+                        
+                        GUI.backgroundColor = new Color(1f, 0.6f, 0.2f); 
+                        if (GUILayout.Button("PLAY", GUILayout.Width(55), GUILayout.Height(18)))
                         {
-                            // Reservamos un rectángulo en la interfaz (Ancho dinámico, 40px de alto)
-                            Rect rect = GUILayoutUtility.GetRect(EditorGUIUtility.currentViewWidth - 60, 40);
-                            
-                            // Fondo oscuro estilo Logic Pro
-                            EditorGUI.DrawRect(rect, new Color(0.15f, 0.15f, 0.15f));
-                            
-                            // Dibujamos el Waveform
-                            GUI.color = new Color(0.2f, 0.8f, 0.9f); // Azul cian
-                            GUI.DrawTexture(rect, waveformTexture, ScaleMode.StretchToFill);
-                            GUI.color = Color.white; // Reseteamos color
+                            PlayPreview(elementProp);
+                        }
+                        
+                        GUI.backgroundColor = Color.white;
+                        if (GUILayout.Button("STOP", GUILayout.Width(55), GUILayout.Height(18)))
+                        {
+                            StopAllPreviews();
+                        }
 
-                            // Calculamos y dibujamos la línea roja del Start Time
-                            float startTime = elementProp.FindPropertyRelative("startAtTime").floatValue;
-                            if (startTime < previewClip.length)
+                        GUI.backgroundColor = new Color(0.9f, 0.3f, 0.3f); 
+                        if (GUILayout.Button("X", GUILayout.Width(25), GUILayout.Height(18)))
+                        {
+                            listProp.DeleteArrayElementAtIndex(i);
+                            GUI.backgroundColor = Color.white;
+                            break; // Rompemos el ciclo principal por seguridad al borrar
+                        }
+                        GUI.backgroundColor = Color.white;
+                        
+                        EditorGUILayout.EndHorizontal();
+
+                        if (foldoutStates[foldoutKey])
+                        {
+                            EditorGUI.indentLevel++;
+                            EditorGUILayout.Space(2);
+                            
+                            // NUEVO: Ahora la categoría se puede editar desde aquí
+                            EditorGUILayout.PropertyField(catProp, new GUIContent("Folder / Category"));
+                            EditorGUILayout.Space(5);
+
+                            EditorGUILayout.PropertyField(nameProp, new GUIContent("Event Name"));
+                            EditorGUILayout.PropertyField(typeProp, new GUIContent("Event Type"));
+
+                            AudioEventType currentType = (AudioEventType)typeProp.enumValueIndex;
+                            if (currentType == AudioEventType.SimpleClip)
                             {
-                                float ratio = Mathf.Clamp01(startTime / previewClip.length);
-                                float lineX = rect.x + (ratio * rect.width);
-                                EditorGUI.DrawRect(new Rect(lineX, rect.y, 2, rect.height), Color.red);
+                                EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("clip"), new GUIContent("Clip"));
                             }
                             else
                             {
-                                EditorGUILayout.HelpBox("El Start Time es mayor a la duración del audio.", MessageType.Warning);
+                                EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("clipList"), new GUIContent("Clip List"), true);
                             }
-                        }
-                        else
-                        {
-                            // AssetPreview es asíncrono; si devuelve null, forzamos al editor a repintar 
-                            // hasta que la textura esté lista.
-                            Repaint();
-                        }
-                    }
-                    // ==========================================
-                    
-                    EditorGUI.indentLevel--;
-                    EditorGUILayout.Space(5);
-                }
 
-                EditorGUILayout.EndVertical();
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("volume"), new GUIContent("Volume"));
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("isLooping"), new GUIContent("Looping"));
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("allowOverlap"), new GUIContent("Allow Overlap"));
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("randomPitchRange"), new GUIContent("Rand. Pitch Range"));
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("randomVolumeRange"), new GUIContent("Rand. Vol. Range"));
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("startAtTime"), new GUIContent("Start At Time"));
+
+                            // WAVEFORM VISUALIZER
+                            AudioClip previewClip = null;
+                            if (currentType == AudioEventType.SimpleClip)
+                            {
+                                previewClip = (AudioClip)elementProp.FindPropertyRelative("clip").objectReferenceValue;
+                            }
+                            else
+                            {
+                                SerializedProperty cliplistProp = elementProp.FindPropertyRelative("clipList");
+                                if (cliplistProp.arraySize > 0)
+                                {
+                                    previewClip = (AudioClip)cliplistProp.GetArrayElementAtIndex(0).objectReferenceValue;
+                                }
+                            }
+
+                            if (previewClip != null)
+                            {
+                                GUILayout.Space(10);
+                                Texture2D waveformTexture = AssetPreview.GetAssetPreview(previewClip);
+                                
+                                if (waveformTexture != null)
+                                {
+                                    Rect rect = GUILayoutUtility.GetRect(EditorGUIUtility.currentViewWidth - 80, 40);
+                                    EditorGUI.DrawRect(rect, new Color(0.15f, 0.15f, 0.15f));
+                                    
+                                    GUI.color = new Color(0.2f, 0.8f, 0.9f); 
+                                    GUI.DrawTexture(rect, waveformTexture, ScaleMode.StretchToFill);
+                                    GUI.color = Color.white; 
+
+                                    float startTime = elementProp.FindPropertyRelative("startAtTime").floatValue;
+                                    if (startTime < previewClip.length)
+                                    {
+                                        float startRatio = startTime / previewClip.length;
+                                        float startLineX = rect.x + (startRatio * rect.width);
+                                        EditorGUI.DrawRect(new Rect(startLineX, rect.y, 2, rect.height), Color.red);
+                                    }
+
+                                    bool isThisClipPlaying = false;
+                                    float currentPlayTime = 0f;
+
+                                    foreach(var src in previewSources)
+                                    {
+                                        if (src != null && src.isPlaying && src.clip == previewClip)
+                                        {
+                                            isThisClipPlaying = true;
+                                            currentPlayTime = src.time;
+                                            break;
+                                        }
+                                    }
+
+                                    if (isThisClipPlaying)
+                                    {
+                                        float playRatio = Mathf.Clamp01(currentPlayTime / previewClip.length);
+                                        float playLineX = rect.x + (playRatio * rect.width);
+                                        EditorGUI.DrawRect(new Rect(playLineX, rect.y, 2, rect.height), Color.yellow);
+                                    }
+                                }
+                                else
+                                {
+                                    Repaint();
+                                }
+                            }
+                            
+                            EditorGUI.indentLevel--;
+                            EditorGUILayout.Space(5);
+                        }
+
+                        EditorGUILayout.EndVertical();
+                    }
+                    EditorGUI.indentLevel--;
+                }
+                EditorGUILayout.EndVertical(); // Fin de la carpeta
             }
 
-            // BOTÓN SEGURO PARA AÑADIR EVENTOS
             EditorGUILayout.Space(10);
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             
-            GUI.backgroundColor = new Color(0.3f, 0.8f, 0.4f); // Verde amigable
+            GUI.backgroundColor = new Color(0.3f, 0.8f, 0.4f); 
             if (GUILayout.Button("+ Añadir Nuevo Evento", GUILayout.Width(200), GUILayout.Height(30)))
             {
                 listProp.arraySize++;
+                // Al añadir, le forzamos la categoría General para que no se pierda
+                SerializedProperty newElement = listProp.GetArrayElementAtIndex(listProp.arraySize - 1);
+                newElement.FindPropertyRelative("category").stringValue = "General";
             }
             GUI.backgroundColor = Color.white;
             
@@ -195,47 +261,67 @@ public class AudioManagerEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
+    private void StopAllPreviews()
+    {
+        foreach (var src in previewSources)
+        {
+            if (src != null) src.Stop();
+        }
+    }
+
     private void PlayPreview(SerializedProperty elementProp)
     {
+        StopAllPreviews();
+
         AudioEventType type = (AudioEventType)elementProp.FindPropertyRelative("eventType").enumValueIndex;
         float randomPitchRange = elementProp.FindPropertyRelative("randomPitchRange").floatValue;
         float randomVolumeRange = elementProp.FindPropertyRelative("randomVolumeRange").floatValue;
         float volume = elementProp.FindPropertyRelative("volume").floatValue;
         float startAtTime = elementProp.FindPropertyRelative("startAtTime").floatValue;
 
-        AudioClip clipToPlay = null;
+        List<AudioClip> clipsToPlay = new List<AudioClip>();
 
         if (type == AudioEventType.SimpleClip)
         {
-            clipToPlay = (AudioClip)elementProp.FindPropertyRelative("clip").objectReferenceValue;
+            clipsToPlay.Add((AudioClip)elementProp.FindPropertyRelative("clip").objectReferenceValue);
         }
         else
         {
             SerializedProperty listProp = elementProp.FindPropertyRelative("clipList");
             if (listProp.arraySize > 0)
             {
-                if (type == AudioEventType.RandomContainer)
+                if (type == AudioEventType.BlendContainer)
                 {
-                    int randIdx = Random.Range(0, listProp.arraySize);
-                    clipToPlay = (AudioClip)listProp.GetArrayElementAtIndex(randIdx).objectReferenceValue;
+                    for (int i = 0; i < listProp.arraySize; i++)
+                    {
+                        clipsToPlay.Add((AudioClip)listProp.GetArrayElementAtIndex(i).objectReferenceValue);
+                    }
                 }
-                else if (type == AudioEventType.SequenceContainer)
+                else if (type == AudioEventType.RandomContainer || type == AudioEventType.SequenceContainer)
                 {
                     int targetIdx = Random.Range(0, listProp.arraySize); 
-                    clipToPlay = (AudioClip)listProp.GetArrayElementAtIndex(targetIdx).objectReferenceValue;
+                    clipsToPlay.Add((AudioClip)listProp.GetArrayElementAtIndex(targetIdx).objectReferenceValue);
                 }
             }
         }
 
-        if (clipToPlay == null) return;
+        while (previewSources.Count < clipsToPlay.Count)
+        {
+            previewSources.Add(previewGO.AddComponent<AudioSource>());
+        }
 
-        float finalPitch = 1f + Random.Range(-randomPitchRange, randomPitchRange);
-        float finalVolume = Mathf.Clamp01(volume - Random.Range(0f, randomVolumeRange));
+        for (int i = 0; i < clipsToPlay.Count; i++)
+        {
+            if (clipsToPlay[i] == null) continue;
 
-        previewSource.clip = clipToPlay;
-        previewSource.volume = finalVolume;
-        previewSource.pitch = finalPitch;
-        previewSource.time = startAtTime;
-        previewSource.Play();
+            float finalPitch = 1f + Random.Range(-randomPitchRange, randomPitchRange);
+            float finalVolume = Mathf.Clamp01(volume - Random.Range(0f, randomVolumeRange));
+
+            previewSources[i].clip = clipsToPlay[i];
+            previewSources[i].volume = finalVolume;
+            previewSources[i].pitch = finalPitch;
+            previewSources[i].time = startAtTime;
+            previewSources[i].Play();
+        }
     }
 }

@@ -153,11 +153,14 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         currentFlowTimer = flowDuration;
         TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentFlow);
+        AudioManager.Instance.PostEvent("Student_Flow", this.gameObject);
     }
     else if (currentState == StudentState.Burnout)
     {
         currentBurnoutTimer = burnoutTimeLimit;
         ModifyLearningInstant(-20f); 
+        AudioManager.Instance.StopEvent("Student_Flow", this.gameObject);
+        AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
         AudioManager.Instance.PostEvent("Student_BurnedOut", this.gameObject); 
         TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentBurnout);
     }
@@ -169,6 +172,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     else if (currentState == StudentState.Resting) 
     {
+        AudioManager.Instance.StopEvent("Student_Flow", this.gameObject);
+        AudioManager.Instance.PostEvent("Student_Resting", this.gameObject);
         currentRestTimer = mandatoryRestDuration; 
         RemoveLearningModifier(ModifierID.Panico);
     }
@@ -305,7 +310,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
 
 
-        if (currentState == StudentState.Working && learningLevel > 50f && stressLevel >= 60f && stressLevel < 75f) 
+        if (currentState == StudentState.Working && learningLevel > 50f && stressLevel >= 40f && stressLevel < 75f) 
         {
             ChangeState(StudentState.Flow);
         }

@@ -105,7 +105,7 @@ public class TitleMenuManager : MonoBehaviour
         }
     }
 
-    private IEnumerator TransitionStartOverlay(bool isVisible = false){
+    private IEnumerator TransitionStartOverlay(bool isVisible = false, float delay = 2f){
         if (startOverlayScreen == null) yield break;
         // Scale from 1.1 to 1 over 0.2 seconds for the startOverlayScreen
         float scaleElapsed = 0f;
@@ -114,6 +114,8 @@ public class TitleMenuManager : MonoBehaviour
         Vector3 finalScale = Vector3.one;
 
         startOverlayScreen.localScale = initialScale;
+
+        yield return new WaitForSeconds(delay);
 
         while (scaleElapsed < scaleDuration)
         {

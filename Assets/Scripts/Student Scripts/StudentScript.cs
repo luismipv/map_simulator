@@ -139,6 +139,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     if (currentState == StudentState.Graduated)
     {
         ShowBubble("¡Se logró!", Color.yellow);
+        AudioManager.Instance.StopEvent("Student_Flow",this.gameObject);
         TriggerGraduation();
     }
     else if (currentState == StudentState.Finished)
@@ -146,6 +147,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         ShowBubble("¡Listo! ¿Quién necesita ayuda?", Color.yellow);
         AudioManager.Instance.PostEvent("Student_Finished", this.gameObject); 
         TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentTutor);
+        AudioManager.Instance.StopEvent("Student_Flow",this.gameObject);
+
         learningLevel = maxLearning; 
         RemoveLearningModifier(ModifierID.Panico);
     }

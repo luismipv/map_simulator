@@ -34,11 +34,13 @@ public class Multiplier : MonoBehaviour
 
         if(previousValue < 1f && value > 1f || previousValue > 1f && value < 1f){
             StartCoroutine(ExpandFromZero(0.3f));
+            //AudioManager.Instance.PostEvent("UI_Stamp_Play",this.gameObject);
         }
     }
 
     void OnEnable(){
         StartCoroutine(ExpandFromZero(0.3f));
+        //AudioManager.Instance.PostEvent("UI_Stamp_Play",this.gameObject);
     }
 
     // Coroutine to expand this object's scale from 0 to 1 smoothly
@@ -73,8 +75,14 @@ public class Multiplier : MonoBehaviour
             elapsed += Time.deltaTime;
             yield return null;
         }
+
+        if(_multiplierValue != 1)
+        {
+            AudioManager.Instance.PostEvent("UI_Stamp_Play",this.gameObject);
+        }
         // Ensure exactly 1 and 0° at end
         transform.localScale = Vector3.one;
         transform.localRotation = Quaternion.identity;
+        //AudioManager.Instance.PostEvent("UI_Stamp_Play",this.gameObject);
     }
 }

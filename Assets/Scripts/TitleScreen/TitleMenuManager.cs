@@ -4,6 +4,7 @@ using UnityEngine;
 public class TitleMenuManager : MonoBehaviour
 {
     [Header("Screens")]
+    public RectTransform startOverlayScreen;
     public RectTransform mainMenuScreen;
     public RectTransform optionsScreen;
     public RectTransform exitScreen;
@@ -17,9 +18,22 @@ public class TitleMenuManager : MonoBehaviour
     [Header("Transition Settings")]
     public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     public float transitionDuration = 0.3f;
+    public float startOverlayTransitionDuration = 1f;
+
+    void Awake(){
+        ShowStartOverlay();
+    }
 
     void Start(){
         HideMainMenu();
+    }
+
+    public void ShowStartOverlay(){
+        if (startOverlayScreen != null){
+            startOverlayScreen.gameObject.SetActive(true);
+            StartCoroutine(TransitionStartOverlay(true));
+        }
+
     }
 
     public void HideMainMenu(){
@@ -88,6 +102,51 @@ public class TitleMenuManager : MonoBehaviour
             HideMainMenu();
         }else{
             ShowOptions();
+        }
+    }
+
+    private IEnumerator TransitionStartOverlay(bool isVisible = false){
+        if (startOverlayScreen == null) yield break;
+        // Scale from 1.1 to 1 over 0.2 seconds for the startOverlayScreen
+        float scaleElapsed = 0f;
+        float scaleDuration = 0.2f;
+        Vector3 initialScale = Vector3.one * 1.1f;
+        Vector3 finalScale = Vector3.one;
+
+        startOverlayScreen.localScale = initialScale;
+
+        while (scaleElapsed < scaleDuration)
+        {
+            scaleElapsed += Time.deltaTime;
+            float scaleT = Mathf.Clamp01(scaleElapsed / scaleDuration);
+            startOverlayScreen.localScale = Vector3.Lerp(initialScale, finalScale, scaleT);
+            yield return null;
+        }
+        startOverlayScreen.localScale = finalScale;
+
+
+        Vector2 hidePos = new Vector2(startOverlayScreen.anchoredPosition.x, -1120f);
+        Vector2 showPos = new Vector2(startOverlayScreen.anchoredPosition.x, -110f);
+
+        Vector2 startPos = isVisible ? showPos : hidePos;
+        startOverlayScreen.anchoredPosition = startPos;
+        Vector2 targetPos = isVisible ? hidePos : showPos;
+
+        float elapsed = 0f;
+        float duration = startOverlayTransitionDuration;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float curveT = transitionCurve.Evaluate(t);
+            startOverlayScreen.anchoredPosition = Vector2.Lerp(startPos, targetPos, curveT);
+            yield return null;
+        }
+
+        startOverlayScreen.anchoredPosition = targetPos;
+        if (isVisible){
+            startOverlayScreen.gameObject.SetActive(false);
         }
     }
 

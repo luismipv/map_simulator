@@ -2529,7 +2529,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b62bf0a192cc4777ae2f88c60e1d7ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  levelToLoad: {fileID: 11400000, guid: 551c7a620b2664034b33001ac9c9b4ea, type: 2}
+  levelToLoad: {fileID: 11400000, guid: 1e84753b5163d40bab3b07f994fe7abf, type: 2}
 --- !u!114 &304259359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12446,6 +12446,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1353840230}
   - component: {fileID: 1353840231}
+  - component: {fileID: 1353840232}
   m_Layer: 0
   m_Name: UI Manager
   m_TagString: Untagged
@@ -12502,6 +12503,37 @@ MonoBehaviour:
   partialExamWarningUI: {fileID: 316697831}
   nextExamText: {fileID: 1933831902}
   tensionVignette: {fileID: 1073451635}
+--- !u!114 &1353840232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1353840229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9eeb5f3ce979da40bcfa671028b5e8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MultiplierIcons
+  multiplierIconData:
+  - modifierID: 0
+    icon: {fileID: 21300000, guid: 50a376541d5f7a549a9f3de6c6e43353, type: 3}
+  - modifierID: 1
+    icon: {fileID: 21300000, guid: 3e1f4336fbe1a704b847ef34e0b158c6, type: 3}
+  - modifierID: 2
+    icon: {fileID: 21300000, guid: 9043388f51ba4e64491893f1da63f245, type: 3}
+  - modifierID: 3
+    icon: {fileID: 21300000, guid: a71714e426f872c4699a1c0f5b73d818, type: 3}
+  - modifierID: 4
+    icon: {fileID: 21300000, guid: 79f19fadb7a930d4c8b2b3a7f3a803a3, type: 3}
+  - modifierID: 5
+    icon: {fileID: 21300000, guid: d012ea12eac0a724da246446f52f7ea1, type: 3}
+  - modifierID: 6
+    icon: {fileID: 21300000, guid: 43ffbcace97e11f41b226b27b563f1b7, type: 3}
+  - modifierID: 7
+    icon: {fileID: 21300000, guid: 757b8ddc1c16bd947ac056c6b2f7dddb, type: 3}
+  - modifierID: 8
+    icon: {fileID: 21300000, guid: d012ea12eac0a724da246446f52f7ea1, type: 3}
 --- !u!1 &1357373391
 GameObject:
   m_ObjectHideFlags: 0

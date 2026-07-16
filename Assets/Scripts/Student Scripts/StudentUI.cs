@@ -25,6 +25,12 @@ public class StudentUI : MonoBehaviour
     public Transform floatingTextCanvas; 
 
     [Header("Multiplicadores (UI Persistente)")]
+
+    public GameObject multipliersContainer;
+    public GameObject multiplierPrefab;
+
+    public Color positiveColor = new Color(0.3098039f, 0.6980392f, 0.5254902f);
+    public Color negativeColor = new Color(0.9490197f, 0.427451f, 0.4941177f);
     public TextMeshProUGUI multipliersText;
 
      [Header("Dialogo de Burbuja")]
@@ -46,7 +52,8 @@ public class StudentUI : MonoBehaviour
     private Coroutine hideBubbleCoroutine;
     private Coroutine animacionActual;
 
-
+    private Dictionary<ModifierID, Multiplier> multipliers = new Dictionary<ModifierID, Multiplier>();
+    [SerializeField] public Dictionary<ModifierID, Sprite> multiplierIcons = new Dictionary<ModifierID, Sprite>();
 
     protected struct FloatingTextData
     {
@@ -101,7 +108,7 @@ public class StudentUI : MonoBehaviour
         learningText.text = Mathf.RoundToInt(learning / studentCore.maxLearning * 100).ToString() + "%";
         learningSlider.value = learning / studentCore.maxLearning; 
 
-        RefreshMultipliers();
+        RefreshMultipliersUI();
     }
 
     private void UpdateStateMessages(StudentState newState)
@@ -230,6 +237,47 @@ public class StudentUI : MonoBehaviour
         multipliersText.text = finalText;
     }
 
+    private void RefreshMultipliersUI() {
+        if (multipliersContainer == null) return;
+
+        // 1. DIBUJAR TODOS LOS BUFFS DE APRENDIZAJE APILADOS
+        foreach (var buff in studentCore.activeLearningBuffs)
+        {
+            if (!multipliers.ContainsKey(buff.Key))
+            {
+                GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
+                multipliers[buff.Key] = multiplier.GetComponent<Multiplier>();
+            }
+            multipliers[buff.Key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), buff.Value > 1f ? positiveColor : negativeColor);
+        }
+
+        // 2. DIBUJAR TODOS LOS BUFFS DE ESTRÉS APILADOS
+        foreach (var buff in studentCore.activeStressBuffs)
+        {
+            if (!multipliers.ContainsKey(buff.Key))
+            {
+                GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
+                multipliers[buff.Key] = multiplier.GetComponent<Multiplier>();
+            }
+            //multipliers[buff.Key].SetData(buff.Key, buff.Value);
+            // Tratamiento especial usando el Enum directamente
+            if (buff.Key == ModifierID.FaltaPoco)
+            {
+                if (buff.Value >= 1.8f) 
+                {
+                    multipliers[buff.Key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), negativeColor);
+                }
+            }
+            else 
+            {
+                if (buff.Value > 1f) 
+                    multipliers[buff.Key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), negativeColor);
+                else if (buff.Value < 1f) 
+                    multipliers[buff.Key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), positiveColor);
+            }
+        }
+    }
+    // Muestra la burbuja de texto
     public void ShowBubble(string message, Color color)
     {
         if (bubbleText != null && bubbleBackground != null)

@@ -22,6 +22,7 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [Range(0f, 1f)] public float darknessBoost = 0.7f;
 
     private Image buttonImage;
+    [SerializeField]private Image marker;
     private Button buttonComponent;
     private Color selectedColor; // Lo calculamos en secreto
     
@@ -111,6 +112,11 @@ public class ToolButtonUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         {
             // Si la herramienta de este botón es la que está activa, usa la versión saturada y oscura
             buttonImage.color = (assignedTool == activeTool) ? selectedColor : baseColor;
+            buttonImage.transform.localScale = (assignedTool != activeTool) ? Vector3.one : Vector3.one * 0.975f;
+        }
+        if (marker != null)
+        {
+            marker.gameObject.SetActive(assignedTool == activeTool);
         }
     }
 

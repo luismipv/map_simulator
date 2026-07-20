@@ -15,6 +15,7 @@ public class MultiplierIcons : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        multiplierIcons.Clear();
         foreach (var icon in multiplierIconData)
         {
             multiplierIcons.Add(icon.modifierID, icon.icon);

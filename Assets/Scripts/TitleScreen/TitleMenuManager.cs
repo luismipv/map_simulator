@@ -105,7 +105,7 @@ public class TitleMenuManager : MonoBehaviour
         }
     }
 
-    private IEnumerator TransitionStartOverlay(bool isVisible = false, float delay = 2f){
+    private IEnumerator TransitionStartOverlay(bool isVisible = false, float delay = 1f){
         if (startOverlayScreen == null) yield break;
         // Scale from 1.1 to 1 over 0.2 seconds for the startOverlayScreen
         float scaleElapsed = 0f;
@@ -114,6 +114,13 @@ public class TitleMenuManager : MonoBehaviour
         Vector3 finalScale = Vector3.one;
 
         startOverlayScreen.localScale = initialScale;
+
+        Vector2 hidePos = new Vector2(startOverlayScreen.offsetMax.x, -1000f);
+        Vector2 showPos = new Vector2(startOverlayScreen.offsetMax.x, 0f);
+        Vector2 minOffset = new Vector2(startOverlayScreen.offsetMin.x, -40f);
+
+        startOverlayScreen.offsetMax = showPos;     // offsetMax.y is 'top'
+        startOverlayScreen.offsetMin = minOffset;        // offsetMin.y is 'bottom'
 
         yield return new WaitForSeconds(delay);
 
@@ -127,11 +134,9 @@ public class TitleMenuManager : MonoBehaviour
         startOverlayScreen.localScale = finalScale;
 
 
-        Vector2 hidePos = new Vector2(startOverlayScreen.anchoredPosition.x, -1120f);
-        Vector2 showPos = new Vector2(startOverlayScreen.anchoredPosition.x, -110f);
 
         Vector2 startPos = isVisible ? showPos : hidePos;
-        startOverlayScreen.anchoredPosition = startPos;
+        //startOverlayScreen.anchoredPosition = startPos;
         Vector2 targetPos = isVisible ? hidePos : showPos;
 
         float elapsed = 0f;
@@ -142,11 +147,20 @@ public class TitleMenuManager : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
             float curveT = transitionCurve.Evaluate(t);
-            startOverlayScreen.anchoredPosition = Vector2.Lerp(startPos, targetPos, curveT);
+
+            // Interpolate only the 'top' value, keep bottom at -40
+            float newTop = Mathf.Lerp(startPos.y, targetPos.y, curveT);
+            startOverlayScreen.offsetMax = new Vector2(startOverlayScreen.offsetMax.x, newTop);     // offsetMax.y is 'top'
+            startOverlayScreen.offsetMin = minOffset;        // offsetMin.y is 'bottom'
+            
             yield return null;
+ 
         }
 
-        startOverlayScreen.anchoredPosition = targetPos;
+        //startOverlayScreen.anchoredPosition = targetPos;
+        startOverlayScreen.offsetMax = hidePos;     // offsetMax.y is 'top'
+        startOverlayScreen.offsetMin = new Vector2(startOverlayScreen.offsetMin.x, -40);        // offsetMin.y is 'bottom'
+
         if (isVisible){
             startOverlayScreen.gameObject.SetActive(false);
         }

@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d03174db460864b90b1ccbe8c09af1fb, type: 3}
+  m_Name: Nivel_6
+  m_EditorClassIdentifier: Assembly-CSharp::LevelData
+  classroomLayout: {fileID: 11400000, guid: 7ef32b5fc2eba4fb29182373559be62c, type: 2}
+  isTutorialLevel: 0
+  nextLevel: {fileID: 0}
+  spawnMode: 1
+  totalRandomStudents: 2
+  fixedStudentRoster:
+  - {fileID: 11400000, guid: 09e8e62c8aa834187bda7af01272a27b, type: 2}
+  - {fileID: 11400000, guid: f4fb6cb99368c4913a31505024f23104, type: 2}
+  tutorialStudentPrefabOverride: {fileID: 1433359620011395308, guid: 130cd775d51404fc1b18f719071a01ed, type: 3}
+  startingMoney: 0
+  moneyPerPass: 50
+  maxDropouts: 3
+  enableMoneyFines: 0
+  totalPartials: 3
+  initialLearningQuota: 100
+  quotaIncreasePerPartial: 50
+  minGlobalTimer: 70
+  maxGlobalTimer: 120
+  timeReductionPerPartial: 30
+  maxEndSemesterMultiplier: 2
+  learningSpeedMultiplier: 1
+  enableTimer: 1
+  enableDistractions: 1
+  enableSynergies: 1
+  enableSpatialEffects: 1
+  allowedTools:
+  - {fileID: 11400000, guid: 43f2748fd64634d89ae875bf151b8254, type: 2}
+  - {fileID: 11400000, guid: 918485bc529094ce99d8f236287dea9e, type: 2}
+  - {fileID: 11400000, guid: 745a914ac48f34da196a28d98c57bd6c, type: 2}
+  - {fileID: 11400000, guid: 85829a54985e64014bdd6aea94e4579a, type: 2}
+  allowedGlobalTools:
+  - {fileID: 11400000, guid: f5fdb8992668f439ca06d631ad660eff, type: 2}
+  - {fileID: 11400000, guid: 53aa0de8b58f04ef186178210dc0ea9d, type: 2}
+  - {fileID: 11400000, guid: b5c3e2e9c86764899ada89cb11ca21f9, type: 2}
+  tutorialSequences: []

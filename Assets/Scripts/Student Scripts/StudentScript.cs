@@ -57,7 +57,6 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     [HideInInspector] public float currentRestCooldown = 0f;
     [HideInInspector] public bool isExamMode = false;
 
-
     [Header("Efectos Visuales")]
     public GameObject graduationVFXPrefab;
     private Logic logicManager; 
@@ -75,6 +74,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public event Action<string,Color> OnBubbleTextRequested;
     public event Action<bool> OnHoverChanged; 
     public event Action<bool> OnJokeFeedbackEvent; 
+    public event Action OnModifiersChanged; // NUEVO EVENTO PARA OPTIMIZAR UI
 
     void Start()
     {
@@ -110,79 +110,82 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
 
     public virtual void ChangeState(StudentState newState)
-{
-    if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated || currentState == StudentState.Finished) return;  
-    
-    currentState = newState;
-    
-    // 1. MATAMOS EL SONIDO GLOBALMENTE AL CAMBIAR DE ESTADO
-    // Si estaba sonando, se calla. Si no estaba sonando, Wwise ignora esta línea.
-    AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
-    
-    // EFECTO CONTAGIO DEL COOL
-    if (currentState == StudentState.Flow && personalityData != null && personalityData.personalityType == StudentPersonality.Cool)
     {
-        if (SpatialManager.Instance != null && SpatialManager.Instance.neighborGraph.ContainsKey(this))
+        if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated || currentState == StudentState.Finished) return;  
+        
+        currentState = newState;
+        
+        // 1. MATAMOS EL SONIDO GLOBALMENTE AL CAMBIAR DE ESTADO
+        AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
+        
+        // EFECTO CONTAGIO DEL COOL
+        if (currentState == StudentState.Flow && personalityData != null && personalityData.personalityType == StudentPersonality.Cool)
         {
-            foreach (Student neighbor in SpatialManager.Instance.neighborGraph[this])
+            if (SpatialManager.Instance != null && SpatialManager.Instance.neighborGraph.ContainsKey(this))
             {
-                if (neighbor.currentState == StudentState.Working)
+                foreach (Student neighbor in SpatialManager.Instance.neighborGraph[this])
                 {
-                    neighbor.ChangeState(StudentState.Flow);
-                    neighbor.ShowFloatingText("¡Contagiado 😎!", Color.cyan);
+                    if (neighbor.currentState == StudentState.Working)
+                    {
+                        neighbor.ChangeState(StudentState.Flow);
+                        neighbor.ShowFloatingText("¡Contagiado 😎!", Color.cyan);
+                    }
                 }
             }
         }
-    }
 
-    // CONTROL DE ESTADOS AL CAMBIAR (Ya sin la basura visual del audio)
-    if (currentState == StudentState.Graduated)
-    {
-        ShowBubble("¡Se logró!", Color.yellow);
-        AudioManager.Instance.StopEvent("Student_Flow",this.gameObject);
-        TriggerGraduation();
-    }
-    else if (currentState == StudentState.Finished)
-    {
-        ShowBubble("¡Listo! ¿Quién necesita ayuda?", Color.yellow);
-        AudioManager.Instance.PostEvent("Student_Finished", this.gameObject); 
-        TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentTutor);
-        AudioManager.Instance.StopEvent("Student_Flow",this.gameObject);
+        // CONTROL DE ESTADOS AL CAMBIAR
+        if (currentState == StudentState.Graduated)
+        {
+            ShowBubble("¡Se logró!", Color.yellow);
+            AudioManager.Instance.StopEvent("Student_Flow",this.gameObject);
+            AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
+            TriggerGraduation();
+        }
+        else if (currentState == StudentState.Finished)
+        {
+            ShowBubble("¡Listo! ¿Quién necesita ayuda?", Color.yellow);
+            AudioManager.Instance.PostEvent("Student_Finished", this.gameObject); 
+            TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentTutor);
+            AudioManager.Instance.StopEvent("Student_Flow",this.gameObject);
+            AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
 
-        learningLevel = maxLearning; 
-        RemoveLearningModifier(ModifierID.Panico);
-    }
-    else if (currentState == StudentState.Flow) 
-    {
-        currentFlowTimer = flowDuration;
-        TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentFlow);
-        AudioManager.Instance.PostEvent("Student_Flow", this.gameObject);
-    }
-    else if (currentState == StudentState.Burnout)
-    {
-        currentBurnoutTimer = burnoutTimeLimit;
-        ModifyLearningInstant(-20f); 
-        AudioManager.Instance.StopEvent("Student_Flow", this.gameObject);
-        AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
-        AudioManager.Instance.PostEvent("Student_BurnedOut", this.gameObject); 
-        TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentBurnout);
-    }
-    else if (currentState == StudentState.Distracted) 
-    {
-        contagionTimer = contagionInterval;
-        RemoveLearningModifier(ModifierID.Panico);
-        TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentDistracted);
-    }
-    else if (currentState == StudentState.Resting) 
-    {
-        AudioManager.Instance.StopEvent("Student_Flow", this.gameObject);
-        AudioManager.Instance.PostEvent("Student_Resting", this.gameObject);
-        currentRestTimer = mandatoryRestDuration; 
-        RemoveLearningModifier(ModifierID.Panico);
-    }
+            learningLevel = maxLearning; 
+            RemoveLearningModifier(ModifierID.Panico);
+        }
+        else if (currentState == StudentState.Flow) 
+        {
+            currentFlowTimer = flowDuration;
+            TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentFlow);
+            AudioManager.Instance.PostEvent("Student_Flow", this.gameObject);
+        }
+        else if (currentState == StudentState.Burnout)
+        {
+            currentBurnoutTimer = burnoutTimeLimit;
+            ModifyLearningInstant(-20f); 
+            AudioManager.Instance.StopEvent("Student_Flow", this.gameObject);
+            AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
+            AudioManager.Instance.PostEvent("Student_BurnedOut", this.gameObject); 
+            TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentBurnout);
+        }
+        else if (currentState == StudentState.Distracted) 
+        {
+            contagionTimer = contagionInterval;
+            AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
+            RemoveLearningModifier(ModifierID.Panico);
+            TutorialManager.Instance.ReportTrigger(TutorialTrigger.StudentDistracted);
+        }
+        else if (currentState == StudentState.Resting) 
+        {
+            AudioManager.Instance.StopEvent("Student_Flow", this.gameObject);
+            AudioManager.Instance.StopEvent("Student_About_To_BurnOut", this.gameObject);
+            AudioManager.Instance.PostEvent("Student_Resting", this.gameObject);
+            currentRestTimer = mandatoryRestDuration; 
+            RemoveLearningModifier(ModifierID.Panico);
+        }
 
-    OnStateChanged?.Invoke(currentState); 
-}
+        OnStateChanged?.Invoke(currentState); 
+    }
 
     private void TriggerGraduation()
     {
@@ -196,7 +199,6 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
         if (logicManager != null)
         {
-            //logicManager.graduatedStudents++; 
             if (logicManager.allStudents.Contains(this)) logicManager.allStudents.Remove(this);
         }
 
@@ -283,23 +285,19 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         if (stressLevel >= maxStress && currentState != StudentState.Burnout) { ChangeState(StudentState.Burnout); return; }
         
-        // 1. Leemos si el nivel permite distracciones
         bool distraccionesPermitidas = true;
         if (logicManager != null && logicManager.currentLevel != null)
         {
             distraccionesPermitidas = logicManager.currentLevel.enableDistractions;
         }
 
-        // 2. ¡EL ESTUDIANTE LE PREGUNTA A SU PERSONALIDAD QUÉ HACER!
         if (personalityData != null)
         {
             personalityData.EvaluateSpecialBehaviors(this, distraccionesPermitidas);
         }
 
-        // 3. Reglas Generales que aplican para TODOS
         if (currentState == StudentState.Resting && stressLevel <= 5f && distraccionesPermitidas)
         {
-            // Calculamos la probabilidad basándonos en la variable de la personalidad
             float chanceBase = (personalityData != null) ? personalityData.distractionProbability : 5f;
             float probabilidadConvertida = chanceBase / 100f; 
 
@@ -311,33 +309,47 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             } 
         }
 
-
-
         if (currentState == StudentState.Working && learningLevel > 50f && stressLevel >= 40f && stressLevel < 75f) 
         {
             ChangeState(StudentState.Flow);
         }
     }
 
-    // --- INTERFAZ PÚBLICA SEGURA PARA COMPONENTES Y HERRAMIENTAS EXTEALAS ---
+    // --- INTERFAZ PÚBLICA OPTIMIZADA PARA UI ---
     public void AddLearningModifier(ModifierID id, float multiplier)
     {
+        if (activeLearningBuffs.TryGetValue(id, out float existingValue) && existingValue == multiplier)
+            return; 
+
         activeLearningBuffs[id] = multiplier;
+        OnModifiersChanged?.Invoke(); 
     }
 
     public void RemoveLearningModifier(ModifierID id)
     {
-        if (activeLearningBuffs.ContainsKey(id)) activeLearningBuffs.Remove(id);
+        if (activeLearningBuffs.ContainsKey(id)) 
+        {
+            activeLearningBuffs.Remove(id);
+            OnModifiersChanged?.Invoke(); 
+        }
     }
 
     public void AddStressModifier(ModifierID id, float multiplier)
     {
+        if (activeStressBuffs.TryGetValue(id, out float existingValue) && existingValue == multiplier)
+            return; 
+
         activeStressBuffs[id] = multiplier;
+        OnModifiersChanged?.Invoke(); 
     }
 
     public void RemoveStressModifier(ModifierID id)
     {
-        if (activeStressBuffs.ContainsKey(id)) activeStressBuffs.Remove(id);
+        if (activeStressBuffs.ContainsKey(id)) 
+        {
+            activeStressBuffs.Remove(id);
+            OnModifiersChanged?.Invoke(); 
+        }
     }
 
     public void ModifyStressInstant(float amount) 
@@ -355,29 +367,23 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
 
     public void ModifyBothStatsInstant(float stressAmount, float learningAmount)
-{
-    // 1. Modificar valores matemáticos
-    stressLevel = Mathf.Clamp(stressLevel + stressAmount, 0f, maxStress);
-    learningLevel = Mathf.Clamp(learningLevel + learningAmount, 0f, maxLearning);
-
-    // 2. Construir un solo texto combinado
-    string combinedText = "";
-
-    // Lógica para el texto de aprendizaje
-    if (learningAmount > 0) 
-        combinedText += $"<color=#00FF00>+{learningAmount}🧠 </color>" + "\n";
-    else if (learningAmount < 0) combinedText += $"<color=#FF0000>{learningAmount}🧠 </color>" + "\n";
-
-    // Lógica para el texto de estrés
-    if (stressAmount > 0) combinedText += $"<color=#FF0000>+{stressAmount}💢 </color>" + "\n";
-    else if (stressAmount < 0) combinedText += $"<color=#00FF00>{stressAmount}💢 </color>" + "\n";
-
-    // 3. Enviar un solo Floating Text
-    if (!string.IsNullOrEmpty(combinedText))
     {
-        ShowFloatingText(combinedText, Color.white); 
+        stressLevel = Mathf.Clamp(stressLevel + stressAmount, 0f, maxStress);
+        learningLevel = Mathf.Clamp(learningLevel + learningAmount, 0f, maxLearning);
+
+        string combinedText = "";
+
+        if (learningAmount > 0) combinedText += $"<color=#00FF00>+{learningAmount}🧠 </color>\n";
+        else if (learningAmount < 0) combinedText += $"<color=#FF0000>{learningAmount}🧠 </color>\n";
+
+        if (stressAmount > 0) combinedText += $"<color=#FF0000>+{stressAmount}💢 </color>\n";
+        else if (stressAmount < 0) combinedText += $"<color=#00FF00>{stressAmount}💢 </color>\n";
+
+        if (!string.IsNullOrEmpty(combinedText))
+        {
+            ShowFloatingText(combinedText, Color.white); 
+        }
     }
-}
 
     public void RequestJokeFeedback(bool likedIt) { OnJokeFeedbackEvent?.Invoke(likedIt); }
 
@@ -389,14 +395,11 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public void ShowFloatingText(string text, Color color) { OnFloatingTextRequested?.Invoke(text, color); }
     public void OnPointerExit(PointerEventData eventData) { OnHoverChanged?.Invoke(false); }
-
     public void ShowBubble(string message, Color color) { OnBubbleTextRequested?.Invoke(message, color); }
     
     public void OnStudentClicked()
     {
         if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;
-        
-        // Ahora llama al ToolManager en lugar del LogicManager
         if (ToolManager.Instance != null) ToolManager.Instance.ApplyToolToStudent(this);
     }
 
@@ -448,8 +451,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 {
                     suSillaVieja.AssignStudent(this);
                     miSillaVieja.AssignStudent(elOtroAlumno);
-                    AudioManager.Instance.PostEvent("Student_Change_Seats"); //SONIDO
-                    Debug.Log($"¡{studentName} y {elOtroAlumno.studentName} intercambiaron asientos!");
+                    AudioManager.Instance.PostEvent("Student_Change_Seats");
                     dragExitoso = true;
                 }
             }
@@ -458,7 +460,6 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 Seat miSillaVieja = this.currentSeat;
                 if (miSillaVieja != null) miSillaVieja.currentStudent = null; 
                 sillaMasCercana.AssignStudent(this); 
-                //AudioManager.Instance.PostEvent("Student_Change_Seats", this.gameObject); //SONIDO
                 dragExitoso = true;
             }
         }

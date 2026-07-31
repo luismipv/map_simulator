@@ -25,7 +25,6 @@ public class StudentUI : MonoBehaviour
     public Transform floatingTextCanvas; 
 
     [Header("Multiplicadores (UI Persistente)")]
-
     public GameObject multipliersContainer;
     public GameObject multiplierPrefab;
 
@@ -33,7 +32,7 @@ public class StudentUI : MonoBehaviour
     public Color negativeColor = new Color(0.9490197f, 0.427451f, 0.4941177f);
     public TextMeshProUGUI multipliersText;
 
-     [Header("Dialogo de Burbuja")]
+    [Header("Dialogo de Burbuja")]
     public GameObject bubbleText;
     public GameObject bubbleBackground;
     public GameObject student;
@@ -41,7 +40,7 @@ public class StudentUI : MonoBehaviour
     public float bubbleYOffset = 4.5f;
 
     [Tooltip("Ancho máximo del texto antes de saltar a la siguiente línea")]
-    public float maxBubbleWidth = 350f; // <-- ¡Aquí está la nueva variable!
+    public float maxBubbleWidth = 350f; 
 
     [Header("Márgenes de Libreta (Código)")]
     [Tooltip("Espacio extra a los lados y arriba del texto")]
@@ -52,7 +51,8 @@ public class StudentUI : MonoBehaviour
     private Coroutine hideBubbleCoroutine;
     private Coroutine animacionActual;
 
-    private Dictionary<ModifierID, Multiplier> multipliers = new Dictionary<ModifierID, Multiplier>();
+    // DICCIONARIO OPTIMIZADO: Ahora usa strings para separar Stress y Learning
+    private Dictionary<string, Multiplier> multipliers = new Dictionary<string, Multiplier>();
     [SerializeField] public Dictionary<ModifierID, Sprite> multiplierIcons = new Dictionary<ModifierID, Sprite>();
 
     protected struct FloatingTextData
@@ -69,8 +69,7 @@ public class StudentUI : MonoBehaviour
         studentCore = GetComponent<Student>();
         Canvas myCanvas = GetComponentInChildren<Canvas>();
         if (myCanvas != null) myCanvas.worldCamera = Camera.main;
-        if (bubbleBackground != null) bubbleBackground.SetActive(false); // Oculta la burbuja al inicio
-        
+        if (bubbleBackground != null) bubbleBackground.SetActive(false); 
     }
 
     private void OnEnable()
@@ -80,6 +79,9 @@ public class StudentUI : MonoBehaviour
         studentCore.OnJokeFeedbackEvent += HandleJokeFeedback;
         studentCore.OnFloatingTextRequested += SpawnFloatingText;
         studentCore.OnBubbleTextRequested += ShowBubble;
+        
+        // Conectamos la UI de modificadores al nuevo evento optimizado
+        studentCore.OnModifiersChanged += RefreshMultipliersUI; 
     }
 
     private void OnDisable()
@@ -89,6 +91,9 @@ public class StudentUI : MonoBehaviour
         studentCore.OnJokeFeedbackEvent -= HandleJokeFeedback;
         studentCore.OnFloatingTextRequested -= SpawnFloatingText;
         studentCore.OnBubbleTextRequested -= ShowBubble;
+
+        // Desconectamos para evitar fugas de memoria
+        studentCore.OnModifiersChanged -= RefreshMultipliersUI; 
     }
 
     private void Start()
@@ -98,6 +103,9 @@ public class StudentUI : MonoBehaviour
         {
             personalityText.text = $"Personalidad: {studentCore.personalityData.personalityNameEs}";
         }
+        
+        // Forzamos la actualización inicial de iconos
+        RefreshMultipliersUI();
     }
 
     private void UpdateSliders(float stress, float learning)
@@ -108,7 +116,7 @@ public class StudentUI : MonoBehaviour
         learningText.text = Mathf.RoundToInt(learning / studentCore.maxLearning * 100).ToString() + "%";
         learningSlider.value = learning / studentCore.maxLearning; 
 
-        RefreshMultipliersUI();
+        // ELIMINADO: RefreshMultipliersUI(); (Ya no ocurre cada frame)
     }
 
     private void UpdateStateMessages(StudentState newState)
@@ -132,7 +140,6 @@ public class StudentUI : MonoBehaviour
         if (likedIt) ShowBubble("😂", Color.green);
         else ShowBubble("🙄", Color.red);
     }
-
 
     private void SpawnFloatingText(string message, Color color)
     {
@@ -169,8 +176,6 @@ public class StudentUI : MonoBehaviour
         isSpawningText = false;
     }
 
-    // --- EL TRADUCTOR VISUAL ---
-    // Convierte el Enum matemático en un string amigable para el jugador
     private string GetModifierUIName(ModifierID id)
     {
         switch (id)
@@ -182,102 +187,111 @@ public class StudentUI : MonoBehaviour
             case ModifierID.Tutor: return "Alumno Tutor 🎓";
             case ModifierID.FaltaPoco: return "¡Falta Poco! ⏰";
             case ModifierID.Tool_Tutoring: return "Asesoría 📚";
-            //case ModifierID.Herramienta_Cafe: return "Café ☕";
             case ModifierID.Tool_Nag: return "Regaño 💢";
             case ModifierID.GlobalTool_Exam: return "Examen Sorpresa 📝";
-            default: return id.ToString(); // Salvavidas por si olvidas agregar uno aquí
+            default: return id.ToString(); 
         }
     }
 
     private void RefreshMultipliers()
+{
+    if (multipliersText == null) return;
+    string finalText = "";
+
+    // 1. TEXTO PARA APRENDIZAJE
+    foreach (var buff in studentCore.activeLearningBuffs)
     {
-        if (multipliersText == null) return;
+        if (Mathf.Approximately(buff.Value, 1f)) continue; // Ignoramos si es 1 exacto
 
-        string finalText = "";
+        string uiName = GetModifierUIName(buff.Key); 
+        if (buff.Value > 1f) 
+            finalText += $"<color=#00FF00>{uiName} x{buff.Value}</color>\n";
+        else 
+            finalText += $"<color=#FF0000>{uiName} x{buff.Value}</color>\n";
+    }
 
-        // 1. DIBUJAR TODOS LOS BUFFS DE APRENDIZAJE APILADOS
-        foreach (var buff in studentCore.activeLearningBuffs)
+    // 2. TEXTO PARA ESTRÉS
+    foreach (var buff in studentCore.activeStressBuffs)
+    {
+        if (Mathf.Approximately(buff.Value, 1f)) continue; // Ignoramos si es 1 exacto
+
+        string uiName = GetModifierUIName(buff.Key); 
+        
+        if (buff.Key == ModifierID.FaltaPoco)
         {
-            string uiName = GetModifierUIName(buff.Key); // Pasamos por el traductor
-
+            if (buff.Value >= 1.8f) 
+                finalText += $"<color=#FF0000>{uiName} x{buff.Value:F1}</color>\n";
+        }
+        else 
+        {
             if (buff.Value > 1f) 
+                finalText += $"<color=#FF0000>{uiName} x{buff.Value}</color>\n";
+            else 
                 finalText += $"<color=#00FF00>{uiName} x{buff.Value}</color>\n";
-            else if (buff.Value < 1f) 
-                finalText += $"<color=#FF8C00>{uiName} x{buff.Value}</color>\n";
-        }
-
-        // 2. DIBUJAR TODOS LOS BUFFS DE ESTRÉS APILADOS
-        foreach (var buff in studentCore.activeStressBuffs)
-        {
-            string uiName = GetModifierUIName(buff.Key); // Pasamos por el traductor
-
-            // Tratamiento especial usando el Enum directamente
-            if (buff.Key == ModifierID.FaltaPoco)
-            {
-                if (buff.Value >= 1.8f) 
-                {
-                    finalText += $"<color=#FF5555>{uiName} x{buff.Value:F1}</color>\n";
-                }
-            }
-            else 
-            {
-                if (buff.Value > 1f) 
-                    finalText += $"<color=#FF0000>{uiName} x{buff.Value}</color>\n";
-                else if (buff.Value < 1f) 
-                    finalText += $"<color=#00FF00>{uiName} x{buff.Value}</color>\n";
-            }
-        }
-
-        // 3. ESTADOS TEMPORALES INDEPENDIENTES
-        if (studentCore.currentState == StudentState.Flow)
-        {
-            finalText += $"<color=#00FFFF>¡En Flow!x3</color>\n"; 
-        }
-
-        multipliersText.text = finalText;
-    }
-
-    private void RefreshMultipliersUI() {
-        if (multipliersContainer == null) return;
-
-        // 1. DIBUJAR TODOS LOS BUFFS DE APRENDIZAJE APILADOS
-        foreach (var buff in studentCore.activeLearningBuffs)
-        {
-            if (!multipliers.ContainsKey(buff.Key))
-            {
-                GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
-                multipliers[buff.Key] = multiplier.GetComponent<Multiplier>();
-            }
-            multipliers[buff.Key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), buff.Value > 1f ? positiveColor : negativeColor);
-        }
-
-        // 2. DIBUJAR TODOS LOS BUFFS DE ESTRÉS APILADOS
-        foreach (var buff in studentCore.activeStressBuffs)
-        {
-            if (!multipliers.ContainsKey(buff.Key))
-            {
-                GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
-                multipliers[buff.Key] = multiplier.GetComponent<Multiplier>();
-            }
-            //multipliers[buff.Key].SetData(buff.Key, buff.Value);
-            // Tratamiento especial usando el Enum directamente
-            if (buff.Key == ModifierID.FaltaPoco)
-            {
-                if (buff.Value >= 1.8f) 
-                {
-                    multipliers[buff.Key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), negativeColor);
-                }
-            }
-            else 
-            {
-                if (buff.Value > 1f) 
-                    multipliers[buff.Key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), negativeColor);
-                else if (buff.Value < 1f) 
-                    multipliers[buff.Key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), positiveColor);
-            }
         }
     }
-    // Muestra la burbuja de texto
+
+    if (studentCore.currentState == StudentState.Flow)
+    {
+        finalText += $"<color=#00FFFF>¡En Flow!x3</color>\n"; 
+    }
+
+    multipliersText.text = finalText;
+    }
+
+    private void RefreshMultipliersUI() 
+{
+    if (multipliersContainer == null) return;
+
+    // 1. DIBUJAR TODOS LOS BUFFS DE APRENDIZAJE APILADOS
+    foreach (var buff in studentCore.activeLearningBuffs)
+    {
+        string key = "L_" + buff.Key.ToString();
+        if (!multipliers.ContainsKey(key))
+        {
+            GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
+            multipliers[key] = multiplier.GetComponent<Multiplier>();
+        }
+        
+        // APRENDIZAJE: Mayor a 1 es Positivo (Verde), Menor a 1 es Negativo (Rojo)
+        Color targetColor = buff.Value > 1f ? positiveColor : negativeColor;
+        
+        multipliers[key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), targetColor);
+    }
+
+    // 2. DIBUJAR TODOS LOS BUFFS DE ESTRÉS APILADOS
+    foreach (var buff in studentCore.activeStressBuffs)
+    {
+        string key = "S_" + buff.Key.ToString();
+        if (!multipliers.ContainsKey(key))
+        {
+            GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
+            multipliers[key] = multiplier.GetComponent<Multiplier>();
+        }
+        
+        Color targetColor;
+        
+        if (buff.Key == ModifierID.FaltaPoco)
+        {
+            targetColor = negativeColor;
+            
+            // Si FaltaPoco es menor a 1.8, lo apagamos por completo para no saturar la UI
+            if (buff.Value < 1.8f) 
+            {
+                multipliers[key].gameObject.SetActive(false);
+                continue; 
+            }
+        }
+        else 
+        {
+            // ESTRÉS: Mayor a 1 es Negativo (Rojo), Menor a 1 es Positivo (Verde)
+            targetColor = buff.Value > 1f ? negativeColor : positiveColor;
+        }
+
+        multipliers[key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), targetColor);
+        }
+    }
+
     public void ShowBubble(string message, Color color)
     {
         if (bubbleText != null && bubbleBackground != null)
@@ -295,18 +309,13 @@ public class StudentUI : MonoBehaviour
                 textComponent.text = message;
                 textComponent.color = color; 
                 
-                // 1. Calculamos el tamaño ideal del texto limitando su ancho al máximo que definiste en el Inspector
                 Vector2 textSize = textComponent.GetPreferredValues(message, maxBubbleWidth, Mathf.Infinity);
-
-                // 2. AJUSTAMOS EL FONDO (Tamaño ideal del texto + Márgenes + Espacio para la colita)
                 RectTransform bgRect = bubbleBackground.GetComponent<RectTransform>();
                 bgRect.sizeDelta = new Vector2(textSize.x + paddingLibreta.x, textSize.y + paddingLibreta.y + alturaColita);
 
-                // 3. LE DAMOS AL TEXTO SU TAMAÑO EXACTO PARA QUE HAGA WRAP CORRECTAMENTE
                 RectTransform textRect = bubbleText.GetComponent<RectTransform>();
                 textRect.sizeDelta = textSize; 
                 
-                // 4. Centramos el texto y lo desplazamos hacia arriba para esquivar la colita del globo
                 textRect.anchorMin = new Vector2(0.5f, 0.5f);
                 textRect.anchorMax = new Vector2(0.5f, 0.5f);
                 textRect.pivot = new Vector2(0.5f, 0.5f);
@@ -314,7 +323,6 @@ public class StudentUI : MonoBehaviour
             }
             else
             {
-                // Un pequeño grito de auxilio en la consola por si acaso
                 Debug.LogError("¡OJO! No se encontró el componente TMP_Text en bubbleText.");
             }
 
@@ -323,7 +331,6 @@ public class StudentUI : MonoBehaviour
         }
     }
 
-    // El nuevo temporizador
     private IEnumerator HideBubbleRoutine(float delay)
     {
         yield return new WaitForSecondsRealtime(delay);
@@ -334,9 +341,7 @@ public class StudentUI : MonoBehaviour
     {
         if (bubbleBackground != null && bubbleBackground.activeInHierarchy)
         {
-            // 1. Detenemos cualquier animación (por si se estaba inflando)
             if (animacionActual != null) StopCoroutine(animacionActual);
-            // 2. Iniciamos el desinflado y lo guardamos en la variable
             animacionActual = StartCoroutine(PopDownAnimationCoroutine(bubbleBackground));
         }
     }
@@ -345,16 +350,11 @@ public class StudentUI : MonoBehaviour
     {
         float duration = 0.1f; 
         float elapsed = 0f;
-        
-        // Es más seguro usar un tamaño fijo objetivo en lugar de leer el actual, 
-        // por si la corrutina empieza cuando la burbuja apenas va a la mitad.
         Vector3 targetScale = Vector3.one; 
 
         while (elapsed < duration) 
         {
-            // ¡EL SALVAVIDAS! Usamos unscaledDeltaTime
             elapsed += Time.unscaledDeltaTime; 
-            
             float t = Mathf.Clamp01(elapsed / duration);
             popup.transform.localScale = Vector3.Lerp(Vector3.zero, targetScale, t);
             yield return null;
@@ -367,9 +367,8 @@ public class StudentUI : MonoBehaviour
     {
         float duration = 0.1f; 
         float elapsed = 0f;
-        Vector3 startScale = popup.transform.localScale; // Tomamos el tamaño en el que esté
+        Vector3 startScale = popup.transform.localScale; 
         
-        // Limpiamos el texto de inmediato para que la burbuja baje vacía (se ve más limpio)
         if (bubbleText != null)
         {
             bubbleText.GetComponent<TMPro.TextMeshPro>().text = "";
@@ -377,17 +376,12 @@ public class StudentUI : MonoBehaviour
 
         while (elapsed < duration) 
         {
-            // ¡Seguimos usando el reloj a prueba de pausas!
             elapsed += Time.unscaledDeltaTime; 
-            
             float t = Mathf.Clamp01(elapsed / duration);
-            // Ahora vamos de su tamaño actual hacia cero
             popup.transform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
             yield return null;
         }
         
-        // Una vez que es invisible (escala 0), por fin apagamos el GameObject
         popup.SetActive(false);
     }
-
 }

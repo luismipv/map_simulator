@@ -9,6 +9,8 @@ public class Multiplier : MonoBehaviour
     private float _multiplierValue;
     public Image multiplierIcon;
     public ModifierID modifierID;
+    
+    private Coroutine expandCoroutine; // Para no multiplicar las animaciones
 
     // Set data with modifier ID and value
     public void SetData(ModifierID modifierID, float value)
@@ -16,8 +18,11 @@ public class Multiplier : MonoBehaviour
         this.modifierID = modifierID;
         multiplierText.text = $"x{value:F1}";
         _multiplierValue = value;
+        
         if (value == 1f){
             this.gameObject.SetActive(false);
+        } else {
+            this.gameObject.SetActive(true); // ¡Garantiza que reaparezca si dejó de ser 1!
         }
     }
 
@@ -25,6 +30,7 @@ public class Multiplier : MonoBehaviour
     public void SetData(ModifierID modifierID, float value, Sprite icon, Color color){
         float previousValue = _multiplierValue;
         SetData(modifierID, value);
+        
         if (icon != null)
         {
             multiplierIcon.sprite = icon;
@@ -32,15 +38,15 @@ public class Multiplier : MonoBehaviour
         multiplierIcon.color = color;
         multiplierText.color = color;
 
-        if(previousValue < 1f && value > 1f || previousValue > 1f && value < 1f){
-            StartCoroutine(ExpandFromZero(0.3f));
-            //AudioManager.Instance.PostEvent("UI_Stamp_Play",this.gameObject);
+        if((previousValue < 1f && value > 1f) || (previousValue > 1f && value < 1f)){
+            if (expandCoroutine != null) StopCoroutine(expandCoroutine);
+            expandCoroutine = StartCoroutine(ExpandFromZero(0.3f));
         }
     }
 
     void OnEnable(){
-        StartCoroutine(ExpandFromZero(0.3f));
-        //AudioManager.Instance.PostEvent("UI_Stamp_Play",this.gameObject);
+        if (expandCoroutine != null) StopCoroutine(expandCoroutine);
+        expandCoroutine = StartCoroutine(ExpandFromZero(0.3f));
     }
 
     // Coroutine to expand this object's scale from 0 to 1 smoothly
@@ -51,9 +57,8 @@ public class Multiplier : MonoBehaviour
     
     public System.Collections.IEnumerator ExpandFromZero(float duration = 0.3f)
     {
-        // Start at scale 2 and a random "stamp" rotation, tween to scale 1 and rot 0
         transform.localScale = Vector3.one * 2f;
-        float initialRotation = Random.Range(-30f, 30f); // Random stamp angle
+        float initialRotation = Random.Range(-30f, 30f); 
         transform.localRotation = Quaternion.Euler(0f, 0f, initialRotation);
 
         float elapsed = 0f;
@@ -61,11 +66,9 @@ public class Multiplier : MonoBehaviour
         {
             float t = Mathf.Clamp01(elapsed / duration);
             
-            // Use the curve for scale (default: overshoot/elastic recommended curve in inspector)
             float curveVal = expandCurve.Evaluate(t);
             float scale = Mathf.LerpUnclamped(2f, 1f, curveVal);
 
-            // Optionally, use a separate curve for rotation easing if desired
             float rCurveVal = rotationCurve.Evaluate(t);
             float rotation = Mathf.LerpUnclamped(initialRotation, 0f, rCurveVal);
 
@@ -80,9 +83,8 @@ public class Multiplier : MonoBehaviour
         {
             AudioManager.Instance.PostEvent("UI_Stamp_Play",this.gameObject);
         }
-        // Ensure exactly 1 and 0° at end
+        
         transform.localScale = Vector3.one;
         transform.localRotation = Quaternion.identity;
-        //AudioManager.Instance.PostEvent("UI_Stamp_Play",this.gameObject);
     }
 }

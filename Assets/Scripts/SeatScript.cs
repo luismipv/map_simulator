@@ -1,11 +1,25 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Seat : MonoBehaviour
 {
-   [Header("Estado del Asiento")]
+    public static List<Seat> AllSeats = new List<Seat>();
+
+    private void OnEnable()
+    {
+        if (!AllSeats.Contains(this))
+            AllSeats.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        AllSeats.Remove(this);
+    }
+
+    [Header("Estado del Asiento")]
     public Student currentStudent;
 
-        public void AssignStudent(Student newStudent)
+    public void AssignStudent(Student newStudent)
     {
         currentStudent = newStudent;
         

@@ -8,9 +8,22 @@ public class AudioManagerEditor : Editor
     private GameObject previewGO;
     private List<AudioSource> previewSources = new List<AudioSource>();
     private Dictionary<string, bool> foldoutStates = new Dictionary<string, bool>();
-    
-    // NUEVO: Para guardar si las carpetas están abiertas o cerradas
-    private Dictionary<string, bool> folderStates = new Dictionary<string, bool>(); 
+    private Dictionary<string, bool> folderStates = new Dictionary<string, bool>();
+
+    private struct PreviewSettings
+    {
+        public float volume;
+        public float pitch;
+        public bool isLooping;
+        public float stopAtTime;
+        public float loopStart;
+        public float loopEnd;
+        public float loopCrossfade;
+        public bool isCrossfading;
+        public bool isCrossfadeTarget;
+    }
+
+    private Dictionary<AudioSource, PreviewSettings> activePreviewData = new Dictionary<AudioSource, PreviewSettings>();
 
     private void OnEnable()
     {
@@ -29,10 +42,105 @@ public class AudioManagerEditor : Editor
         bool isAnyPlaying = false;
         for (int i = 0; i < previewSources.Count; i++)
         {
-            if (previewSources[i] != null && previewSources[i].isPlaying)
+            AudioSource src = previewSources[i];
+            if (src != null && src.isPlaying && src.clip != null)
             {
                 isAnyPlaying = true;
-                break;
+
+                if (activePreviewData.TryGetValue(src, out PreviewSettings settings))
+                {
+                    float clipLen = src.clip.length;
+
+                    if (!settings.isLooping)
+                    {
+                        float stopT = settings.stopAtTime > 0f && settings.stopAtTime <= clipLen ? settings.stopAtTime : clipLen;
+                        if (src.time >= stopT)
+                        {
+                            src.Stop();
+                        }
+                    }
+                    else
+                    {
+                        float lEnd = settings.loopEnd > 0f && settings.loopEnd <= clipLen ? settings.loopEnd : clipLen;
+                        float lStart = Mathf.Clamp(settings.loopStart, 0f, lEnd - 0.01f);
+                        float xfadeDur = Mathf.Min(settings.loopCrossfade, lEnd - lStart);
+
+                        // Disparar empalme cruzado cuando la fuente saliente alcanza (lEnd - xfadeDur)
+                        if (xfadeDur > 0f && src.time >= (lEnd - xfadeDur) && !settings.isCrossfading)
+                        {
+                            AudioSource nextSrc = null;
+                            for (int j = 0; j < previewSources.Count; j++)
+                            {
+                                if (previewSources[j] != null && !previewSources[j].isPlaying)
+                                {
+                                    nextSrc = previewSources[j];
+                                    break;
+                                }
+                            }
+                            if (nextSrc == null)
+                            {
+                                nextSrc = previewGO.AddComponent<AudioSource>();
+                                previewSources.Add(nextSrc);
+                            }
+
+                            nextSrc.clip = src.clip;
+                            nextSrc.pitch = src.pitch;
+                            nextSrc.time = lStart;
+                            nextSrc.volume = 0f;
+                            nextSrc.loop = false;
+                            nextSrc.Play();
+
+                            settings.isCrossfading = true;
+                            activePreviewData[src] = settings;
+
+                            activePreviewData[nextSrc] = new PreviewSettings
+                            {
+                                volume = settings.volume,
+                                pitch = settings.pitch,
+                                isLooping = true,
+                                stopAtTime = settings.stopAtTime,
+                                loopStart = settings.loopStart,
+                                loopEnd = settings.loopEnd,
+                                loopCrossfade = settings.loopCrossfade,
+                                isCrossfading = false,
+                                isCrossfadeTarget = true
+                            };
+                        }
+
+                        // 1. Fuente en salida (Fade Out de la voz vieja)
+                        if (settings.isCrossfading && xfadeDur > 0f)
+                        {
+                            float progress = Mathf.Clamp01((src.time - (lEnd - xfadeDur)) / xfadeDur);
+                            src.volume = Mathf.Lerp(settings.volume, 0f, progress);
+
+                            if (src.time >= lEnd)
+                            {
+                                src.Stop();
+                                src.volume = settings.volume;
+                            }
+                        }
+                        // 2. Fuente en entrada resultante de un empalme (Fade In de la voz nueva)
+                        else if (settings.isCrossfadeTarget && xfadeDur > 0f)
+                        {
+                            if (src.time < (lStart + xfadeDur))
+                            {
+                                float progress = Mathf.Clamp01((src.time - lStart) / xfadeDur);
+                                src.volume = Mathf.Lerp(0f, settings.volume, progress);
+                            }
+                            else
+                            {
+                                src.volume = settings.volume;
+                                settings.isCrossfadeTarget = false;
+                                activePreviewData[src] = settings;
+                            }
+                        }
+                        // 3. Fuente inicial o loop simple (Se reproduce a volumen normal)
+                        else if (xfadeDur <= 0f && src.time >= lEnd)
+                        {
+                            src.time = lStart;
+                        }
+                    }
+                }
             }
         }
 
@@ -51,10 +159,6 @@ public class AudioManagerEditor : Editor
         {
             EditorGUI.indentLevel++;
 
-            // ==========================================
-            // LÓGICA DE CARPETAS
-            // ==========================================
-            // 1. Recopilar todas las categorías únicas que existen en la lista
             List<string> uniqueCategories = new List<string>();
             for (int i = 0; i < listProp.arraySize; i++)
             {
@@ -63,17 +167,14 @@ public class AudioManagerEditor : Editor
                 if (!uniqueCategories.Contains(catName)) uniqueCategories.Add(catName);
             }
 
-            // Ordenamos alfabéticamente para que se vea más limpio (opcional)
             uniqueCategories.Sort();
 
-            // 2. Dibujar cada carpeta
             foreach (string category in uniqueCategories)
             {
                 if (!folderStates.ContainsKey(category)) folderStates[category] = true;
 
                 EditorGUILayout.Space(5);
                 
-                // Le damos un color ligeramente distinto a la carpeta para que resalte
                 GUI.backgroundColor = new Color(0.85f, 0.85f, 0.85f);
                 EditorGUILayout.BeginVertical("window");
                 GUI.backgroundColor = Color.white;
@@ -85,14 +186,12 @@ public class AudioManagerEditor : Editor
                     EditorGUI.indentLevel++;
                     EditorGUILayout.Space(5);
 
-                    // 3. Dibujar los eventos que pertenecen a esta carpeta
                     for (int i = 0; i < listProp.arraySize; i++)
                     {
                         SerializedProperty elementProp = listProp.GetArrayElementAtIndex(i);
                         SerializedProperty catProp = elementProp.FindPropertyRelative("category");
                         string currentCat = string.IsNullOrEmpty(catProp.stringValue) ? "General" : catProp.stringValue;
 
-                        // Si no es de esta carpeta, lo saltamos y seguimos buscando
                         if (currentCat != category) continue;
 
                         SerializedProperty nameProp = elementProp.FindPropertyRelative("eventName");
@@ -128,7 +227,7 @@ public class AudioManagerEditor : Editor
                         {
                             listProp.DeleteArrayElementAtIndex(i);
                             GUI.backgroundColor = Color.white;
-                            break; // Rompemos el ciclo principal por seguridad al borrar
+                            break;
                         }
                         GUI.backgroundColor = Color.white;
                         
@@ -139,7 +238,6 @@ public class AudioManagerEditor : Editor
                             EditorGUI.indentLevel++;
                             EditorGUILayout.Space(2);
                             
-                            // NUEVO: Ahora la categoría se puede editar desde aquí
                             EditorGUILayout.PropertyField(catProp, new GUIContent("Folder / Category"));
                             EditorGUILayout.Space(5);
 
@@ -147,59 +245,209 @@ public class AudioManagerEditor : Editor
                             EditorGUILayout.PropertyField(typeProp, new GUIContent("Event Type"));
 
                             AudioEventType currentType = (AudioEventType)typeProp.enumValueIndex;
-                            if (currentType == AudioEventType.SimpleClip)
-                            {
-                                EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("clip"), new GUIContent("Clip"));
-                            }
-                            else
-                            {
-                                EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("clipList"), new GUIContent("Clip List"), true);
-                            }
-
-                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("volume"), new GUIContent("Volume"));
-                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("isLooping"), new GUIContent("Looping"));
-                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("allowOverlap"), new GUIContent("Allow Overlap"));
-                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("randomPitchRange"), new GUIContent("Rand. Pitch Range"));
-                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("randomVolumeRange"), new GUIContent("Rand. Vol. Range"));
-                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("startAtTime"), new GUIContent("Start At Time"));
-
-                            // WAVEFORM VISUALIZER
                             AudioClip previewClip = null;
+
                             if (currentType == AudioEventType.SimpleClip)
                             {
-                                previewClip = (AudioClip)elementProp.FindPropertyRelative("clip").objectReferenceValue;
+                                SerializedProperty clipProp = elementProp.FindPropertyRelative("clip");
+                                EditorGUILayout.PropertyField(clipProp, new GUIContent("Clip"));
+                                previewClip = (AudioClip)clipProp.objectReferenceValue;
                             }
                             else
                             {
                                 SerializedProperty cliplistProp = elementProp.FindPropertyRelative("clipList");
+                                EditorGUILayout.PropertyField(cliplistProp, new GUIContent("Clip List"), true);
                                 if (cliplistProp.arraySize > 0)
                                 {
                                     previewClip = (AudioClip)cliplistProp.GetArrayElementAtIndex(0).objectReferenceValue;
                                 }
                             }
 
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("volume"), new GUIContent("Volume"));
+                            SerializedProperty isLoopingProp = elementProp.FindPropertyRelative("isLooping");
+                            EditorGUILayout.PropertyField(isLoopingProp, new GUIContent("Looping"));
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("allowOverlap"), new GUIContent("Allow Overlap"));
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("randomPitchRange"), new GUIContent("Rand. Pitch Range"));
+                            EditorGUILayout.PropertyField(elementProp.FindPropertyRelative("randomVolumeRange"), new GUIContent("Rand. Vol. Range"));
+
+                            // SLIDERS Y CONTROLES DE TIEMPO
+                            SerializedProperty startAtProp = elementProp.FindPropertyRelative("startAtTime");
+                            float clipLength = previewClip != null ? previewClip.length : 100f;
+
                             if (previewClip != null)
                             {
-                                GUILayout.Space(10);
+                                startAtProp.floatValue = EditorGUILayout.Slider("Start At Time (s)", startAtProp.floatValue, 0f, clipLength);
+                            }
+                            else
+                            {
+                                EditorGUILayout.PropertyField(startAtProp, new GUIContent("Start At Time (s)"));
+                            }
+
+                            if (!isLoopingProp.boolValue)
+                            {
+                                SerializedProperty stopAtProp = elementProp.FindPropertyRelative("stopAtTime");
+                                if (previewClip != null)
+                                {
+                                    stopAtProp.floatValue = EditorGUILayout.Slider("Stop At Time (s, 0=End)", stopAtProp.floatValue, 0f, clipLength);
+                                }
+                                else
+                                {
+                                    EditorGUILayout.PropertyField(stopAtProp, new GUIContent("Stop At Time (s)"));
+                                }
+                            }
+                            else
+                            {
+                                SerializedProperty loopStartProp = elementProp.FindPropertyRelative("loopStart");
+                                SerializedProperty loopEndProp = elementProp.FindPropertyRelative("loopEnd");
+                                SerializedProperty loopCrossfadeProp = elementProp.FindPropertyRelative("loopCrossfade");
+
+                                if (previewClip != null)
+                                {
+                                    loopStartProp.floatValue = EditorGUILayout.Slider("Loop Start (s)", loopStartProp.floatValue, 0f, clipLength);
+                                    loopEndProp.floatValue = EditorGUILayout.Slider("Loop End (s, 0=End)", loopEndProp.floatValue, 0f, clipLength);
+                                    loopCrossfadeProp.floatValue = EditorGUILayout.Slider("Loop Crossfade (s)", loopCrossfadeProp.floatValue, 0f, 5f);
+                                }
+                                else
+                                {
+                                    EditorGUILayout.PropertyField(loopStartProp, new GUIContent("Loop Start (s)"));
+                                    EditorGUILayout.PropertyField(loopEndProp, new GUIContent("Loop End (s)"));
+                                    EditorGUILayout.PropertyField(loopCrossfadeProp, new GUIContent("Loop Crossfade (s)"));
+                                }
+                            }
+
+                            // WAVEFORM VISUALIZER (ESTILO WWISE CON LÍNEAS DIAGONALES)
+                            if (previewClip != null)
+                            {
+                                EditorGUILayout.Space(8);
+                                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                                EditorGUILayout.BeginHorizontal();
+                                GUILayout.Label("<b>Visualizador de Audio</b>", new GUIStyle(EditorStyles.label) { richText = true });
+                                GUILayout.FlexibleSpace();
+                                GUILayout.Label($"Duración total: {previewClip.length:F2}s", EditorStyles.miniLabel);
+                                EditorGUILayout.EndHorizontal();
+
                                 Texture2D waveformTexture = AssetPreview.GetAssetPreview(previewClip);
                                 
                                 if (waveformTexture != null)
                                 {
-                                    Rect rect = GUILayoutUtility.GetRect(EditorGUIUtility.currentViewWidth - 80, 40);
-                                    EditorGUI.DrawRect(rect, new Color(0.15f, 0.15f, 0.15f));
+                                    Rect rect = GUILayoutUtility.GetRect(EditorGUIUtility.currentViewWidth - 90, 60);
                                     
-                                    GUI.color = new Color(0.2f, 0.8f, 0.9f); 
+                                    // 1. Fondo oscuro base
+                                    EditorGUI.DrawRect(rect, new Color(0.12f, 0.12f, 0.14f));
+                                    
+                                    // 2. Textura de la forma de onda
+                                    GUI.color = new Color(0.25f, 0.75f, 0.95f); 
                                     GUI.DrawTexture(rect, waveformTexture, ScaleMode.StretchToFill);
                                     GUI.color = Color.white; 
 
-                                    float startTime = elementProp.FindPropertyRelative("startAtTime").floatValue;
-                                    if (startTime < previewClip.length)
+                                    float startTime = startAtProp.floatValue;
+                                    bool isLoop = isLoopingProp.boolValue;
+                                    float stopTime = isLoop ? 0f : elementProp.FindPropertyRelative("stopAtTime").floatValue;
+                                    float lStart = isLoop ? elementProp.FindPropertyRelative("loopStart").floatValue : 0f;
+                                    float lEnd = isLoop ? elementProp.FindPropertyRelative("loopEnd").floatValue : 0f;
+                                    float lXfade = isLoop ? elementProp.FindPropertyRelative("loopCrossfade").floatValue : 0f;
+
+                                    float effectiveStop = (!isLoop && stopTime > 0f && stopTime <= clipLength) ? stopTime : clipLength;
+                                    float effectiveLoopEnd = (isLoop && lEnd > 0f && lEnd <= clipLength) ? lEnd : clipLength;
+
+                                    // 3. Región inactiva antes de StartAtTime
+                                    if (startTime > 0f && startTime < clipLength)
                                     {
-                                        float startRatio = startTime / previewClip.length;
-                                        float startLineX = rect.x + (startRatio * rect.width);
-                                        EditorGUI.DrawRect(new Rect(startLineX, rect.y, 2, rect.height), Color.red);
+                                        float startW = (startTime / clipLength) * rect.width;
+                                        EditorGUI.DrawRect(new Rect(rect.x, rect.y, startW, rect.height), new Color(0f, 0f, 0f, 0.6f));
                                     }
 
+                                    // 4. Región inactiva después de StopAtTime (Oneshot)
+                                    if (!isLoop && stopTime > 0f && stopTime < clipLength)
+                                    {
+                                        float stopX = rect.x + ((stopTime / clipLength) * rect.width);
+                                        float stopW = rect.width - ((stopTime / clipLength) * rect.width);
+                                        EditorGUI.DrawRect(new Rect(stopX, rect.y, stopW, rect.height), new Color(0f, 0f, 0f, 0.6f));
+                                    }
+
+                                    // 5. Región de Loop tintada
+                                    if (isLoop)
+                                    {
+                                        float loopStartX = rect.x + ((lStart / clipLength) * rect.width);
+                                        float loopEndX = rect.x + ((effectiveLoopEnd / clipLength) * rect.width);
+                                        float loopW = loopEndX - loopStartX;
+                                        if (loopW > 0f)
+                                        {
+                                            EditorGUI.DrawRect(new Rect(loopStartX, rect.y, loopW, rect.height), new Color(0f, 0.8f, 1f, 0.12f));
+                                        }
+
+                                        // Región inactiva después del LoopEnd
+                                        if (lEnd > 0f && lEnd < clipLength)
+                                        {
+                                            float afterLoopW = rect.width - ((lEnd / clipLength) * rect.width);
+                                            EditorGUI.DrawRect(new Rect(loopEndX, rect.y, afterLoopW, rect.height), new Color(0f, 0f, 0f, 0.6f));
+                                        }
+                                    }
+
+                                    // 6. DIBUJO DE LÍNEAS DIAGONALES ESTILO WWISE
+                                    if (isLoop && lXfade > 0f)
+                                    {
+                                        float xfadeDur = Mathf.Min(lXfade, effectiveLoopEnd - lStart);
+                                        float xfadeStart = Mathf.Max(0f, effectiveLoopEnd - xfadeDur);
+
+                                        float xXfadeStart = rect.x + ((xfadeStart / clipLength) * rect.width);
+                                        float xLoopEnd = rect.x + ((effectiveLoopEnd / clipLength) * rect.width);
+                                        float xfadeW = xLoopEnd - xXfadeStart;
+
+                                        // Fondo naranja translúcido para el rango de empalme
+                                        EditorGUI.DrawRect(new Rect(xXfadeStart, rect.y, Mathf.Max(1f, xfadeW), rect.height), new Color(1f, 0.55f, 0f, 0.2f));
+
+                                        // LÍNEA DIAGONAL SALIDA (Fade Out: \ de arriba a abajo)
+                                        Handles.color = new Color(1f, 0.6f, 0f, 0.95f);
+                                        Handles.DrawAAPolyLine(2.5f, new Vector3(xXfadeStart, rect.y, 0), new Vector3(xLoopEnd, rect.yMax, 0));
+
+                                        // LÍNEA DIAGONAL ENTRADA SIMULADA EN SALIDA (Fade In: / de abajo a arriba)
+                                        Handles.color = new Color(0f, 0.9f, 1f, 0.75f);
+                                        Handles.DrawAAPolyLine(1.5f, new Vector3(xXfadeStart, rect.yMax, 0), new Vector3(xLoopEnd, rect.y, 0));
+
+                                        // LÍNEA DIAGONAL EN LUGAR DE ENTRADA (Loop Start -> Loop Start + xfade)
+                                        float xLoopStart = rect.x + ((lStart / clipLength) * rect.width);
+                                        float xLoopStartFadeEnd = rect.x + (((lStart + xfadeDur) / clipLength) * rect.width);
+
+                                        // LÍNEA DIAGONAL ENTRADA REAL (Fade In: / de abajo a arriba en Loop Start)
+                                        Handles.color = new Color(0f, 0.9f, 1f, 0.95f);
+                                        Handles.DrawAAPolyLine(2.5f, new Vector3(xLoopStart, rect.yMax, 0), new Vector3(xLoopStartFadeEnd, rect.y, 0));
+
+                                        // LÍNEA DIAGONAL SALIDA ANTERIOR (Fade Out: \ de arriba a abajo en Loop Start)
+                                        Handles.color = new Color(1f, 0.6f, 0f, 0.75f);
+                                        Handles.DrawAAPolyLine(1.5f, new Vector3(xLoopStart, rect.y, 0), new Vector3(xLoopStartFadeEnd, rect.yMax, 0));
+                                    }
+
+                                    // 7. Líneas demarcadoras de colores verticales
+                                    if (startTime < clipLength)
+                                    {
+                                        float startX = rect.x + ((startTime / clipLength) * rect.width);
+                                        EditorGUI.DrawRect(new Rect(startX, rect.y, 2, rect.height), new Color(0.2f, 0.9f, 0.3f)); 
+                                    }
+
+                                    if (!isLoop && stopTime > 0f && stopTime < clipLength)
+                                    {
+                                        float stopX = rect.x + ((stopTime / clipLength) * rect.width);
+                                        EditorGUI.DrawRect(new Rect(stopX, rect.y, 2, rect.height), new Color(0.95f, 0.25f, 0.25f)); 
+                                    }
+
+                                    if (isLoop)
+                                    {
+                                        if (lStart > 0f && lStart < clipLength)
+                                        {
+                                            float lStartX = rect.x + ((lStart / clipLength) * rect.width);
+                                            EditorGUI.DrawRect(new Rect(lStartX, rect.y, 2, rect.height), new Color(0f, 0.9f, 1f)); 
+                                        }
+
+                                        if (lEnd > 0f && lEnd < clipLength)
+                                        {
+                                            float lEndX = rect.x + ((lEnd / clipLength) * rect.width);
+                                            EditorGUI.DrawRect(new Rect(lEndX, rect.y, 2, rect.height), new Color(1f, 0.3f, 0.8f)); 
+                                        }
+                                    }
+
+                                    // 8. Cabezal de reproducción (Amarillo brillante)
                                     bool isThisClipPlaying = false;
                                     float currentPlayTime = 0f;
 
@@ -215,15 +463,38 @@ public class AudioManagerEditor : Editor
 
                                     if (isThisClipPlaying)
                                     {
-                                        float playRatio = Mathf.Clamp01(currentPlayTime / previewClip.length);
+                                        float playRatio = Mathf.Clamp01(currentPlayTime / clipLength);
                                         float playLineX = rect.x + (playRatio * rect.width);
-                                        EditorGUI.DrawRect(new Rect(playLineX, rect.y, 2, rect.height), Color.yellow);
+                                        EditorGUI.DrawRect(new Rect(playLineX, rect.y, 2, rect.height), new Color(1f, 0.92f, 0.01f));
                                     }
                                 }
                                 else
                                 {
                                     Repaint();
                                 }
+
+                                // 9. Leyenda Limpia de Colores
+                                EditorGUILayout.Space(4);
+                                EditorGUILayout.BeginHorizontal();
+                                GUILayout.FlexibleSpace();
+
+                                GUIStyle legendStyle = new GUIStyle(EditorStyles.miniLabel) { richText = true };
+                                string legendText = "<color=#33E64D>🟢 Start</color>  ";
+                                if (!isLoopingProp.boolValue)
+                                {
+                                    legendText += "<color=#F24040>🔴 Stop</color>  ";
+                                }
+                                else
+                                {
+                                    legendText += "<color=#00E6FF>🩵 Loop Start (Fade In /)</color>  <color=#FF4DCD>🩷 Loop End</color>  <color=#FF8C00>🟧 Crossfade (\\)</color>  ";
+                                }
+                                legendText += "<color=#FFEB03>🟡 Reproducción</color>";
+
+                                GUILayout.Label(legendText, legendStyle);
+                                GUILayout.FlexibleSpace();
+                                EditorGUILayout.EndHorizontal();
+
+                                EditorGUILayout.EndVertical();
                             }
                             
                             EditorGUI.indentLevel--;
@@ -234,7 +505,7 @@ public class AudioManagerEditor : Editor
                     }
                     EditorGUI.indentLevel--;
                 }
-                EditorGUILayout.EndVertical(); // Fin de la carpeta
+                EditorGUILayout.EndVertical();
             }
 
             EditorGUILayout.Space(10);
@@ -245,7 +516,6 @@ public class AudioManagerEditor : Editor
             if (GUILayout.Button("+ Añadir Nuevo Evento", GUILayout.Width(200), GUILayout.Height(30)))
             {
                 listProp.arraySize++;
-                // Al añadir, le forzamos la categoría General para que no se pierda
                 SerializedProperty newElement = listProp.GetArrayElementAtIndex(listProp.arraySize - 1);
                 newElement.FindPropertyRelative("category").stringValue = "General";
             }
@@ -267,6 +537,7 @@ public class AudioManagerEditor : Editor
         {
             if (src != null) src.Stop();
         }
+        activePreviewData.Clear();
     }
 
     private void PlayPreview(SerializedProperty elementProp)
@@ -278,6 +549,12 @@ public class AudioManagerEditor : Editor
         float randomVolumeRange = elementProp.FindPropertyRelative("randomVolumeRange").floatValue;
         float volume = elementProp.FindPropertyRelative("volume").floatValue;
         float startAtTime = elementProp.FindPropertyRelative("startAtTime").floatValue;
+
+        bool isLooping = elementProp.FindPropertyRelative("isLooping").boolValue;
+        float stopAtTime = elementProp.FindPropertyRelative("stopAtTime").floatValue;
+        float loopStart = elementProp.FindPropertyRelative("loopStart").floatValue;
+        float loopEnd = elementProp.FindPropertyRelative("loopEnd").floatValue;
+        float loopCrossfade = elementProp.FindPropertyRelative("loopCrossfade").floatValue;
 
         List<AudioClip> clipsToPlay = new List<AudioClip>();
 
@@ -317,11 +594,25 @@ public class AudioManagerEditor : Editor
             float finalPitch = 1f + Random.Range(-randomPitchRange, randomPitchRange);
             float finalVolume = Mathf.Clamp01(volume - Random.Range(0f, randomVolumeRange));
 
-            previewSources[i].clip = clipsToPlay[i];
-            previewSources[i].volume = finalVolume;
-            previewSources[i].pitch = finalPitch;
-            previewSources[i].time = startAtTime;
-            previewSources[i].Play();
+            AudioSource src = previewSources[i];
+            src.clip = clipsToPlay[i];
+            src.volume = finalVolume;
+            src.pitch = finalPitch;
+            src.time = Mathf.Clamp(startAtTime, 0f, clipsToPlay[i].length - 0.01f);
+            src.loop = false;
+            src.Play();
+
+            activePreviewData[src] = new PreviewSettings
+            {
+                volume = finalVolume,
+                pitch = finalPitch,
+                isLooping = isLooping,
+                stopAtTime = stopAtTime,
+                loopStart = loopStart,
+                loopEnd = loopEnd,
+                loopCrossfade = loopCrossfade,
+                isCrossfading = false
+            };
         }
     }
 }

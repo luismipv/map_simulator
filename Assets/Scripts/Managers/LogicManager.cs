@@ -18,6 +18,7 @@ public class Logic : MonoBehaviour
     private float currentMaxTimer;
     private bool isGameActive = true;
     private int currentDropouts = 0; 
+    private int _lastDisplayedSecond = -1;
 
     [Header("Gestión del Salón")]
     public StudentSpawner spawner;
@@ -61,17 +62,32 @@ public class Logic : MonoBehaviour
         if (!isGameActive) return;
         
         HandleTimer();
-        CheckDropouts();
-        CheckEarlyFinish();
+        CheckClassStatus();
     }
 
     private void HandleTimer()
     {
-        if (!currentLevel.enableTimer) return;
+        if (currentLevel == null || !currentLevel.enableTimer) return;
 
         globalTimer -= Time.deltaTime;
-        UIManager.Instance.UpdateTimer(globalTimer, currentMaxTimer);
-        UIManager.Instance.UpdateExamUI(globalTimer, 30f, 0.8f);
+
+        // Actualización fluida de la barra en cada frame
+        if (UIManager.Instance != null && UIManager.Instance.timerSlider != null)
+        {
+            UIManager.Instance.timerSlider.value = globalTimer / currentMaxTimer;
+        }
+
+        // Formateo de texto (strings TMP) solo una vez por segundo
+        int currentSecond = Mathf.FloorToInt(globalTimer);
+        if (currentSecond != _lastDisplayedSecond)
+        {
+            _lastDisplayedSecond = currentSecond;
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.UpdateTimer(globalTimer, currentMaxTimer);
+                UIManager.Instance.UpdateExamUI(globalTimer, 30f, 0.8f);
+            }
+        }
 
         float timePercentage = 1f - (globalTimer / currentMaxTimer);
         currentSemesterMultiplier = Mathf.Lerp(1f, currentLevel.maxEndSemesterMultiplier, timePercentage);
@@ -79,28 +95,42 @@ public class Logic : MonoBehaviour
         if (globalTimer <= 0f) TriggerExamPhase();
     }
 
-    private void CheckDropouts()
-    {
-        int dropoutCount = 0;
-        foreach (Student s in allStudents)
-        {
-            if (s.currentState == StudentState.DroppedOut) dropoutCount++;
-        }
-
-        currentDropouts = dropoutCount;
-        UIManager.Instance.UpdateDropouts(currentDropouts, currentLevel.maxDropouts);
-
-        if (currentDropouts >= currentLevel.maxDropouts) TriggerGameOver();
-    }
-
-    private void CheckEarlyFinish()
+    private void CheckClassStatus()
     {
         if (!isGameActive) return;
+
+        int dropoutCount = 0;
         int finishedOrOutCount = 0;
-        foreach (Student s in allStudents)
+
+        for (int i = 0; i < allStudents.Count; i++)
         {
-            if (s.currentState == StudentState.Finished || s.currentState == StudentState.DroppedOut)
+            Student s = allStudents[i];
+            if (s == null) continue;
+
+            if (s.currentState == StudentState.DroppedOut)
+            {
+                dropoutCount++;
                 finishedOrOutCount++;
+            }
+            else if (s.currentState == StudentState.Finished)
+            {
+                finishedOrOutCount++;
+            }
+        }
+
+        if (currentDropouts != dropoutCount)
+        {
+            currentDropouts = dropoutCount;
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.UpdateDropouts(currentDropouts, currentLevel.maxDropouts);
+            }
+
+            if (currentDropouts >= currentLevel.maxDropouts)
+            {
+                TriggerGameOver();
+                return;
+            }
         }
 
         if (finishedOrOutCount >= totalStudentsThisRound && totalStudentsThisRound > 0)
@@ -178,6 +208,7 @@ public class Logic : MonoBehaviour
         }
 
         globalTimer = currentMaxTimer;
+        _lastDisplayedSecond = -1;
         isGameActive = true;
         
         // Liberamos al maestro
@@ -294,6 +325,7 @@ public class Logic : MonoBehaviour
         UIManager.Instance.gameplayContainer.SetActive(true);
         AudioManager.Instance.PostEvent("UI_Button_Press", this.gameObject);
         TutorialManager.Instance.ReportTrigger(TutorialTrigger.StartOfClass);
+        _lastDisplayedSecond = -1;
         isGameActive = true;
         
         OnGameStarted?.Invoke(); 

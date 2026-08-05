@@ -26,6 +26,19 @@ public class UnityAudioEvent
     [Range(0f, 0.9f)] public float randomVolumeRange = 0f;
     [Range(0f, 2f)] public float startAtTime = 0f;
 
+    [Header("Ajustes Avanzados: Corte y Loop")]
+    [Tooltip("Tiempo en segundos donde se detiene la reproducción para oneshot (0 = final del clip)")]
+    public float stopAtTime = 0f;
+
+    [Tooltip("Punto de inicio en segundos del loop")]
+    public float loopStart = 0f;
+
+    [Tooltip("Punto final en segundos del loop (0 = final del clip)")]
+    public float loopEnd = 0f;
+
+    [Tooltip("Duración en segundos del empalme suave (Crossfade) entre el final del loop y el reinicio al loopStart")]
+    public float loopCrossfade = 0f;
+
     [System.NonSerialized] public int sequenceIndex = 0;
 }
 
@@ -95,37 +108,110 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private void PlayClip(AudioClip clip, UnityAudioEvent audioEvent, GameObject targetEmitter)
+    private AudioSource GetFreeAudioSource(GameObject targetEmitter)
     {
         AudioSource[] existingSources = targetEmitter.GetComponents<AudioSource>();
-        AudioSource audioSource = null;
-
-        // Buscamos un AudioSource libre
         foreach (var src in existingSources)
         {
-            if (!src.isPlaying)
-            {
-                audioSource = src;
-                break;
-            }
+            if (!src.isPlaying) return src;
         }
+        return targetEmitter.AddComponent<AudioSource>();
+    }
 
-        // Si no hay libres, instanciamos uno nuevo
-        if (audioSource == null) audioSource = targetEmitter.AddComponent<AudioSource>();
+    private void PlayClip(AudioClip clip, UnityAudioEvent audioEvent, GameObject targetEmitter)
+    {
+        AudioSource audioSource = GetFreeAudioSource(targetEmitter);
 
         float finalPitch = 1f + Random.Range(-audioEvent.randomPitchRange, audioEvent.randomPitchRange);
         float finalVolume = Mathf.Clamp01(audioEvent.volume - Random.Range(0f, audioEvent.randomVolumeRange));
 
         audioSource.clip = clip;
         audioSource.volume = finalVolume;
-        audioSource.loop = audioEvent.isLooping;
+        
+        bool customLoop = audioEvent.isLooping && (audioEvent.loopStart > 0f || audioEvent.loopEnd > 0f || audioEvent.loopCrossfade > 0f);
+        audioSource.loop = audioEvent.isLooping && !customLoop;
         audioSource.pitch = finalPitch;
-        audioSource.time = audioEvent.startAtTime;
+        audioSource.time = Mathf.Clamp(audioEvent.startAtTime, 0f, clip.length - 0.01f);
         
         audioSource.Play();
+
+        // Control avanzado para cutoffs o loops con Crossfade
+        if ((!audioEvent.isLooping && audioEvent.stopAtTime > 0f) || customLoop)
+        {
+            StartCoroutine(HandleAdvancedPlaybackRoutine(audioSource, clip, audioEvent, targetEmitter, finalVolume, finalPitch));
+        }
     }
 
-   public void StopEvent(string eventName, GameObject emitter = null)
+    private System.Collections.IEnumerator HandleAdvancedPlaybackRoutine(AudioSource initialSource, AudioClip clip, UnityAudioEvent audioEvent, GameObject targetEmitter, float baseVolume, float pitch)
+    {
+        if (initialSource == null || clip == null) yield break;
+
+        AudioSource currentSource = initialSource;
+        float stopTime = (audioEvent.stopAtTime > 0f && audioEvent.stopAtTime <= clip.length) ? audioEvent.stopAtTime : clip.length;
+        float lEnd = (audioEvent.loopEnd > 0f && audioEvent.loopEnd <= clip.length) ? audioEvent.loopEnd : clip.length;
+        float lStart = Mathf.Clamp(audioEvent.loopStart, 0f, lEnd - 0.01f);
+        float crossfadeDur = Mathf.Min(audioEvent.loopCrossfade, lEnd - lStart);
+
+        while (currentSource != null && currentSource.isPlaying && currentSource.clip == clip)
+        {
+            float currentTime = currentSource.time;
+
+            if (!audioEvent.isLooping)
+            {
+                // Oneshot Cutoff
+                if (currentTime >= stopTime)
+                {
+                    currentSource.Stop();
+                    yield break;
+                }
+            }
+            else
+            {
+                // Loop con Crossfade
+                if (crossfadeDur > 0f && currentTime >= (lEnd - crossfadeDur))
+                {
+                    AudioSource nextSource = GetFreeAudioSource(targetEmitter);
+                    nextSource.clip = clip;
+                    nextSource.pitch = pitch;
+                    nextSource.time = lStart;
+                    nextSource.volume = 0f;
+                    nextSource.loop = false;
+                    nextSource.Play();
+
+                    float elapsed = 0f;
+                    AudioSource fadingOutSource = currentSource;
+                    currentSource = nextSource;
+
+                    while (elapsed < crossfadeDur && fadingOutSource != null && nextSource != null)
+                    {
+                        elapsed += Time.deltaTime;
+                        float t = Mathf.Clamp01(elapsed / crossfadeDur);
+                        fadingOutSource.volume = Mathf.Lerp(baseVolume, 0f, t);
+                        nextSource.volume = Mathf.Lerp(0f, baseVolume, t);
+                        yield return null;
+                    }
+
+                    if (fadingOutSource != null)
+                    {
+                        fadingOutSource.Stop();
+                        fadingOutSource.volume = baseVolume;
+                    }
+                    if (nextSource != null)
+                    {
+                        nextSource.volume = baseVolume;
+                    }
+                }
+                else if (crossfadeDur <= 0f && currentTime >= lEnd)
+                {
+                    currentSource.time = lStart;
+                }
+            }
+
+            yield return null;
+        }
+    }
+
+    public void StopEvent(string eventName, GameObject emitter = null)
     {
         /*
         // VERSIÓN WWISE

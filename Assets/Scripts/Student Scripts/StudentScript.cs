@@ -61,6 +61,14 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public GameObject graduationVFXPrefab;
     private Logic logicManager; 
 
+    // --- VARIABLES DE CACHÉ Y OPTIMIZACIÓN ---
+    private float _cachedLearningMultiplier = 1f;
+    private float _cachedStressMultiplier = 1f;
+    private Camera _mainCamera;
+    private float _lastReportedStress = -1f;
+    private float _lastReportedLearning = -1f;
+    private float _lastSemesterMultiplier = -1f;
+
     // --- SISTEMA DE DICCIONARIOS SEGUROS (LLAVE: ENUM) ---
     public Dictionary<ModifierID, float> activeLearningBuffs = new Dictionary<ModifierID, float>();
     public Dictionary<ModifierID, float> activeStressBuffs = new Dictionary<ModifierID, float>();
@@ -75,6 +83,11 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public event Action<bool> OnHoverChanged; 
     public event Action<bool> OnJokeFeedbackEvent; 
     public event Action OnModifiersChanged; // NUEVO EVENTO PARA OPTIMIZAR UI
+
+    protected virtual void Awake()
+    {
+        _mainCamera = Camera.main;
+    }
 
     void Start()
     {
@@ -96,7 +109,11 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         workingStressRate *= stressVariance;
         workingLearningRate *= learningVariance;
 
+        RecalculateMultipliers();
         ChangeState(currentState); 
+
+        _lastReportedStress = stressLevel;
+        _lastReportedLearning = learningLevel;
         OnStatsUpdated?.Invoke(stressLevel, learningLevel); 
     }
 
@@ -106,7 +123,14 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         CheckAutomaticTransitions();
         
         if (currentRestCooldown > 0f) currentRestCooldown -= Time.deltaTime;
-        OnStatsUpdated?.Invoke(stressLevel, learningLevel);
+
+        // Solo notificar a la UI cuando los valores hayan cambiado sensiblemente (> 0.05f)
+        if (Mathf.Abs(stressLevel - _lastReportedStress) > 0.05f || Mathf.Abs(learningLevel - _lastReportedLearning) > 0.05f)
+        {
+            _lastReportedStress = stressLevel;
+            _lastReportedLearning = learningLevel;
+            OnStatsUpdated?.Invoke(stressLevel, learningLevel);
+        }
     }
 
     public virtual void ChangeState(StudentState newState)
@@ -209,10 +233,11 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         if (isExamMode) return;
 
-        // Inyección del multiplicador de fin de semestre directo al Enum seguro
-        if (logicManager != null)
+        // Inyección del multiplicador de fin de semestre directo al Enum seguro (Solo si cambió)
+        if (logicManager != null && !Mathf.Approximately(_lastSemesterMultiplier, logicManager.currentSemesterMultiplier))
         {
-            AddStressModifier(ModifierID.FaltaPoco, logicManager.currentSemesterMultiplier);
+            _lastSemesterMultiplier = logicManager.currentSemesterMultiplier;
+            AddStressModifier(ModifierID.FaltaPoco, _lastSemesterMultiplier);
         }
 
         float pacingMultiplier = 1f;
@@ -315,40 +340,51 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
     }
 
-    // --- INTERFAZ PÚBLICA OPTIMIZADA PARA UI ---
+    // --- INTERFAZ PÚBLICA OPTIMIZADA PARA UI Y DESEMPENO ---
+    private void RecalculateMultipliers()
+    {
+        float learningMult = 1f;
+        foreach (float val in activeLearningBuffs.Values) learningMult *= val;
+        _cachedLearningMultiplier = learningMult;
+
+        float stressMult = 1f;
+        foreach (float val in activeStressBuffs.Values) stressMult *= val;
+        _cachedStressMultiplier = stressMult;
+
+        OnModifiersChanged?.Invoke();
+    }
+
     public void AddLearningModifier(ModifierID id, float multiplier)
     {
-        if (activeLearningBuffs.TryGetValue(id, out float existingValue) && existingValue == multiplier)
+        if (activeLearningBuffs.TryGetValue(id, out float existingValue) && Mathf.Approximately(existingValue, multiplier))
             return; 
 
         activeLearningBuffs[id] = multiplier;
-        OnModifiersChanged?.Invoke(); 
+        RecalculateMultipliers(); 
     }
 
     public void RemoveLearningModifier(ModifierID id)
     {
-        if (activeLearningBuffs.ContainsKey(id)) 
+        if (activeLearningBuffs.Remove(id)) 
         {
-            activeLearningBuffs.Remove(id);
-            OnModifiersChanged?.Invoke(); 
+            RecalculateMultipliers(); 
         }
     }
 
     public void AddStressModifier(ModifierID id, float multiplier)
     {
-        if (activeStressBuffs.TryGetValue(id, out float existingValue) && existingValue == multiplier)
+        if (activeStressBuffs.TryGetValue(id, out float existingValue) && Mathf.Approximately(existingValue, multiplier))
             return; 
 
         activeStressBuffs[id] = multiplier;
-        OnModifiersChanged?.Invoke(); 
+        RecalculateMultipliers(); 
     }
 
     public void RemoveStressModifier(ModifierID id)
     {
-        if (activeStressBuffs.ContainsKey(id)) 
+        if (activeStressBuffs.Remove(id)) 
         {
-            activeStressBuffs.Remove(id);
-            OnModifiersChanged?.Invoke(); 
+            RecalculateMultipliers(); 
         }
     }
 
@@ -415,7 +451,8 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         else
         {
-            Vector3 posicionMouse = Camera.main.ScreenToWorldPoint(eventData.position);
+            Camera cam = _mainCamera != null ? _mainCamera : Camera.main;
+            Vector3 posicionMouse = cam != null ? cam.ScreenToWorldPoint(eventData.position) : Vector3.zero;
             posicionMouse.z = 0f; 
             transform.position = posicionMouse;
         }
@@ -425,7 +462,7 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         bool dragExitoso = false;
         float snapRadius = 3f; 
-        Seat[] todasLasSillas = FindObjectsByType<Seat>(FindObjectsSortMode.None);        
+        List<Seat> todasLasSillas = Seat.AllSeats;        
         Seat sillaMasCercana = null;
         float distanciaMinima = float.MaxValue;
 
@@ -476,18 +513,14 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (!eventData.dragging) OnStudentClicked();
     }
 
-    // --- EVALUACIÓN DE MULTIPLICADORES TOTALES ---
+    // --- EVALUACIÓN DE MULTIPLICADORES TOTALES (CACHEADO O(1)) ---
     public float GetTotalLearningMultiplier()
     {
-        float total = 1f;
-        foreach (float val in activeLearningBuffs.Values) total *= val; 
-        return total;
+        return _cachedLearningMultiplier;
     }
 
     public float GetTotalStressMultiplier()
     {
-        float total = 1f;
-        foreach (float val in activeStressBuffs.Values) total *= val;
-        return total;
+        return _cachedStressMultiplier;
     }
 }

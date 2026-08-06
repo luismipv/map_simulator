@@ -9445,7 +9445,7 @@ MonoBehaviour:
     loopEnd: 0
     loopCrossfade: 0
   - eventName: UI_Button_Press
-    category: General
+    category: UI
     eventType: 0
     clip: {fileID: 8300000, guid: 93c2d1ee1eb4f4398a3490567598e072, type: 3}
     clipList: []
@@ -9595,7 +9595,7 @@ MonoBehaviour:
     loopEnd: 0
     loopCrossfade: 0
   - eventName: UI_Select
-    category: General
+    category: UI
     eventType: 0
     clip: {fileID: 8300000, guid: f8a7735e9867f4909a99f372b80b0135, type: 3}
     clipList: []
@@ -9653,10 +9653,28 @@ MonoBehaviour:
     randomPitchRange: 0
     randomVolumeRange: 0
     startAtTime: 0.08
-    stopAtTime: 0
+    stopAtTime: 0.647
     loopStart: 0
     loopEnd: 0
     loopCrossfade: 0
+  - eventName: Background_SFX_Loop
+    category: General
+    eventType: 0
+    clip: {fileID: 8300000, guid: 1ff6833b7ef1b47a581d48eaaba3d999, type: 3}
+    clipList:
+    - {fileID: 8300000, guid: 751fd4333451c43e4b4765f329afaea3, type: 3}
+    - {fileID: 8300000, guid: 7d8baf70afc1745138c54906b06ac3ae, type: 3}
+    - {fileID: 8300000, guid: adb2a0ade5ce84279b14b7462f17ed4c, type: 3}
+    volume: 0.055
+    isLooping: 1
+    allowOverlap: 1
+    randomPitchRange: 0
+    randomVolumeRange: 0
+    startAtTime: 3.4
+    stopAtTime: 0
+    loopStart: 13.6
+    loopEnd: 64.3
+    loopCrossfade: 1.36
 --- !u!1001 &848763395
 PrefabInstance:
   m_ObjectHideFlags: 0

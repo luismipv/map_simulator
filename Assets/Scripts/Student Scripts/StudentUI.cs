@@ -239,56 +239,70 @@ public class StudentUI : MonoBehaviour
     multipliersText.text = finalText;
     }
 
+    [Header("Animación Secuencial de Multiplicadores")]
+    [Tooltip("Tiempo de retraso (en segundos) entre cada estampa para que aparezcan secuencialmente.")]
+    public float multiplierStaggerDelay = 0.08f;
+    [Tooltip("Incremento de tono (pitch) en el sonido de la estampa por cada elemento en la secuencia.")]
+    public float multiplierPitchStep = 0.08f;
+
     private void RefreshMultipliersUI() 
-{
-    if (multipliersContainer == null) return;
-
-    // 1. DIBUJAR TODOS LOS BUFFS DE APRENDIZAJE APILADOS
-    foreach (var buff in studentCore.activeLearningBuffs)
     {
-        string key = "L_" + buff.Key.ToString();
-        if (!multipliers.ContainsKey(key))
-        {
-            GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
-            multipliers[key] = multiplier.GetComponent<Multiplier>();
-        }
-        
-        // APRENDIZAJE: Mayor a 1 es Positivo (Verde), Menor a 1 es Negativo (Rojo)
-        Color targetColor = buff.Value > 1f ? positiveColor : negativeColor;
-        
-        multipliers[key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), targetColor);
-    }
+        if (multipliersContainer == null) return;
 
-    // 2. DIBUJAR TODOS LOS BUFFS DE ESTRÉS APILADOS
-    foreach (var buff in studentCore.activeStressBuffs)
-    {
-        string key = "S_" + buff.Key.ToString();
-        if (!multipliers.ContainsKey(key))
+        int stampCount = 0;
+
+        // 1. DIBUJAR TODOS LOS BUFFS DE APRENDIZAJE APILADOS
+        foreach (var buff in studentCore.activeLearningBuffs)
         {
-            GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
-            multipliers[key] = multiplier.GetComponent<Multiplier>();
-        }
-        
-        Color targetColor;
-        
-        if (buff.Key == ModifierID.FaltaPoco)
-        {
-            targetColor = negativeColor;
-            
-            // Si FaltaPoco es menor a 1.8, lo apagamos por completo para no saturar la UI
-            if (buff.Value < 1.8f) 
+            string key = "L_" + buff.Key.ToString();
+            if (!multipliers.ContainsKey(key))
             {
-                multipliers[key].gameObject.SetActive(false);
-                continue; 
+                GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
+                multipliers[key] = multiplier.GetComponent<Multiplier>();
             }
-        }
-        else 
-        {
-            // ESTRÉS: Mayor a 1 es Negativo (Rojo), Menor a 1 es Positivo (Verde)
-            targetColor = buff.Value > 1f ? negativeColor : positiveColor;
+            
+            // APRENDIZAJE: Mayor a 1 es Positivo (Verde), Menor a 1 es Negativo (Rojo)
+            Color targetColor = buff.Value > 1f ? positiveColor : negativeColor;
+            
+            float delay = stampCount * multiplierStaggerDelay;
+            float pitchMultiplier = 1f + (stampCount * multiplierPitchStep);
+            multipliers[key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), targetColor, MultiplierType.Learning, delay, pitchMultiplier);
+            stampCount++;
         }
 
-        multipliers[key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), targetColor);
+        // 2. DIBUJAR TODOS LOS BUFFS DE ESTRÉS APILADOS
+        foreach (var buff in studentCore.activeStressBuffs)
+        {
+            string key = "S_" + buff.Key.ToString();
+            if (!multipliers.ContainsKey(key))
+            {
+                GameObject multiplier = Instantiate(multiplierPrefab, multipliersContainer.transform, false);
+                multipliers[key] = multiplier.GetComponent<Multiplier>();
+            }
+            
+            Color targetColor;
+            
+            if (buff.Key == ModifierID.FaltaPoco)
+            {
+                targetColor = negativeColor;
+                
+                // Si FaltaPoco es menor a 1.8, lo apagamos por completo para no saturar la UI
+                if (buff.Value < 1.8f) 
+                {
+                    multipliers[key].gameObject.SetActive(false);
+                    continue; 
+                }
+            }
+            else 
+            {
+                // ESTRÉS: Mayor a 1 es Negativo (Rojo), Menor a 1 es Positivo (Verde)
+                targetColor = buff.Value > 1f ? negativeColor : positiveColor;
+            }
+
+            float delay = stampCount * multiplierStaggerDelay;
+            float pitchMultiplier = 1f + (stampCount * multiplierPitchStep);
+            multipliers[key].SetData(buff.Key, buff.Value, MultiplierIcons.GetIcon(buff.Key), targetColor, MultiplierType.Stress, delay, pitchMultiplier);
+            stampCount++;
         }
     }
 

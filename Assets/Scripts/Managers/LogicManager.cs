@@ -55,6 +55,19 @@ public class Logic : MonoBehaviour
 
         UIManager.Instance.startMenuPanel.SetActive(true);
         UIManager.Instance.gameplayContainer.SetActive(false);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PostEvent("Background_SFX_Loop", gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopEvent("Background_SFX_Loop", gameObject);
+        }
     }
 
     void Update()

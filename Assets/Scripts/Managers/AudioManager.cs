@@ -70,13 +70,14 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void PostEvent(string eventName, GameObject emitter = null)
+    public void PostEvent(string eventName, GameObject emitter = null, float pitchMultiplier = 1f)
     {
         /*
-        // VERSIÓN WWISE
-        if (emitter != null) AkSoundEngine.PostEvent(eventName, emitter);
-        else AkSoundEngine.PostEvent(eventName, this.gameObject);
-        return; 
+          DOCUMENTACIÓN DE PARÁMETROS:
+          - eventName: El String exacto con el nombre del sonido (Ej: "UI_Button_Press", "SFX_Footstep").
+          - emitter: GameObject emisor (OPCIONAL). 
+            - Si pasas 'this.gameObject', el sonido nacerá del objeto que lo pidió.
+            - Si lo dejas vacío o en 'null', el sonido nacerá del propio AudioManager.
         */
 
         if (eventDictionary.TryGetValue(eventName, out UnityAudioEvent audioEvent))
@@ -93,13 +94,13 @@ public class AudioManager : MonoBehaviour
                 // Reproducimos TODAS las capas a la vez
                 foreach (var clip in audioEvent.clipList)
                 {
-                    if (clip != null) PlayClip(clip, audioEvent, targetEmitter);
+                    if (clip != null) PlayClip(clip, audioEvent, targetEmitter, pitchMultiplier);
                 }
             }
             else
             {
                 AudioClip clipToPlay = GetClipFromEvent(audioEvent);
-                if (clipToPlay != null) PlayClip(clipToPlay, audioEvent, targetEmitter);
+                if (clipToPlay != null) PlayClip(clipToPlay, audioEvent, targetEmitter, pitchMultiplier);
             }
         }
         else
@@ -118,11 +119,11 @@ public class AudioManager : MonoBehaviour
         return targetEmitter.AddComponent<AudioSource>();
     }
 
-    private void PlayClip(AudioClip clip, UnityAudioEvent audioEvent, GameObject targetEmitter)
+    private void PlayClip(AudioClip clip, UnityAudioEvent audioEvent, GameObject targetEmitter, float pitchMultiplier = 1f)
     {
         AudioSource audioSource = GetFreeAudioSource(targetEmitter);
 
-        float finalPitch = 1f + Random.Range(-audioEvent.randomPitchRange, audioEvent.randomPitchRange);
+        float finalPitch = (1f + Random.Range(-audioEvent.randomPitchRange, audioEvent.randomPitchRange)) * pitchMultiplier;
         float finalVolume = Mathf.Clamp01(audioEvent.volume - Random.Range(0f, audioEvent.randomVolumeRange));
 
         audioSource.clip = clip;

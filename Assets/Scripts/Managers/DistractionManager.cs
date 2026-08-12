@@ -12,13 +12,13 @@ public class DistractionManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) Destroy(this);
+        if (Instance != null && Instance != this) Destroy(gameObject);
         else Instance = this;
     }
 
     private void Start()
     {
-        gameLogic = Object.FindAnyObjectByType<Logic>();
+        gameLogic = Logic.Instance != null ? Logic.Instance : Object.FindAnyObjectByType<Logic>();
     }
 
     public void TryInfectStudent(Student source)

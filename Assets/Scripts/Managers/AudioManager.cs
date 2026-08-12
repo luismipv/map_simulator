@@ -185,7 +185,7 @@ public class AudioManager : MonoBehaviour
 
                     while (elapsed < crossfadeDur && fadingOutSource != null && nextSource != null)
                     {
-                        elapsed += Time.deltaTime;
+                        elapsed += Time.unscaledDeltaTime;
                         float t = Mathf.Clamp01(elapsed / crossfadeDur);
                         fadingOutSource.volume = Mathf.Lerp(baseVolume, 0f, t);
                         nextSource.volume = Mathf.Lerp(0f, baseVolume, t);

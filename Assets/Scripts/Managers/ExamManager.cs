@@ -91,7 +91,7 @@ public class ExamManager : MonoBehaviour
     private IEnumerator ShowResultsWithDelay(int passed, int failed, int moneyEarned, int totalMoney, ExamPenaltyMode mode, List<StudentEvalData> evalData, LevelData level, int currentPartial, float quota, Action<int> onExamFinished)
     {
         float delayTime = (currentPartial >= level.totalPartials) ? 2.5f : 1.0f;
-        yield return new WaitForSeconds(delayTime);
+        yield return new WaitForSecondsRealtime(delayTime);
         
         UIManager.Instance.ShowExamResults(passed, failed, moneyEarned, totalMoney, mode, "");
         UIManager.Instance.evaluationScreen.ShowAllResults(evalData, Mathf.RoundToInt(quota));

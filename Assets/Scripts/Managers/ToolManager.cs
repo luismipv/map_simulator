@@ -7,8 +7,6 @@ public class ToolManager : MonoBehaviour
 
     [Header("Herramientas del Maestro")]
     public TeacherTool currentModularTool;
-    //public Color colorNormal = Color.white;       
-    //public Color colorSeleccionado = Color.green;
     public bool isTeacherBusy = false;
     public float toolCooldown = 0.2f; 
     private float lastToolUsageTime = 0f;

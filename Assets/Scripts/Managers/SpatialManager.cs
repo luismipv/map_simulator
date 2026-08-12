@@ -17,12 +17,14 @@ public class SpatialManager : MonoBehaviour
     public GameObject positiveParticlesPrefab; 
     public GameObject negativeParticlesPrefab; 
     
-    private HashSet<string> parejasMostradas = new HashSet<string>();
-    public List<SynergyRuleSO> reglasDeSinergia = new List<SynergyRuleSO>();
+    private readonly HashSet<string> parejasActuales = new HashSet<string>();
+    private readonly Dictionary<Student, float> tempEntornoLearning = new Dictionary<Student, float>();
+    private readonly Dictionary<Student, float> tempSinergiaLearning = new Dictionary<Student, float>();
+    private readonly Dictionary<Student, float> tempSinergiaStress = new Dictionary<Student, float>();
 
     public void Awake()
     {
-        if (Instance != null && Instance != this) Destroy(this);
+        if (Instance != null && Instance != this) Destroy(gameObject);
         else Instance = this;
     }
     
@@ -33,7 +35,9 @@ public class SpatialManager : MonoBehaviour
 
     public void UpdateSpatialEffects(bool spawnParticles = false)
     {
-        Student[] todosLosAlumnos = FindObjectsByType<Student>(FindObjectsSortMode.None);
+        IList<Student> todosLosAlumnos = (Logic.Instance != null && Logic.Instance.allStudents != null && Logic.Instance.allStudents.Count > 0) 
+            ? (IList<Student>)Logic.Instance.allStudents 
+            : FindObjectsByType<Student>(FindObjectsSortMode.None);
         
         // --- ¡NUEVO CANDADO TUTORIAL! ---
         bool efectosHabilitados = true;
@@ -60,14 +64,14 @@ public class SpatialManager : MonoBehaviour
         }
         // ---------------------------------
 
-        HashSet<string> parejasActuales = new HashSet<string>();
-
-        Dictionary<Student, float> tempEntornoLearning = new Dictionary<Student, float>();
-        Dictionary<Student, float> tempSinergiaLearning = new Dictionary<Student, float>();
-        Dictionary<Student, float> tempSinergiaStress = new Dictionary<Student, float>();
+        parejasActuales.Clear();
+        tempEntornoLearning.Clear();
+        tempSinergiaLearning.Clear();
+        tempSinergiaStress.Clear();
 
         foreach (Student s in todosLosAlumnos)
         {
+            if (s == null) continue;
             tempEntornoLearning[s] = 1f;
             tempSinergiaLearning[s] = 1f;
             tempSinergiaStress[s] = 1f;
@@ -76,13 +80,14 @@ public class SpatialManager : MonoBehaviour
         neighborGraph.Clear();
         foreach (Student s in todosLosAlumnos)
         {
+            if (s == null) continue;
             neighborGraph[s] = new List<Student>(); 
         }
 
-        // ... El resto de tu función original (los dos for-loops, los if de zFilaFrente, etc.) se queda exactamente igual.
-        for (int i = 0; i < todosLosAlumnos.Length; i++)
+        for (int i = 0; i < todosLosAlumnos.Count; i++)
         {
             Student s = todosLosAlumnos[i];
+            if (s == null) continue;
             
             // ¡NUEVO! Candado de vuelo para el radar
             Student3D s3d = s as Student3D;
@@ -104,9 +109,10 @@ public class SpatialManager : MonoBehaviour
                 else tempEntornoLearning[s] *= 1f;
             } 
 
-            for (int j = i + 1; j < todosLosAlumnos.Length; j++) 
+            for (int j = i + 1; j < todosLosAlumnos.Count; j++) 
             {
                 Student vecino = todosLosAlumnos[j];
+                if (vecino == null) continue;
                 
                 // ¡NUEVO! Candado de vuelo para los vecinos
                 Student3D vecino3d = vecino as Student3D;

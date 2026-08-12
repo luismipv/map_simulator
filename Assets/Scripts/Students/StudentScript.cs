@@ -436,7 +436,16 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void OnStudentClicked()
     {
         if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;
-        if (ToolManager.Instance != null) ToolManager.Instance.ApplyToolToStudent(this);
+        
+        if (ToolManager.Instance != null && ToolManager.Instance.currentModularTool != null)
+        {
+            ToolManager.Instance.ApplyToolToStudent(this);
+        }
+
+        if (StudentInspectorUI.Instance != null)
+        {
+            StudentInspectorUI.Instance.OpenForStudent(this);
+        }
     }
 
     public virtual void OnBeginDrag(PointerEventData eventData) { originalPosition = transform.position; }

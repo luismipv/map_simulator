@@ -23,6 +23,9 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI dropoutsText;
     public GameObject busyIndicatorUI;
 
+    [Header("Inspector de Alumnos")]
+    public StudentInspectorUI studentInspectorPanel;
+
     [Header("Evaluación Individual (Animada)")]
     // NUEVA REFERENCIA: Aquí conectaremos el script que armamos hoy
     public EvaluationScreenManager evaluationScreen; 

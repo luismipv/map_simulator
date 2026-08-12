@@ -17,6 +17,9 @@ public class SpatialManager : MonoBehaviour
     public GameObject positiveParticlesPrefab; 
     public GameObject negativeParticlesPrefab; 
     
+    private HashSet<string> parejasMostradas = new HashSet<string>();
+    public List<SynergyRuleSO> reglasDeSinergia = new List<SynergyRuleSO>();
+
     private readonly HashSet<string> parejasActuales = new HashSet<string>();
     private readonly Dictionary<Student, float> tempEntornoLearning = new Dictionary<Student, float>();
     private readonly Dictionary<Student, float> tempSinergiaLearning = new Dictionary<Student, float>();

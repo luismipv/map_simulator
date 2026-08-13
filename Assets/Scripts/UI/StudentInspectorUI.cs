@@ -208,30 +208,14 @@ public class StudentInspectorUI : MonoBehaviour
 
         int effectCount = 0;
 
-        // --- A. EFECTOS DE ESTADO ESPECIAL (Flow, Burnout, Distracted) ---
-        if (currentStudent.currentState == StudentState.Flow)
-        {
-            CreateRow("Estado de Flow", "x3.0", $"¡Imparable! {currentStudent.studentName} alcanzó la máxima concentración.", true, ModifierID.Sinergia);
-            effectCount++;
-        }
-        else if (currentStudent.currentState == StudentState.Distracted)
-        {
-            CreateRow("Distracción", "Baja Concentración", $"{currentStudent.studentName} perdió el hilo de la clase y no está aprendiendo.", false, ModifierID.Tool_Nag);
-            effectCount++;
-        }
-        else if (currentStudent.currentState == StudentState.Burnout)
-        {
-            CreateRow("Burnout", "Colapso", $"{currentStudent.studentName} colapsó por exceso de estrés.", false, ModifierID.Panico);
-            effectCount++;
-        }
-
-        // --- B. BUFFS Y DEBUFFS DE APRENDIZAJE ---
+        // 1. DIBUJAR BUFFS/DEBUFFS DE APRENDIZAJE (Exactamente igual que Multiplier / StudentUI)
         foreach (var buff in currentStudent.activeLearningBuffs)
         {
             if (Mathf.Approximately(buff.Value, 1f)) continue;
 
+            // En Aprendizaje: mayor a 1 es Positivo (Verde), menor a 1 es Negativo (Rojo)
             bool isPositive = buff.Value > 1f;
-            string badge = isPositive ? $"+{Mathf.RoundToInt((buff.Value - 1f) * 100)}%" : $"-{Mathf.RoundToInt((1f - buff.Value) * 100)}%";
+            string badge = $"x{buff.Value:F1} (Aprendizaje)";
             string title = GetModifierTitle(buff.Key);
             string phrase = GetFlavorPhrase(buff.Key, buff.Value, isPositive, true);
 
@@ -240,19 +224,39 @@ public class StudentInspectorUI : MonoBehaviour
             effectCount++;
         }
 
-        // --- C. BUFFS Y DEBUFFS DE ESTRÉS ---
+        // 2. DIBUJAR BUFFS/DEBUFFS DE ESTRÉS (Exactamente igual que Multiplier / StudentUI)
         foreach (var buff in currentStudent.activeStressBuffs)
         {
             if (Mathf.Approximately(buff.Value, 1f)) continue;
+            
+            // Regla de filtrado especial para FaltaPoco
             if (buff.Key == ModifierID.FaltaPoco && buff.Value < 1.8f) continue;
 
-            bool isPositive = buff.Value < 1f; // En estrés, < 1 es positivo (reduce estrés)
-            string badge = isPositive ? $"-{Mathf.RoundToInt((1f - buff.Value) * 100)}% Estrés" : $"+{Mathf.RoundToInt((buff.Value - 1f) * 100)}% Estrés";
+            // En Estrés: mayor a 1 es Negativo (Rojo), menor a 1 es Positivo (Verde)
+            bool isPositive = buff.Value < 1f;
+            string badge = $"x{buff.Value:F1} (Estrés)";
             string title = GetModifierTitle(buff.Key);
             string phrase = GetFlavorPhrase(buff.Key, buff.Value, isPositive, false);
 
             Sprite icon = GetModifierIcon(buff.Key);
             CreateRow(title, badge, phrase, isPositive, buff.Key, icon);
+            effectCount++;
+        }
+
+        // 3. ESTADOS ESPECIALES DE ALUMNO (Flow, Distracción, Burnout)
+        if (currentStudent.currentState == StudentState.Flow)
+        {
+            CreateRow("Estado de Flow", "x3.0 (Aprendizaje)", $"¡Imparable! {currentStudent.studentName} alcanzó la máxima concentración.", true, ModifierID.Sinergia);
+            effectCount++;
+        }
+        else if (currentStudent.currentState == StudentState.Distracted)
+        {
+            CreateRow("Distracción", "Sin Concentración", $"{currentStudent.studentName} perdió el hilo de la clase y se distrajo.", false, ModifierID.Tool_Nag);
+            effectCount++;
+        }
+        else if (currentStudent.currentState == StudentState.Burnout)
+        {
+            CreateRow("Burnout", "Colapso por Estrés", $"{currentStudent.studentName} colapsó por exceso de estrés.", false, ModifierID.Panico);
             effectCount++;
         }
 

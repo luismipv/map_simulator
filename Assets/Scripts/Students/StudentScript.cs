@@ -433,6 +433,12 @@ public class Student : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void OnPointerExit(PointerEventData eventData) { OnHoverChanged?.Invoke(false); }
     public void ShowBubble(string message, Color color) { OnBubbleTextRequested?.Invoke(message, color); }
     
+    public virtual void OnMouseDown()
+    {
+        if (UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
+        OnStudentClicked();
+    }
+
     public void OnStudentClicked()
     {
         if (currentState == StudentState.DroppedOut || currentState == StudentState.Graduated) return;

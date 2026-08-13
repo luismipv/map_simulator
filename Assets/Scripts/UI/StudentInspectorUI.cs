@@ -33,7 +33,7 @@ public class StudentInspectorUI : MonoBehaviour
     [Header("Ajustes de Transición (Hoja Lateral)")]
     public float hiddenPositionX = 400f;
     public float visiblePositionX = 0f;
-    public float transitionDuration = 0.3f;
+    public float transitionDuration = 0.15f;
     public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     private Student currentStudent;
@@ -71,7 +71,13 @@ public class StudentInspectorUI : MonoBehaviour
     {
         if (student == null) return;
 
-        // Si es el mismo alumno y ya está visible, no reiniciamos animación
+        // Forzamos actualización instantánea de efectos espaciales en el Manager
+        if (SpatialManager.Instance != null)
+        {
+            SpatialManager.Instance.UpdateSpatialEffects(false);
+        }
+
+        // Si es el mismo alumno y ya está visible, simplemente refrescamos datos
         if (currentStudent == student && isVisible)
         {
             RefreshUI();

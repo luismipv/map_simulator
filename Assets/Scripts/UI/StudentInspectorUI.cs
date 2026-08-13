@@ -145,9 +145,23 @@ public class StudentInspectorUI : MonoBehaviour
         currentStudent.OnModifiersChanged -= HandleModifiersChanged;
     }
 
-    private void HandleStatsUpdated(float stress, float learning) { RefreshUI(); }
+    private void HandleStatsUpdated(float stress, float learning) 
+    { 
+        UpdateMetricsOnly(stress, learning); 
+    }
+
     private void HandleStateChanged(StudentState newState) { RefreshUI(); }
     private void HandleModifiersChanged() { RefreshUI(); }
+
+    private void UpdateMetricsOnly(float stress, float learning)
+    {
+        if (currentStudent == null) return;
+        if (stressSlider != null) stressSlider.value = stress / currentStudent.maxStress;
+        if (stressText != null) stressText.text = $"{Mathf.RoundToInt(stress / currentStudent.maxStress * 100)}%";
+
+        if (learningSlider != null) learningSlider.value = learning / currentStudent.maxLearning;
+        if (learningText != null) learningText.text = $"{Mathf.RoundToInt(learning / currentStudent.maxLearning * 100)}%";
+    }
 
     public void RefreshUI()
     {

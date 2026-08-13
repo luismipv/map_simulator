@@ -289,8 +289,6 @@ public class StudentInspectorUI : MonoBehaviour
             case ModifierID.Tutor: return "Compañero Tutor";
             case ModifierID.Tool_Tutoring: return "Asesoría del Profesor";
             case ModifierID.Tool_Nag: return "Llamada de Atención";
-            case ModifierID.Tool_Relax: return "Tiempo de Descanso";
-            case ModifierID.Tool_Homework: return "Refuerzo de Tarea";
             case ModifierID.Panico: return "Bloqueo por Estrés";
             case ModifierID.FaltaPoco: return "Cierre del Parcial";
             case ModifierID.GlobalTool_Exam: return "Examen Sorpresa";
@@ -338,12 +336,6 @@ public class StudentInspectorUI : MonoBehaviour
 
             case ModifierID.Tool_Nag:
                 return $"{name} siente la presión tras la llamada de atención recibida.";
-
-            case ModifierID.Tool_Relax:
-                return $"{name} está aprovechando un momento de descanso para reducir su nivel de estrés.";
-
-            case ModifierID.Tool_Homework:
-                return $"{name} reforzó sus conocimientos tras entregar su tarea a tiempo.";
 
             case ModifierID.Panico:
                 return $"{name} está sufriendo un bloqueo mental repentino debido al alto estrés.";

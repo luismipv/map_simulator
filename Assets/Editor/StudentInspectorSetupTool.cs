@@ -3,8 +3,24 @@ using UnityEngine.UI;
 using UnityEditor;
 using TMPro;
 
+[InitializeOnLoad]
 public class StudentInspectorSetupTool : Editor
 {
+    static StudentInspectorSetupTool()
+    {
+        EditorApplication.delayCall += AutoCheckAndSetup;
+    }
+
+    private static void AutoCheckAndSetup()
+    {
+        if (Application.isPlaying) return;
+        UIManager uiManager = Object.FindAnyObjectByType<UIManager>();
+        if (uiManager != null && uiManager.studentInspectorPanel == null)
+        {
+            AutoSetupUI();
+        }
+    }
+
     [MenuItem("MAP Simulator/Auto-Setup Student Inspector UI")]
     public static void AutoSetupUI()
     {

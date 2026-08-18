@@ -15,12 +15,14 @@ public class StudentEffectRowUI : MonoBehaviour
     [Header("Colores")]
     public Color positiveColor = new Color(0.3098f, 0.6980f, 0.5254f, 1f);
     public Color negativeColor = new Color(0.9490f, 0.4274f, 0.4941f, 1f);
-    public Color positiveBgColor = new Color(0.3098f, 0.6980f, 0.5254f, 0.15f);
-    public Color negativeBgColor = new Color(0.9490f, 0.4274f, 0.4941f, 0.15f);
+    public Color positiveBgColor = new Color(0.3098f, 0.6980f, 0.5254f, 0.25f);
+    public Color negativeBgColor = new Color(0.9490f, 0.4274f, 0.4941f, 0.25f);
 
     public void SetupEffect(string title, string badge, string flavorPhrase, bool isPositive, Sprite icon = null)
     {
-        if (titleText != null) titleText.text = title;
+        if (titleText != null) {
+            titleText.text = title;
+        }
         if (badgeText != null) badgeText.text = badge;
         if (flavorPhraseText != null) flavorPhraseText.text = flavorPhrase;
 

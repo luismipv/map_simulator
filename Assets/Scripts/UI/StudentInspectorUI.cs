@@ -14,6 +14,7 @@ public class StudentInspectorUI : MonoBehaviour
 
     [Header("Cabecera del Alumno")]
     public TextMeshProUGUI studentNameText;
+    public TextMeshProUGUI folderText;
     public TextMeshProUGUI personalityText;
     public Image personalityIcon;
     public TextMeshProUGUI stateBadgeText;
@@ -169,7 +170,7 @@ public class StudentInspectorUI : MonoBehaviour
 
         // 1. Datos Básicos
         if (studentNameText != null) studentNameText.text = currentStudent.studentName;
-        
+        if (folderText != null) folderText.text = "Status: " + currentStudent.studentName;
         if (personalityText != null)
         {
             string pName = currentStudent.personalityData != null ? currentStudent.personalityData.personalityNameEs : "Normal";
